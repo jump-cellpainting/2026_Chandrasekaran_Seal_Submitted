@@ -1,0 +1,50 @@
+# =============================================================================
+# Downstream Analysis Configuration
+# =============================================================================
+# Controls defaults for analysis notebooks and rules.
+# Changing these values allows running the full analysis pipeline with
+# different profiles or activity configurations.
+# =============================================================================
+
+analysis:
+  # Default dataset for analyses (profiles to analyze)
+  default_dataset: compound_no_source7
+
+  # Default activity config for filtering active compounds
+  default_columns: feat_all
+  default_preprocessing: activity_no_target2
+  default_filter: all_sources
+  default_activity_params: default
+
+  # Profile comparison pairs (for 1.01-jfh-profile-comparison.py)
+  comparison_profiles_activity:
+    - [compound_no_source7, compound_DL_CPCNN_no_source7]
+  comparison_profiles_consistency:
+    - [compound_no_source7_active_union, compound_DL_CPCNN_no_source7_active_union]
+
+  # Target consistency datasets (for 2.03-ss-target-consistency.py)
+  target_consistency_datasets:
+    - compound_no_source7
+    - compound_DL_CPCNN_no_source7
+    - compound_DL_CPCNN_with_source7
+    - compound_with_source7
+
+  # UMAP combinations: [dataset, metric, filter] (for 2.01-ss-umap-visualization.py)
+  umap_combinations:
+    - [compound_no_source7, cosine, all]
+    - [compound_no_source7, cosine, active]
+    - [compound_no_source7, euclidean, all]
+    - [compound_DL_CPCNN_no_source7, cosine, all]
+    - [compound_with_source7, cosine, all]
+    - [compound_DL_CPCNN_with_source7, cosine, all]
+    # RSC variants — batch correction comparison (well_umap_source.png shows batch structure)
+    - [compound_no_source7_rsc, cosine, all]
+    - [compound_no_source7_rsc_source, cosine, all]
+    - [compound_DL_CPCNN_no_source7_rsc, cosine, all]
+    - [compound_DL_CPCNN_no_source7_rsc_source, cosine, all]
+
+  # Cross-source reproducibility: [preprocessing, filter, subdir] (for 2.02a-ss-cross-source-reproducibility.py)
+  cross_source_combos:
+    - [activity_only_target2, all_sources, activity_only_target2]
+    - [activity_only_target2, no_source9, activity_only_target2_no_source9]
+    - [activity_poscon_only, all_sources, activity_poscon_only]

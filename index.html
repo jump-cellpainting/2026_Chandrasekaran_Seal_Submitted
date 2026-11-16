@@ -1,0 +1,3305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Browse, preview, and explore the public JUMP Cell Painting chemical dataset.">
+<meta name="color-scheme" content="light">
+<title>JUMP Cell Painting Data Browser | Publication</title>
+<style>
+:root {
+  --ink: #14271f;
+  --muted: #66746e;
+  --faint: #74817b;
+  --paper: #f4f7f4;
+  --surface: #ffffff;
+  --surface-soft: #f8faf8;
+  --line: #dfe7e2;
+  --line-strong: #cbd8d0;
+  --accent: #19765a;
+  --accent-dark: #0f5b44;
+  --accent-soft: #e6f4ed;
+  --data: #5b55a5;
+  --data-soft: #efedfb;
+  --danger: #a73c3c;
+  --shadow: 0 18px 50px rgba(30, 58, 46, 0.08);
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(35, 143, 105, 0.12), transparent 31rem),
+    radial-gradient(circle at 96% 14%, rgba(91, 85, 165, 0.08), transparent 27rem),
+    var(--paper);
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 3px solid rgba(25, 118, 90, 0.28);
+  outline-offset: 2px;
+}
+
+.page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 74px;
+  gap: 24px;
+}
+
+.identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: grid;
+  grid-template-columns: repeat(2, 8px);
+  gap: 3px;
+  width: 30px;
+  height: 30px;
+  place-content: center;
+  border-radius: 9px;
+  background: var(--ink);
+  box-shadow: 0 6px 18px rgba(20, 39, 31, 0.16);
+}
+
+.brand-mark span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8ee0b9;
+}
+
+.brand-mark span:nth-child(2),
+.brand-mark span:nth-child(3) {
+  background: #ffffff;
+}
+
+.identity-copy {
+  display: grid;
+  line-height: 1.12;
+}
+
+.identity-copy strong {
+  font-size: 0.94rem;
+  letter-spacing: -0.01em;
+}
+
+.identity-copy span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.source-link {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.source-link:hover {
+  color: var(--accent-dark);
+}
+
+.hero {
+  padding: clamp(46px, 8vw, 88px) 0 clamp(38px, 6vw, 64px);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px;
+  color: var(--accent-dark);
+  font-size: 0.74rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  width: 22px;
+  height: 2px;
+  content: "";
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+h1 {
+  max-width: 770px;
+  margin: 0;
+  font-size: clamp(2.4rem, 6vw, 5.25rem);
+  font-weight: 730;
+  letter-spacing: -0.06em;
+  line-height: 0.96;
+}
+
+.hero-copy {
+  max-width: 680px;
+  margin: 24px 0 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 2vw, 1.18rem);
+}
+
+.feature-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 28px;
+}
+
+.feature-list span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 11px;
+  border: 1px solid rgba(25, 118, 90, 0.14);
+  border-radius: 999px;
+  color: var(--accent-dark);
+  background: rgba(255, 255, 255, 0.58);
+  font-size: 0.76rem;
+  font-weight: 680;
+  backdrop-filter: blur(10px);
+}
+
+.breadcrumb-wrap {
+  margin-bottom: 13px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  min-width: 100%;
+  gap: 7px;
+  padding: 3px 2px 7px;
+  color: var(--muted);
+  font-size: 0.79rem;
+}
+
+.breadcrumb a {
+  color: var(--muted);
+  font-weight: 620;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--accent-dark);
+}
+
+.breadcrumb .separator {
+  color: #a7b1ac;
+  user-select: none;
+}
+
+.breadcrumb .current {
+  color: var(--ink);
+  font-weight: 720;
+}
+
+.browser {
+  margin-bottom: 48px;
+  overflow: hidden;
+  border: 1px solid rgba(203, 216, 208, 0.9);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+}
+
+.browser-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 26px 28px 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.location-label {
+  margin: 0 0 5px;
+  color: var(--faint);
+  font-size: 0.67rem;
+  font-weight: 760;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.folder-title {
+  max-width: 650px;
+  margin: 0;
+  overflow: hidden;
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  font-weight: 720;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.directory-summary {
+  min-height: 21px;
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  width: min(255px, 29vw);
+  height: 40px;
+  padding: 0 45px 0 13px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  color: var(--ink);
+  background: var(--surface-soft);
+  font-size: 0.8rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.search-box input::placeholder {
+  color: #74817b;
+}
+
+.search-box input:focus {
+  border-color: rgba(25, 118, 90, 0.55);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(25, 118, 90, 0.08);
+  outline: 0;
+}
+
+.search-box kbd {
+  position: absolute;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 22px;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  color: var(--faint);
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  color: var(--ink);
+  background: #ffffff;
+  font-size: 0.73rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.button:hover {
+  border-color: #afc0b6;
+  background: var(--surface-soft);
+  transform: translateY(-1px);
+}
+
+.button-primary {
+  border-color: var(--accent);
+  color: #ffffff;
+  background: var(--accent);
+}
+
+.button-primary:hover {
+  border-color: var(--accent-dark);
+  color: #ffffff;
+  background: var(--accent-dark);
+}
+
+.button-data {
+  border-color: rgba(91, 85, 165, 0.22);
+  color: #4a458b;
+  background: var(--data-soft);
+}
+
+.button-data:hover {
+  border-color: rgba(91, 85, 165, 0.38);
+  color: #393474;
+  background: #e8e5f8;
+}
+
+.browser-body {
+  min-height: 260px;
+  padding: 10px 28px 30px;
+}
+
+.section {
+  padding-top: 24px;
+}
+
+.section + .section {
+  margin-top: 7px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 13px;
+}
+
+.section-heading h3 {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 740;
+  letter-spacing: -0.015em;
+}
+
+.section-heading span {
+  color: var(--faint);
+  font-size: 0.7rem;
+  font-weight: 650;
+}
+
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.folder-card {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 13px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--surface-soft);
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.folder-card:hover {
+  border-color: #b8c9bf;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(30, 58, 46, 0.07);
+  transform: translateY(-2px);
+}
+
+.folder-icon {
+  position: relative;
+  width: 34px;
+  height: 26px;
+  flex: 0 0 auto;
+  border-radius: 5px;
+  background: #dcefe5;
+}
+
+.folder-icon::before {
+  position: absolute;
+  top: -5px;
+  left: 3px;
+  width: 15px;
+  height: 8px;
+  content: "";
+  border-radius: 4px 4px 0 0;
+  background: #dcefe5;
+}
+
+.folder-icon::after {
+  position: absolute;
+  right: 7px;
+  bottom: 8px;
+  width: 7px;
+  height: 7px;
+  content: "";
+  border-right: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(-45deg);
+}
+
+.folder-copy {
+  min-width: 0;
+}
+
+.folder-name {
+  display: block;
+  overflow: hidden;
+  font-size: 0.79rem;
+  font-weight: 710;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-action {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
+  gap: 13px;
+}
+
+.image-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #ffffff;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.image-card:hover {
+  border-color: #bdcbc3;
+  box-shadow: 0 12px 28px rgba(30, 58, 46, 0.09);
+  transform: translateY(-2px);
+}
+
+.image-preview {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 210px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(45deg, rgba(222, 230, 225, 0.35) 25%, transparent 25%) 0 0 / 18px 18px,
+    linear-gradient(-45deg, rgba(222, 230, 225, 0.35) 25%, transparent 25%) 0 9px / 18px 18px,
+    linear-gradient(45deg, transparent 75%, rgba(222, 230, 225, 0.35) 75%) 9px -9px / 18px 18px,
+    linear-gradient(-45deg, transparent 75%, rgba(222, 230, 225, 0.35) 75%) -9px 0 / 18px 18px,
+    #fbfcfb;
+  cursor: zoom-in;
+}
+
+.image-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 220ms ease;
+}
+
+.image-card:hover .image-preview img {
+  transform: scale(1.015);
+}
+
+.image-preview::after {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 6px 9px;
+  content: "Preview";
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  color: #ffffff;
+  background: rgba(20, 39, 31, 0.82);
+  box-shadow: 0 5px 14px rgba(20, 39, 31, 0.18);
+  font-size: 0.65rem;
+  font-weight: 720;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.image-card:hover .image-preview::after,
+.image-preview:focus-visible::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.image-fallback {
+  padding: 20px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.image-info {
+  padding: 13px 14px 14px;
+}
+
+.image-name {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 710;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.image-name:hover {
+  color: var(--accent-dark);
+}
+
+.image-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 26px;
+  gap: 12px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.67rem;
+}
+
+.image-links {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.mini-link {
+  padding: 4px 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-size: 0.62rem;
+  font-weight: 720;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.mini-link:hover {
+  border-color: #b8c8be;
+  color: var(--accent-dark);
+  background: #ffffff;
+}
+
+.file-list {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.file-head,
+.file-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 90px 110px minmax(190px, auto);
+  align-items: center;
+  column-gap: 18px;
+}
+
+.file-head {
+  min-height: 38px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--faint);
+  background: var(--surface-soft);
+  font-size: 0.64rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.file-head span:last-child {
+  text-align: right;
+}
+
+.file-row {
+  min-height: 62px;
+  padding: 9px 14px;
+  background: #ffffff;
+}
+
+.file-row + .file-row {
+  border-top: 1px solid var(--line);
+}
+
+.file-row:hover {
+  background: #fcfdfc;
+}
+
+.file-identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+}
+
+.type-badge {
+  display: inline-flex;
+  width: 40px;
+  height: 30px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.type-badge.image {
+  border-color: rgba(25, 118, 90, 0.16);
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+}
+
+.type-badge.data {
+  border-color: rgba(91, 85, 165, 0.16);
+  color: #4a458b;
+  background: var(--data-soft);
+}
+
+.type-badge.summary {
+  border-color: rgba(91, 85, 165, 0.22);
+  color: #403a80;
+  background: linear-gradient(145deg, #efedfb, #e7f3ed);
+}
+
+.file-name {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.77rem;
+  font-weight: 670;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-name:hover {
+  color: var(--accent-dark);
+  text-decoration: underline;
+  text-decoration-color: rgba(25, 118, 90, 0.35);
+  text-underline-offset: 3px;
+}
+
+.file-detail {
+  display: block;
+  margin-top: 2px;
+  color: var(--faint);
+  font-size: 0.63rem;
+}
+
+.file-size,
+.file-date {
+  color: var(--muted);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.file-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.button-summary {
+  border-color: rgba(91, 85, 165, 0.24);
+  color: #454083;
+  background: #f1effb;
+}
+
+.button-summary:hover {
+  border-color: rgba(91, 85, 165, 0.42);
+  color: #332e6a;
+  background: #e9e6f8;
+}
+
+.summary-card {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px solid rgba(91, 85, 165, 0.18);
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(91, 85, 165, 0.13), transparent 24rem),
+    linear-gradient(145deg, #fbfaff, #ffffff 58%);
+}
+
+.summary-card::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  content: "";
+  background: linear-gradient(var(--data), var(--accent));
+}
+
+.summary-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.summary-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 8px;
+  color: var(--data);
+  font-size: 0.66rem;
+  font-weight: 790;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.summary-kicker::before {
+  width: 7px;
+  height: 7px;
+  content: "";
+  border-radius: 50%;
+  background: var(--data);
+  box-shadow: 0 0 0 4px rgba(91, 85, 165, 0.1);
+}
+
+.summary-card-title {
+  max-width: 720px;
+  margin: 0;
+  font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+  font-weight: 730;
+  letter-spacing: -0.035em;
+  line-height: 1.16;
+}
+
+.summary-description {
+  max-width: 880px;
+  margin: 14px 0 0;
+  color: #53625b;
+  font-size: 0.83rem;
+  line-height: 1.65;
+}
+
+.summary-card-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 7px;
+}
+
+.summary-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.summary-meta-pill {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding: 5px 9px;
+  border: 1px solid rgba(91, 85, 165, 0.12);
+  border-radius: 999px;
+  color: #625f78;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 0.66rem;
+  font-weight: 680;
+}
+
+.summary-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 9px;
+  margin-top: 20px;
+}
+
+.summary-metric {
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(91, 85, 165, 0.12);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.summary-metric-value {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 1.18rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-metric-label {
+  display: block;
+  margin-top: 5px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 660;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-card-state {
+  display: flex;
+  min-height: 130px;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.summary-card-state .loading-dots {
+  margin: 0 12px 0 0;
+}
+
+.json-document {
+  width: min(960px, 100%);
+  margin: 0 auto;
+}
+
+.browser-body.json-mode {
+  padding-top: 28px;
+}
+
+.json-document-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(22px, 4vw, 36px);
+  border: 1px solid rgba(91, 85, 165, 0.16);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(91, 85, 165, 0.15), transparent 22rem),
+    #ffffff;
+}
+
+.json-document-hero.generic {
+  border-color: rgba(25, 118, 90, 0.16);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(25, 118, 90, 0.12), transparent 22rem),
+    #ffffff;
+}
+
+.json-document-label {
+  margin: 0 0 9px;
+  color: var(--data);
+  font-size: 0.66rem;
+  font-weight: 790;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.json-document-hero.generic .json-document-label {
+  color: var(--accent-dark);
+}
+
+.json-document-title {
+  max-width: 800px;
+  margin: 0;
+  font-size: clamp(1.55rem, 4vw, 2.5rem);
+  font-weight: 740;
+  letter-spacing: -0.045em;
+  line-height: 1.04;
+}
+
+.json-document-description {
+  max-width: 820px;
+  margin: 16px 0 0;
+  color: #52615a;
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+.json-document-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 20px;
+}
+
+.json-document-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.json-document-stats span {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.75);
+  font-size: 0.67rem;
+  font-weight: 680;
+}
+
+.json-warning {
+  margin-top: 16px;
+  padding: 11px 13px;
+  border: 1px solid #ead7a6;
+  border-radius: 10px;
+  color: #654e18;
+  background: #fff9e9;
+  font-size: 0.7rem;
+  line-height: 1.55;
+}
+
+.json-warning strong {
+  font-weight: 760;
+}
+
+.json-content-section {
+  margin-top: 24px;
+}
+
+.json-content-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 11px;
+}
+
+.json-content-heading h3 {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+}
+
+.json-content-heading span {
+  color: var(--faint);
+  font-size: 0.65rem;
+  font-weight: 650;
+}
+
+.json-tree {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #ffffff;
+}
+
+.json-group + .json-group,
+.json-leaf + .json-group,
+.json-group + .json-leaf,
+.json-leaf + .json-leaf {
+  border-top: 1px solid var(--line);
+}
+
+.json-group > summary {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  list-style: none;
+  background: #fbfcfb;
+  cursor: pointer;
+  user-select: none;
+}
+
+.json-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.json-caret {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-right: 2px solid #87938d;
+  border-bottom: 2px solid #87938d;
+  transform: rotate(-45deg);
+  transition: transform 150ms ease;
+}
+
+.json-group[open] > summary .json-caret {
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.json-group-heading {
+  min-width: 0;
+  flex: 1;
+}
+
+.json-friendly-key {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.73rem;
+  font-weight: 710;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.json-raw-key {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--faint);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.57rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.json-group-count {
+  flex: 0 0 auto;
+  color: var(--faint);
+  font-size: 0.61rem;
+  font-weight: 650;
+}
+
+.json-children {
+  margin: 0 12px 12px 28px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.json-leaf {
+  display: grid;
+  grid-template-columns: minmax(150px, 33%) minmax(0, 1fr);
+  min-height: 48px;
+  align-items: start;
+  gap: 18px;
+  padding: 11px 14px;
+  background: #ffffff;
+}
+
+.json-leaf-key {
+  min-width: 0;
+}
+
+.json-value {
+  min-width: 0;
+  color: #36443e;
+  font-size: 0.71rem;
+  font-weight: 560;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.json-value.number {
+  color: #3f3a81;
+  font-variant-numeric: tabular-nums;
+  font-weight: 690;
+}
+
+.json-value.boolean {
+  color: var(--accent-dark);
+  font-weight: 720;
+}
+
+.json-value.null {
+  color: var(--faint);
+  font-style: italic;
+}
+
+.json-value.nonfinite {
+  color: #8c5e18;
+  font-weight: 720;
+}
+
+.json-value a {
+  color: var(--accent-dark);
+  text-decoration-color: rgba(25, 118, 90, 0.3);
+  text-underline-offset: 3px;
+}
+
+.manifest-list {
+  display: grid;
+  gap: 8px;
+}
+
+.manifest-item {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #ffffff;
+}
+
+.manifest-kind {
+  display: inline-flex;
+  width: 42px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-size: 0.53rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.manifest-kind.figure {
+  border-color: rgba(25, 118, 90, 0.16);
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+}
+
+.manifest-kind.table {
+  border-color: rgba(91, 85, 165, 0.16);
+  color: #4a458b;
+  background: var(--data-soft);
+}
+
+.manifest-copy {
+  min-width: 0;
+}
+
+.manifest-caption {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.73rem;
+  font-weight: 690;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.manifest-path {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--faint);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.56rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.manifest-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.raw-json {
+  margin-top: 24px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.raw-json summary {
+  padding: 12px 14px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.raw-json pre {
+  max-height: 480px;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  border-top: 1px solid var(--line);
+  color: #334139;
+  background: #f5f7f5;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.64rem;
+  line-height: 1.6;
+  tab-size: 2;
+  white-space: pre;
+}
+
+.json-notice {
+  display: grid;
+  min-height: 300px;
+  place-items: center;
+  padding: 36px;
+  text-align: center;
+}
+
+.json-notice-inner {
+  max-width: 470px;
+}
+
+.json-notice h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.json-notice p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.json-notice .button {
+  margin-top: 16px;
+}
+
+.json-truncated {
+  padding: 12px 14px;
+  color: var(--muted);
+  background: #fbfcfb;
+  font-size: 0.67rem;
+  line-height: 1.55;
+}
+
+.json-more {
+  margin: 10px 14px;
+}
+
+.state {
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  padding: 42px 20px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.state-inner {
+  max-width: 420px;
+}
+
+.state h3 {
+  margin: 0 0 7px;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.state p {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.state .button {
+  margin-top: 16px;
+}
+
+.loading-dots {
+  display: inline-flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 900ms infinite alternate ease-in-out;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 180ms;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 360ms;
+}
+
+@keyframes pulse {
+  from { opacity: 0.28; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(-2px); }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 2px 0 38px;
+  color: var(--faint);
+  font-size: 0.7rem;
+}
+
+.footer a {
+  color: var(--muted);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: var(--accent-dark);
+}
+
+.image-dialog {
+  width: min(1100px, calc(100vw - 34px));
+  max-width: none;
+  max-height: calc(100vh - 34px);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  color: #f6fbf8;
+  background: #102019;
+  box-shadow: 0 30px 100px rgba(8, 20, 14, 0.45);
+}
+
+.image-dialog::backdrop {
+  background: rgba(7, 17, 12, 0.78);
+  backdrop-filter: blur(5px);
+}
+
+.dialog-topbar {
+  display: flex;
+  min-height: 57px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 12px 10px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.dialog-title-wrap {
+  min-width: 0;
+}
+
+.dialog-title {
+  display: block;
+  overflow: hidden;
+  font-size: 0.78rem;
+  font-weight: 680;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dialog-meta {
+  display: block;
+  margin-top: 2px;
+  color: rgba(230, 242, 235, 0.62);
+  font-size: 0.63rem;
+}
+
+.dialog-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 7px;
+}
+
+.dialog-actions .button {
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #f6fbf8;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dialog-actions .button:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.dialog-image-wrap {
+  display: flex;
+  height: calc(100vh - 130px);
+  max-height: 790px;
+  min-height: 300px;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(74, 126, 101, 0.16), transparent 42%),
+    #0c1813;
+}
+
+.dialog-image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.toast {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 10;
+  padding: 10px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9px;
+  color: #ffffff;
+  background: rgba(20, 39, 31, 0.94);
+  box-shadow: 0 10px 30px rgba(20, 39, 31, 0.22);
+  font-size: 0.72rem;
+  font-weight: 650;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(7px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 820px) {
+  .browser-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 17px;
+  }
+
+  .toolbar {
+    width: 100%;
+  }
+
+  .search-box {
+    flex: 1;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+
+  .file-head,
+  .file-row {
+    grid-template-columns: minmax(180px, 1fr) 80px minmax(165px, auto);
+  }
+
+  .file-head .date-heading,
+  .file-date {
+    display: none;
+  }
+
+  .summary-card-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .summary-card-actions {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    width: min(100% - 20px, 1180px);
+  }
+
+  .topbar {
+    min-height: 66px;
+  }
+
+  .source-link {
+    display: none;
+  }
+
+  .hero {
+    padding-top: 38px;
+  }
+
+  h1 {
+    font-size: clamp(2.35rem, 15vw, 3.6rem);
+  }
+
+  .feature-list span:last-child {
+    display: none;
+  }
+
+  .browser-header,
+  .browser-body {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex-basis: 100%;
+  }
+
+  .folder-grid,
+  .image-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .image-preview {
+    height: 230px;
+  }
+
+  .file-head {
+    display: none;
+  }
+
+  .file-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .file-size,
+  .file-date {
+    display: none;
+  }
+
+  .file-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .file-actions .button {
+    min-height: 32px;
+  }
+
+  .summary-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .json-document-hero {
+    padding: 22px 18px;
+  }
+
+  .json-leaf {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .json-value {
+    text-align: left;
+  }
+
+  .json-children {
+    margin-right: 8px;
+    margin-left: 16px;
+  }
+
+  .manifest-item {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .manifest-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .dialog-topbar {
+    align-items: flex-start;
+  }
+
+  .dialog-actions .button:first-child {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="topbar">
+    <a class="identity" id="home-link" href="index.html" aria-label="Go to the publication data root">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+      <span class="identity-copy">
+        <strong>JUMP Cell Painting</strong>
+        <span>Publication data browser</span>
+      </span>
+    </a>
+    <a class="source-link" href="https://github.com/jump-cellpainting/2026_Chandrasekaran_Seal_Submitted" target="_blank" rel="noopener">View project on GitHub</a>
+  </header>
+
+  <section class="hero" aria-labelledby="page-title">
+    <p class="eyebrow">Open research data</p>
+    <h1 id="page-title">Explore the data behind the map.</h1>
+    <p class="hero-copy">Browse the public JUMP Cell Painting chemical dataset, preview figures in place, and open tabular results in a full data explorer without installing anything.</p>
+    <div class="feature-list" aria-label="Browser capabilities">
+      <span>Images preview inline</span>
+      <span>CSV and Parquet open in Datasette Lite</span>
+      <span>Public files on Amazon S3</span>
+    </div>
+  </section>
+
+  <div class="breadcrumb-wrap">
+    <nav class="breadcrumb" id="breadcrumb" aria-label="Folder breadcrumb"></nav>
+  </div>
+
+  <main class="browser" aria-labelledby="folder-title">
+    <header class="browser-header">
+      <div>
+        <p class="location-label">Current folder</p>
+        <h2 class="folder-title" id="folder-title" tabindex="-1">Project root</h2>
+        <p class="directory-summary" id="directory-summary" aria-live="polite">Loading folder...</p>
+      </div>
+      <div class="toolbar">
+        <label class="search-box" id="search-box">
+          <span class="visually-hidden">Filter this folder</span>
+          <input id="search" type="search" placeholder="Filter this folder" autocomplete="off" spellcheck="false">
+          <kbd aria-hidden="true">/</kbd>
+        </label>
+        <button class="button" id="copy-view" type="button">Copy view</button>
+      </div>
+    </header>
+    <div class="browser-body" id="directory-content">
+      <div class="state" role="status">
+        <div class="state-inner">
+          <div class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+          <p>Loading public files...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <span>Live view of the public Cell Painting Gallery publication data.</span>
+    <span>Tabular previews are powered by <a href="https://lite.datasette.io/" target="_blank" rel="noopener">Datasette Lite</a>.</span>
+  </footer>
+</div>
+
+<dialog class="image-dialog" id="image-dialog" aria-labelledby="dialog-title">
+  <div class="dialog-topbar">
+    <div class="dialog-title-wrap">
+      <strong class="dialog-title" id="dialog-title"></strong>
+      <span class="dialog-meta" id="dialog-meta"></span>
+    </div>
+    <div class="dialog-actions">
+      <a class="button" id="dialog-original" href="#" target="_blank" rel="noopener">Open original</a>
+      <button class="button" id="dialog-close" type="button">Close</button>
+    </div>
+  </div>
+  <div class="dialog-image-wrap">
+    <img class="dialog-image" id="dialog-image" alt="">
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const BUCKET = "cellpainting-gallery";
+const BASE_PREFIX = "cpg0016-jump/source_all/workspace/publication_data/2025_Chandrasekaran/jump_production_datastore/";
+const S3_URL = `https://${BUCKET}.s3.amazonaws.com`;
+const DATASETTE_URL = "https://lite.datasette.io/";
+const DATASTORE_PREFIX = BASE_PREFIX;
+const JSON_MAX_BYTES = 2 * 1024 * 1024;
+const NONFINITE_KEY = "__jump_json_nonfinite__";
+const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif", "webp", "avif", "svg"]);
+const DATA_EXTENSIONS = new Set(["csv", "parquet"]);
+const TEXT_EXTENSIONS = new Set(["txt", "md", "log", "yaml", "yml"]);
+
+const breadcrumb = document.getElementById("breadcrumb");
+const content = document.getElementById("directory-content");
+const copyViewButton = document.getElementById("copy-view");
+const directorySummary = document.getElementById("directory-summary");
+const folderTitle = document.getElementById("folder-title");
+const homeLink = document.getElementById("home-link");
+const imageDialog = document.getElementById("image-dialog");
+const dialogClose = document.getElementById("dialog-close");
+const dialogImage = document.getElementById("dialog-image");
+const dialogMeta = document.getElementById("dialog-meta");
+const dialogOriginal = document.getElementById("dialog-original");
+const dialogTitle = document.getElementById("dialog-title");
+const searchBox = document.getElementById("search-box");
+const searchInput = document.getElementById("search");
+const toast = document.getElementById("toast");
+
+let activeController = null;
+let currentListing = { folders: [], files: [] };
+const jsonCache = new Map();
+let toastTimer = null;
+
+function element(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function plural(count, singular, pluralForm) {
+  return `${count} ${count === 1 ? singular : (pluralForm || `${singular}s`)}`;
+}
+
+function normalizePrefix(value) {
+  if (!value || !value.startsWith(BASE_PREFIX)) return BASE_PREFIX;
+  return value.endsWith("/") ? value : `${value}/`;
+}
+
+function getPrefix() {
+  const params = new URLSearchParams(window.location.search);
+  return normalizePrefix(params.get("prefix") || BASE_PREFIX);
+}
+
+function getFileKey() {
+  const key = new URLSearchParams(window.location.search).get("file");
+  if (!key || !key.startsWith(BASE_PREFIX) || extension(key) !== "json") return null;
+  if (key.includes("\\") || key.includes("\0")) return null;
+  const segments = key.split("/");
+  if (segments.some((part) => part === "." || part === "..")) return null;
+  return key;
+}
+
+function viewUrl(prefix) {
+  const url = new URL(window.location.href);
+  url.hash = "";
+  url.search = "";
+  if (prefix !== BASE_PREFIX) url.searchParams.set("prefix", prefix);
+  return `${url.pathname}${url.search}`;
+}
+
+function fileViewUrl(key) {
+  const url = new URL(window.location.href);
+  url.hash = "";
+  url.search = "";
+  url.searchParams.set("file", key);
+  return `${url.pathname}${url.search}`;
+}
+
+function setPrefix(prefix) {
+  const normalized = normalizePrefix(prefix);
+  window.history.pushState({}, "", viewUrl(normalized));
+  searchInput.value = "";
+  render({ focusTitle: true });
+}
+
+function setFileKey(key) {
+  window.history.pushState({}, "", fileViewUrl(key));
+  searchInput.value = "";
+  render({ focusTitle: true });
+}
+
+function navigableLink(label, prefix, className) {
+  const link = element("a", className, label);
+  link.href = viewUrl(prefix);
+  link.addEventListener("click", (event) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    setPrefix(prefix);
+  });
+  return link;
+}
+
+function renderBreadcrumb(prefix, currentFile) {
+  breadcrumb.replaceChildren();
+  const parts = prefix.slice(BASE_PREFIX.length).split("/").filter(Boolean);
+  const root = parts.length === 0 && !currentFile
+    ? element("span", "current", "Publication data")
+    : navigableLink("Publication data", BASE_PREFIX);
+  if (parts.length === 0 && !currentFile) root.setAttribute("aria-current", "page");
+  breadcrumb.append(root);
+
+  let accumulated = BASE_PREFIX;
+  parts.forEach((part, index) => {
+    accumulated += `${part}/`;
+    breadcrumb.append(element("span", "separator", "/"));
+    if (index === parts.length - 1 && !currentFile) {
+      const current = element("span", "current", part);
+      current.setAttribute("aria-current", "page");
+      breadcrumb.append(current);
+    } else {
+      breadcrumb.append(navigableLink(part, accumulated));
+    }
+  });
+
+  if (currentFile) {
+    breadcrumb.append(element("span", "separator", "/"));
+    const current = element("span", "current", currentFile);
+    current.setAttribute("aria-current", "page");
+    breadcrumb.append(current);
+  }
+}
+
+function parentPrefix(key) {
+  return key.slice(0, key.lastIndexOf("/") + 1);
+}
+
+function folderName(prefix) {
+  if (prefix === BASE_PREFIX) return "Project root";
+  const parts = prefix.split("/").filter(Boolean);
+  return parts[parts.length - 1] || "Project root";
+}
+
+function extension(name) {
+  const base = name.split("/").pop() || name;
+  const dot = base.lastIndexOf(".");
+  return dot > 0 ? base.slice(dot + 1).toLowerCase() : "";
+}
+
+function stem(name) {
+  const base = name.split("/").pop() || name;
+  const dot = base.lastIndexOf(".");
+  return dot > 0 ? base.slice(0, dot) : base;
+}
+
+function datasetteTableName(remoteUrl) {
+  const base = remoteUrl.split("/").pop() || remoteUrl;
+  return base.split(/[.?]/)[0].trim() || "table";
+}
+
+function tildeEncode(value) {
+  return encodeURIComponent(value)
+    .replace(/[.!~*'()]/g, (character) => {
+      const hex = character.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0");
+      return `%${hex}`;
+    })
+    .replace(/%20/g, "+")
+    .replace(/%([0-9a-f]{2})/gi, (_, hex) => `~${hex.toUpperCase()}`);
+}
+
+function isImage(file) {
+  return IMAGE_EXTENSIONS.has(extension(file.name));
+}
+
+function isData(file) {
+  return DATA_EXTENSIONS.has(extension(file.name));
+}
+
+function isJson(file) {
+  return extension(file.name) === "json";
+}
+
+function isSummaryFile(file) {
+  return file.name.split("/").pop()?.toLowerCase() === "summary.json";
+}
+
+function fileKind(file) {
+  const ext = extension(file.name);
+  if (isSummaryFile(file)) return "summary";
+  if (IMAGE_EXTENSIONS.has(ext)) return "image";
+  if (DATA_EXTENSIONS.has(ext)) return "data";
+  if (ext === "pdf") return "document";
+  if (ext === "json" || TEXT_EXTENSIONS.has(ext)) return "text";
+  return "file";
+}
+
+function typeLabel(file) {
+  const ext = extension(file.name);
+  if (!ext) return "FILE";
+  return ext.length > 7 ? ext.slice(0, 7).toUpperCase() : ext.toUpperCase();
+}
+
+function formatSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) return "Unknown size";
+  if (bytes === 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const precision = index === 0 || bytes / Math.pow(1024, index) >= 10 ? 0 : 1;
+  return `${(bytes / Math.pow(1024, index)).toFixed(precision)} ${units[index]}`;
+}
+
+function formatDate(dateString) {
+  if (!dateString) return "Unknown";
+  const date = new Date(dateString);
+  if (Number.isNaN(date.valueOf())) return "Unknown";
+  return new Intl.DateTimeFormat("en", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  }).format(date);
+}
+
+function objectUrl(key) {
+  const encodedKey = key.split("/").map((part) => encodeURIComponent(part)).join("/");
+  return `${S3_URL}/${encodedKey}`;
+}
+
+function publicFileUrl(file) {
+  return file.url || objectUrl(file.key);
+}
+
+function metadataTargetStem(file) {
+  const ext = extension(file.name);
+  if (ext !== "yml" && ext !== "yaml") return null;
+  const fileStem = stem(file.name);
+  const suffix = "__metadata";
+  return fileStem.toLowerCase().endsWith(suffix)
+    ? fileStem.slice(0, -suffix.length)
+    : null;
+}
+
+function sameParent(fileA, fileB) {
+  return Boolean(fileA.key && fileB.key && parentPrefix(fileA.key) === parentPrefix(fileB.key));
+}
+
+function metadataForDataFile(dataFile, files = currentListing.files) {
+  if (!isData(dataFile)) return null;
+  const targetName = `${stem(dataFile.name)}__metadata`.toLowerCase();
+  return files.find((candidate) => {
+    const ext = extension(candidate.name);
+    return sameParent(dataFile, candidate)
+      && (ext === "yml" || ext === "yaml")
+      && stem(candidate.name).toLowerCase() === targetName;
+  }) || null;
+}
+
+function dataFileForMetadata(metadataFile, files = currentListing.files) {
+  const targetStem = metadataTargetStem(metadataFile);
+  if (!targetStem) return null;
+  const matches = files.filter((candidate) => (
+    sameParent(metadataFile, candidate)
+    && isData(candidate)
+    && stem(candidate.name).toLowerCase() === targetStem.toLowerCase()
+  ));
+  return matches.find((candidate) => extension(candidate.name) === "csv") || matches[0] || null;
+}
+
+function datasetteUrlFromRemote(name, remoteUrl, metadataUrl = null) {
+  const kind = extension(name);
+  const params = new URLSearchParams();
+  params.set(kind, remoteUrl);
+  if (metadataUrl) params.set("metadata", metadataUrl);
+  return `${DATASETTE_URL}?${params.toString()}#/data/${tildeEncode(datasetteTableName(remoteUrl))}`;
+}
+
+function datasetteUrl(file, files = currentListing.files) {
+  const metadata = metadataForDataFile(file, files);
+  return datasetteUrlFromRemote(
+    file.name,
+    publicFileUrl(file),
+    metadata ? publicFileUrl(metadata) : null
+  );
+}
+
+function childText(parent, tagName) {
+  return parent.getElementsByTagName(tagName)[0]?.textContent || "";
+}
+
+function replaceNonFiniteTokens(text) {
+  const replacements = [];
+  let output = "";
+  let inString = false;
+  let escaped = false;
+
+  const previousNonSpace = (index) => {
+    for (let position = index - 1; position >= 0; position -= 1) {
+      if (!/\s/.test(text[position])) return text[position];
+    }
+    return "";
+  };
+  const nextNonSpace = (index) => {
+    for (let position = index; position < text.length; position += 1) {
+      if (!/\s/.test(text[position])) return text[position];
+    }
+    return "";
+  };
+
+  for (let index = 0; index < text.length;) {
+    const character = text[index];
+    if (inString) {
+      output += character;
+      if (escaped) {
+        escaped = false;
+      } else if (character === "\\") {
+        escaped = true;
+      } else if (character === '"') {
+        inString = false;
+      }
+      index += 1;
+      continue;
+    }
+
+    if (character === '"') {
+      inString = true;
+      output += character;
+      index += 1;
+      continue;
+    }
+
+    const token = ["-Infinity", "Infinity", "NaN"].find((candidate) => text.startsWith(candidate, index));
+    if (token) {
+      const before = previousNonSpace(index);
+      const after = nextNonSpace(index + token.length);
+      const validBefore = before === "" || before === ":" || before === "[" || before === ",";
+      const validAfter = after === "" || after === "," || after === "]" || after === "}";
+      if (validBefore && validAfter) {
+        output += JSON.stringify({ [NONFINITE_KEY]: token });
+        replacements.push(token);
+        index += token.length;
+        continue;
+      }
+    }
+
+    output += character;
+    index += 1;
+  }
+  return { text: output, replacements };
+}
+
+function parseJsonText(text) {
+  try {
+    return { data: JSON.parse(text), warnings: [] };
+  } catch (strictError) {
+    const sanitized = replaceNonFiniteTokens(text);
+    if (sanitized.replacements.length) {
+      try {
+        return {
+          data: JSON.parse(sanitized.text),
+          warnings: [{
+            kind: "nonfinite",
+            count: sanitized.replacements.length,
+            values: [...new Set(sanitized.replacements)]
+          }]
+        };
+      } catch (ignored) {
+        // Report the original strict parse error below.
+      }
+    }
+    const error = new Error(`Invalid JSON: ${strictError.message}`);
+    error.code = "invalid_json";
+    error.rawText = text;
+    throw error;
+  }
+}
+
+async function fetchTextWithLimit(response, limit) {
+  const declaredSize = Number.parseInt(response.headers.get("Content-Length") || "", 10);
+  if (Number.isFinite(declaredSize) && declaredSize > limit) {
+    const error = new Error(`This JSON file is ${formatSize(declaredSize)}, above the ${formatSize(limit)} viewer limit.`);
+    error.code = "too_large";
+    error.size = declaredSize;
+    throw error;
+  }
+
+  if (!response.body?.getReader) {
+    const text = await response.text();
+    const size = new TextEncoder().encode(text).byteLength;
+    if (size > limit) {
+      const error = new Error(`This JSON file is ${formatSize(size)}, above the ${formatSize(limit)} viewer limit.`);
+      error.code = "too_large";
+      error.size = size;
+      throw error;
+    }
+    return { text, size };
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let text = "";
+  let size = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > limit) {
+      await reader.cancel();
+      const error = new Error(`This JSON file is above the ${formatSize(limit)} viewer limit.`);
+      error.code = "too_large";
+      error.size = size;
+      throw error;
+    }
+    text += decoder.decode(value, { stream: true });
+  }
+  text += decoder.decode();
+  return { text, size };
+}
+
+async function fetchJsonKey(key) {
+  const url = objectUrl(key);
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Amazon S3 returned ${response.status}`);
+  const loaded = await fetchTextWithLimit(response, JSON_MAX_BYTES);
+  const parsed = parseJsonText(loaded.text);
+  return {
+    ...parsed,
+    rawText: loaded.text,
+    size: loaded.size,
+    date: response.headers.get("Last-Modified") || "",
+    key,
+    url
+  };
+}
+
+function loadJsonKey(key) {
+  if (!jsonCache.has(key)) {
+    const request = fetchJsonKey(key).catch((error) => {
+      jsonCache.delete(key);
+      throw error;
+    });
+    jsonCache.set(key, request);
+  }
+  return jsonCache.get(key);
+}
+
+async function listObjects(prefix, signal) {
+  const folders = new Map();
+  const files = new Map();
+  let continuationToken = null;
+
+  do {
+    const params = new URLSearchParams({
+      "list-type": "2",
+      "prefix": prefix,
+      "delimiter": "/"
+    });
+    if (continuationToken) params.set("continuation-token", continuationToken);
+
+    const response = await fetch(`${S3_URL}?${params}`, { signal });
+    if (!response.ok) throw new Error(`Amazon S3 returned ${response.status}`);
+    const xmlText = await response.text();
+    const xml = new DOMParser().parseFromString(xmlText, "text/xml");
+    if (xml.querySelector("parsererror")) throw new Error("The S3 response could not be read");
+
+    const serviceError = xml.getElementsByTagName("Error")[0];
+    if (serviceError) throw new Error(childText(serviceError, "Message") || "Amazon S3 could not list this folder");
+
+    for (const commonPrefix of xml.getElementsByTagName("CommonPrefixes")) {
+      const folderPrefix = childText(commonPrefix, "Prefix");
+      const name = folderPrefix.slice(prefix.length);
+      if (name) folders.set(folderPrefix, { name, prefix: folderPrefix });
+    }
+
+    for (const object of xml.getElementsByTagName("Contents")) {
+      const key = childText(object, "Key");
+      const name = key.slice(prefix.length);
+      const isBrowserFile = prefix === BASE_PREFIX && name === "index.html";
+      if (!name || isBrowserFile) continue;
+      files.set(key, {
+        name,
+        key,
+        size: Number.parseInt(childText(object, "Size"), 10),
+        date: childText(object, "LastModified")
+      });
+    }
+
+    const isTruncated = childText(xml, "IsTruncated") === "true";
+    continuationToken = isTruncated ? childText(xml, "NextContinuationToken") : null;
+  } while (continuationToken);
+
+  const byName = (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" });
+  return {
+    folders: [...folders.values()].sort(byName),
+    files: [...files.values()].sort(byName)
+  };
+}
+
+function showLoading() {
+  const state = element("div", "state");
+  state.setAttribute("role", "status");
+  const inner = element("div", "state-inner");
+  const dots = element("div", "loading-dots");
+  dots.setAttribute("aria-hidden", "true");
+  dots.append(element("span"), element("span"), element("span"));
+  inner.append(dots, element("p", "", "Loading public files..."));
+  state.append(inner);
+  content.replaceChildren(state);
+}
+
+function showError(error) {
+  const state = element("div", "state");
+  const inner = element("div", "state-inner");
+  inner.append(
+    element("h3", "", "This folder could not be loaded"),
+    element("p", "", error.message || "Please try again in a moment.")
+  );
+  const retry = element("button", "button button-primary", "Try again");
+  retry.type = "button";
+  retry.addEventListener("click", render);
+  inner.append(retry);
+  state.append(inner);
+  content.replaceChildren(state);
+}
+
+function section(title, countText) {
+  const wrapper = element("section", "section");
+  const heading = element("div", "section-heading");
+  heading.append(element("h3", "", title), element("span", "", countText));
+  wrapper.append(heading);
+  return wrapper;
+}
+
+function renderFolders(folders) {
+  const wrapper = section("Folders", plural(folders.length, "folder"));
+  const grid = element("div", "folder-grid");
+  folders.forEach((folder) => {
+    const card = navigableLink("", folder.prefix, "folder-card");
+    const icon = element("span", "folder-icon");
+    icon.setAttribute("aria-hidden", "true");
+    const copy = element("span", "folder-copy");
+    copy.append(
+      element("span", "folder-name", folder.name.replace(/\/$/, "")),
+      element("span", "folder-action", "Browse folder")
+    );
+    card.append(icon, copy);
+    grid.append(card);
+  });
+  wrapper.append(grid);
+  return wrapper;
+}
+
+function relatedPdf(imageFile, allFiles) {
+  const imageStem = stem(imageFile.name).toLowerCase();
+  return allFiles.find((file) => extension(file.name) === "pdf" && stem(file.name).toLowerCase() === imageStem);
+}
+
+function openImageAsset(name, url, meta) {
+  dialogTitle.textContent = name;
+  dialogMeta.textContent = meta || "Public image";
+  dialogImage.src = url;
+  dialogImage.alt = `Preview of ${name}`;
+  dialogOriginal.href = url;
+  imageDialog.showModal();
+}
+
+function openImage(file) {
+  openImageAsset(
+    file.name,
+    objectUrl(file.key),
+    `${formatSize(file.size)} | Updated ${formatDate(file.date)}`
+  );
+}
+
+function renderImages(images, allFiles) {
+  const wrapper = section("Image previews", plural(images.length, "image"));
+  const grid = element("div", "image-grid");
+
+  images.forEach((file) => {
+    const url = objectUrl(file.key);
+    const card = element("article", "image-card");
+    const preview = element("button", "image-preview");
+    preview.type = "button";
+    preview.setAttribute("aria-label", `Preview ${file.name}`);
+    preview.addEventListener("click", () => openImage(file));
+
+    const image = element("img");
+    image.src = url;
+    image.alt = `Preview of ${file.name}`;
+    image.loading = "lazy";
+    image.decoding = "async";
+    const fallback = element("span", "image-fallback", "Preview unavailable. Open the original file to view it.");
+    fallback.hidden = true;
+    image.addEventListener("error", () => {
+      image.hidden = true;
+      fallback.hidden = false;
+    });
+    preview.append(image, fallback);
+
+    const info = element("div", "image-info");
+    const name = element("a", "image-name", file.name);
+    name.href = url;
+    name.target = "_blank";
+    name.rel = "noopener";
+
+    const meta = element("div", "image-meta");
+    meta.append(element("span", "", formatSize(file.size)));
+    const links = element("span", "image-links");
+    const original = element("a", "mini-link", typeLabel(file));
+    original.href = url;
+    original.target = "_blank";
+    original.rel = "noopener";
+    links.append(original);
+
+    const pdf = relatedPdf(file, allFiles);
+    if (pdf) {
+      const pdfLink = element("a", "mini-link", "PDF");
+      pdfLink.href = objectUrl(pdf.key);
+      pdfLink.target = "_blank";
+      pdfLink.rel = "noopener";
+      links.append(pdfLink);
+    }
+
+    meta.append(links);
+    info.append(name, meta);
+    card.append(preview, info);
+    grid.append(card);
+  });
+
+  wrapper.append(grid);
+  return wrapper;
+}
+
+function actionLink(label, href, className, ariaLabel) {
+  const link = element("a", `button ${className || ""}`.trim(), label);
+  link.href = href;
+  link.target = "_blank";
+  link.rel = "noopener";
+  if (ariaLabel) link.setAttribute("aria-label", ariaLabel);
+  return link;
+}
+
+function internalFileLink(label, file, className) {
+  const link = element("a", className, label);
+  link.href = fileViewUrl(file.key);
+  link.addEventListener("click", (event) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    setFileKey(file.key);
+  });
+  return link;
+}
+
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isNonFiniteValue(value) {
+  return isRecord(value)
+    && Object.keys(value).length === 1
+    && typeof value[NONFINITE_KEY] === "string";
+}
+
+function isSummaryEnvelope(value) {
+  return isRecord(value)
+    && typeof value.description === "string"
+    && isRecord(value.numbers)
+    && Array.isArray(value.files);
+}
+
+function isContainer(value) {
+  return (Array.isArray(value) || isRecord(value)) && !isNonFiniteValue(value);
+}
+
+function countLeaves(value, limit = 100000) {
+  const stack = [value];
+  let count = 0;
+  while (stack.length && count < limit) {
+    const current = stack.pop();
+    if (isContainer(current)) {
+      const values = Array.isArray(current) ? current : Object.values(current);
+      stack.push(...values);
+    } else {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+function humanizeKey(key) {
+  const raw = String(key);
+  if (/^\d+$/.test(raw)) return `Item ${Number(raw) + 1}`;
+  let text = raw
+    .replace(/^n_/, "")
+    .replace(/_/g, " ")
+    .replace(/\bpct\b/gi, "percent")
+    .replace(/\bq(\d+)\b/gi, "Q$1")
+    .trim();
+  if (!text) return "Value";
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function formatJsonNumber(value, key = "") {
+  if (!Number.isFinite(value)) return String(value);
+  const lowerKey = key.toLowerCase();
+  if (Number.isInteger(value)) return new Intl.NumberFormat("en").format(value);
+  const absolute = Math.abs(value);
+  let formatted;
+  if (absolute > 0 && absolute < 0.0001) {
+    formatted = value.toExponential(3);
+  } else {
+    formatted = new Intl.NumberFormat("en", {
+      maximumSignificantDigits: 5,
+      useGrouping: true
+    }).format(value);
+  }
+  return /(?:percent|pct)$/.test(lowerKey) ? `${formatted}%` : formatted;
+}
+
+function jsonKeyBlock(key, isIndex) {
+  const block = element("span", "json-leaf-key");
+  block.append(
+    element("span", "json-friendly-key", isIndex ? `Item ${Number(key) + 1}` : humanizeKey(key)),
+    element("code", "json-raw-key", isIndex ? `[${key}]` : String(key))
+  );
+  return block;
+}
+
+function jsonValueNode(value, key) {
+  if (isNonFiniteValue(value)) {
+    const node = element("span", "json-value nonfinite", `${value[NONFINITE_KEY]} (non-standard JSON)`);
+    return node;
+  }
+  if (value === null) return element("span", "json-value null", "null");
+  if (typeof value === "number") {
+    const node = element("span", "json-value number", formatJsonNumber(value, key));
+    node.title = Number.isSafeInteger(value) ? String(value) : `${value} (raw JSON is authoritative)`;
+    return node;
+  }
+  if (typeof value === "boolean") return element("span", "json-value boolean", value ? "True" : "False");
+  const text = String(value);
+  const node = element("span", "json-value string");
+  if (/^https?:\/\//i.test(text)) {
+    const link = element("a", "", text);
+    link.href = text;
+    link.target = "_blank";
+    link.rel = "noopener";
+    node.append(link);
+  } else {
+    node.textContent = text;
+  }
+  return node;
+}
+
+function renderJsonLeaf(key, value, isIndex = false) {
+  const row = element("div", "json-leaf");
+  row.append(jsonKeyBlock(key, isIndex), jsonValueNode(value, String(key)));
+  return row;
+}
+
+function appendJsonChildren(container, value, depth) {
+  const entries = Array.isArray(value)
+    ? value.map((item, index) => [String(index), item, true])
+    : Object.entries(value).map(([key, item]) => [key, item, false]);
+  let shown = 0;
+  const batchSize = 100;
+
+  const appendBatch = () => {
+    const end = Math.min(shown + batchSize, entries.length);
+    for (; shown < end; shown += 1) {
+      const [key, item, isIndex] = entries[shown];
+      container.append(isContainer(item)
+        ? renderJsonGroup(key, item, depth, isIndex)
+        : renderJsonLeaf(key, item, isIndex));
+    }
+    const previous = container.querySelector(":scope > .json-more");
+    if (previous) previous.remove();
+    if (shown < entries.length) {
+      const remaining = entries.length - shown;
+      const more = element("button", "button json-more", `Show ${Math.min(batchSize, remaining)} more`);
+      more.type = "button";
+      more.setAttribute("aria-label", `Show more JSON items; ${remaining} remaining`);
+      more.addEventListener("click", appendBatch);
+      container.append(more);
+    }
+  };
+
+  appendBatch();
+}
+
+function renderJsonGroup(key, value, depth, isIndex = false) {
+  const details = element("details", "json-group");
+  const count = Array.isArray(value) ? value.length : Object.keys(value).length;
+  const summary = element("summary");
+  const caret = element("span", "json-caret");
+  caret.setAttribute("aria-hidden", "true");
+  const heading = element("span", "json-group-heading");
+  heading.append(
+    element("span", "json-friendly-key", isIndex ? `Item ${Number(key) + 1}` : humanizeKey(key)),
+    element("code", "json-raw-key", isIndex ? `[${key}]` : String(key))
+  );
+  summary.append(
+    caret,
+    heading,
+    element("span", "json-group-count", plural(count, Array.isArray(value) ? "item" : "field"))
+  );
+  details.append(summary);
+
+  let populated = false;
+  const populate = () => {
+    if (populated) return;
+    populated = true;
+    const children = element("div", "json-children");
+    if (depth >= 50) {
+      children.append(element("p", "json-truncated", "Maximum display depth reached. The raw JSON remains available below."));
+    } else if (count === 0) {
+      children.append(element("p", "json-truncated", Array.isArray(value) ? "Empty array" : "Empty object"));
+    } else {
+      appendJsonChildren(children, value, depth + 1);
+    }
+    details.append(children);
+  };
+
+  details.addEventListener("toggle", () => {
+    if (details.open) populate();
+  });
+  if (depth === 0) {
+    details.open = true;
+    populate();
+  }
+  return details;
+}
+
+function renderJsonTree(value) {
+  const tree = element("div", "json-tree");
+  if (isContainer(value)) {
+    if ((Array.isArray(value) ? value.length : Object.keys(value).length) === 0) {
+      tree.append(element("p", "json-truncated", Array.isArray(value) ? "Empty array" : "Empty object"));
+    } else {
+      appendJsonChildren(tree, value, 0);
+    }
+  } else {
+    tree.append(renderJsonLeaf("value", value));
+  }
+  return tree;
+}
+
+function collectMetricCandidates(value, path = [], depth = 0, output = []) {
+  if (!isRecord(value) || depth > 4 || isNonFiniteValue(value)) return output;
+  for (const [key, item] of Object.entries(value)) {
+    const nextPath = [...path, key];
+    if (typeof item === "number" || typeof item === "boolean") {
+      let score = 100 - depth * 18;
+      if (/^(?:n_|count|total)|(?:compounds|pairs|count|total|rate|percent|pct|correlation|score)$/i.test(key)) score += 28;
+      if (/(?:p_value|seed|threshold|permutation)/i.test(key)) score -= 24;
+      if (typeof item === "boolean") score -= 15;
+      output.push({ key, value: item, path: nextPath, score, order: output.length });
+    } else if (isRecord(item)) {
+      collectMetricCandidates(item, nextPath, depth + 1, output);
+    }
+  }
+  return output;
+}
+
+function headlineMetrics(numbers) {
+  return collectMetricCandidates(numbers)
+    .sort((a, b) => b.score - a.score || a.order - b.order)
+    .slice(0, 6);
+}
+
+function metricLabel(metric) {
+  const generic = /^(?:count|percent|pct|value|min|max|mean|median)$/i.test(metric.key);
+  if (generic && metric.path.length > 1) {
+    return `${humanizeKey(metric.path.at(-2))} ${humanizeKey(metric.key).toLowerCase()}`;
+  }
+  return humanizeKey(metric.key);
+}
+
+function summaryTitle(data, file) {
+  const task = data.numbers?.task;
+  if (typeof task === "string" && task.length <= 120) return task;
+  return `${humanizeKey(folderName(parentPrefix(file.key)))} analysis`;
+}
+
+function renderMetricGrid(numbers) {
+  const metrics = headlineMetrics(numbers);
+  if (!metrics.length) return null;
+  const grid = element("div", "summary-metrics");
+  metrics.forEach((metric) => {
+    const card = element("div", "summary-metric");
+    const value = element(
+      "strong",
+      "summary-metric-value",
+      typeof metric.value === "boolean"
+        ? (metric.value ? "Yes" : "No")
+        : formatJsonNumber(metric.value, metric.key)
+    );
+    value.title = String(metric.value);
+    card.append(value, element("span", "summary-metric-label", metricLabel(metric)));
+    grid.append(card);
+  });
+  return grid;
+}
+
+function renderSummaryCard(card, data, file, source) {
+  const header = element("div", "summary-card-header");
+  const copy = element("div");
+  copy.append(
+    element("p", "summary-kicker", "Analysis-owned result"),
+    element("h4", "summary-card-title", summaryTitle(data, file)),
+    element("p", "summary-description", data.description)
+  );
+  const actions = element("div", "summary-card-actions");
+  actions.append(
+    internalFileLink("Read full summary", file, "button button-summary"),
+    actionLink("Raw JSON", source.url, "", `Open raw ${file.name}`)
+  );
+  header.append(copy, actions);
+
+  const meta = element("div", "summary-meta-row");
+  meta.append(
+    element("span", "summary-meta-pill", plural(countLeaves(data.numbers), "reported value")),
+    element("span", "summary-meta-pill", plural(Object.keys(data.numbers).length, "top-level section")),
+    element("span", "summary-meta-pill", plural(data.files.length, "declared output")),
+    element("span", "summary-meta-pill", "Displayed without recomputation")
+  );
+  card.replaceChildren(header, meta);
+  const metrics = renderMetricGrid(data.numbers);
+  if (metrics) card.append(metrics);
+}
+
+function renderSummaryPreview(file) {
+  const wrapper = section("Analysis summary", "summary.json");
+  const card = element("div", "summary-card");
+  const state = element("div", "summary-card-state");
+  const dots = element("div", "loading-dots");
+  dots.setAttribute("aria-hidden", "true");
+  dots.append(element("span"), element("span"), element("span"));
+  state.append(dots, element("span", "", "Reading the analysis-owned summary..."));
+  card.append(state);
+  wrapper.append(card);
+
+  loadJsonKey(file.key).then((source) => {
+    if (!card.isConnected) return;
+    if (isSummaryEnvelope(source.data)) {
+      renderSummaryCard(card, source.data, file, source);
+    } else {
+      const fallback = element("div", "summary-card-state");
+      fallback.append(internalFileLink("View JSON document", file, "button button-summary"));
+      card.replaceChildren(fallback);
+    }
+  }).catch((error) => {
+    if (!card.isConnected) return;
+    card.replaceChildren(element("div", "summary-card-state", `Summary preview unavailable: ${error.message}`));
+  });
+  return wrapper;
+}
+
+function datastorePrefixForKey(key) {
+  const marker = "jump_production_datastore/";
+  const index = key.indexOf(marker);
+  return index >= 0 ? key.slice(0, index + marker.length) : DATASTORE_PREFIX;
+}
+
+function validBucketKey(key) {
+  if (!key.startsWith(BASE_PREFIX) || key.includes("\\") || key.includes("\0")) return false;
+  return !key.split("/").some((part) => part === "." || part === "..");
+}
+
+function resolveManifestPath(pathValue, summaryKey) {
+  if (typeof pathValue !== "string" || !pathValue.trim()) return null;
+  const path = pathValue.trim();
+  if (path.includes("\\") || path.includes("\0") || path.startsWith("//")) return null;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return null;
+
+  const root = datastorePrefixForKey(summaryKey);
+  let key = null;
+  if (path.startsWith(BASE_PREFIX)) {
+    key = path;
+  } else if (path.startsWith("data/")) {
+    key = `${root}${path.slice("data/".length)}`;
+  } else {
+    const localMarker = "/jump_production/data/";
+    const markerIndex = path.indexOf(localMarker);
+    if (markerIndex >= 0) {
+      key = `${root}${path.slice(markerIndex + localMarker.length)}`;
+    } else if (!path.startsWith("/")) {
+      key = `${parentPrefix(summaryKey)}${path.replace(/^\.\//, "")}`;
+    }
+  }
+  if (!key || !validBucketKey(key)) return null;
+
+  const listed = currentListing.files.find((file) => file.key === key);
+  return {
+    key,
+    url: objectUrl(key),
+    size: listed?.size,
+    date: listed?.date
+  };
+}
+
+function manifestRecord(record, summaryKey) {
+  const item = typeof record === "string" ? { path: record } : (isRecord(record) ? record : {});
+  const path = typeof item.path === "string" ? item.path : "";
+  const name = path.split("/").pop() || path || "Unknown output";
+  const resolved = resolveManifestPath(path, summaryKey);
+  const ext = extension(name);
+  let kind = typeof item.kind === "string" ? item.kind : "data";
+  if (IMAGE_EXTENSIONS.has(ext) || ext === "pdf") kind = "figure";
+  if (DATA_EXTENSIONS.has(ext) || ext === "tsv") kind = "table";
+  const defaultCaption = stem(name).replace(/_/g, " ");
+  const caption = String(item.caption || defaultCaption).replace(/\*\*/g, "").replace(/`/g, "");
+  return { ...resolved, path, name, ext, kind, caption };
+}
+
+function groupManifestItems(items) {
+  const groups = new Map();
+  for (const item of items) {
+    const withoutExtension = (item.key || item.path).replace(/\.[^./]+$/, "").toLowerCase();
+    const groupKey = `${withoutExtension}|${item.caption.toLowerCase()}`;
+    if (!groups.has(groupKey)) groups.set(groupKey, []);
+    groups.get(groupKey).push(item);
+  }
+  return [...groups.values()];
+}
+
+function manifestActionButton(item, caption, allItems) {
+  if (!item.url) return null;
+  if (IMAGE_EXTENSIONS.has(item.ext)) {
+    const preview = element("button", "button", "Preview");
+    preview.type = "button";
+    preview.addEventListener("click", () => openImageAsset(caption, item.url, `Declared ${item.kind}`));
+    return preview;
+  }
+  if (DATA_EXTENSIONS.has(item.ext)) {
+    return actionLink(item.ext.toUpperCase(), datasetteUrl(item, allItems), "button-data", `Explore ${caption} ${item.ext} data`);
+  }
+  const annotatedData = dataFileForMetadata(item, allItems);
+  if (annotatedData) {
+    return actionLink(
+      "Datasette",
+      datasetteUrl(annotatedData, allItems),
+      "button-data",
+      `Explore ${annotatedData.name} with these annotations`
+    );
+  }
+  if (item.ext === "json" && item.key) {
+    return internalFileLink("JSON", { name: item.name, key: item.key }, "button button-summary");
+  }
+  return actionLink(item.ext === "pdf" ? "PDF" : (item.ext.toUpperCase() || "Open"), item.url, "", `Open ${caption}`);
+}
+
+function renderManifestList(records, summaryKey) {
+  const list = element("div", "manifest-list");
+  const allItems = records.map((record) => manifestRecord(record, summaryKey));
+  for (const group of groupManifestItems(allItems)) {
+    const first = group[0];
+    const card = element("div", "manifest-item");
+    const badge = element("span", `manifest-kind ${first.kind}`, first.kind.slice(0, 7));
+    const copy = element("div", "manifest-copy");
+    const variants = group.map((item) => item.ext ? item.ext.toUpperCase() : "FILE");
+    copy.append(
+      element("span", "manifest-caption", first.caption),
+      element(
+        "span",
+        "manifest-path",
+        group.length > 1 ? `${group.length} declared variants | ${variants.join(", ")}` : first.path
+      )
+    );
+    const actions = element("div", "manifest-actions");
+    const seen = new Set();
+    for (const item of group) {
+      const actionType = IMAGE_EXTENSIONS.has(item.ext) ? "preview" : `${item.ext}|${item.url}`;
+      if (seen.has(actionType)) continue;
+      seen.add(actionType);
+      const action = manifestActionButton(item, first.caption, allItems);
+      if (action) actions.append(action);
+    }
+    if (!actions.childElementCount) actions.append(element("span", "file-detail", "Not available on S3"));
+    card.append(badge, copy, actions);
+    list.append(card);
+  }
+  return list;
+}
+
+function jsonSection(title, countText, body) {
+  const sectionNode = element("section", "json-content-section");
+  const heading = element("div", "json-content-heading");
+  heading.append(element("h3", "", title), element("span", "", countText));
+  sectionNode.append(heading, body);
+  return sectionNode;
+}
+
+function rawJsonDetails(rawText) {
+  const details = element("details", "raw-json");
+  details.append(element("summary", "", "Raw JSON"));
+  const pre = element("pre", "", rawText);
+  details.append(pre);
+  return details;
+}
+
+function backToFolderLink(key) {
+  return navigableLink("Back to folder", parentPrefix(key), "button");
+}
+
+function documentActions(source) {
+  const actions = element("div", "json-document-actions");
+  const copy = element("button", "button button-summary", "Copy JSON");
+  copy.type = "button";
+  copy.addEventListener("click", async () => {
+    const copied = await copyText(source.rawText);
+    showToast(copied ? "JSON copied to clipboard" : "Copy was unavailable");
+  });
+  actions.append(
+    backToFolderLink(source.key),
+    copy,
+    actionLink("Open raw", source.url, "", "Open raw JSON")
+  );
+  return actions;
+}
+
+function warningNode(warnings) {
+  if (!warnings?.length) return null;
+  const warning = warnings.find((item) => item.kind === "nonfinite");
+  if (!warning) return null;
+  const node = element("p", "json-warning");
+  const label = element("strong", "", "Non-standard numeric values: ");
+  node.append(
+    label,
+    document.createTextNode(
+      `${warning.count} ${warning.values.join("/")} ${warning.count === 1 ? "token was" : "tokens were"} preserved as visibly marked unavailable values. The raw file is unchanged.`
+    )
+  );
+  return node;
+}
+
+function renderSummaryDocument(source, file) {
+  const data = source.data;
+  const documentNode = element("article", "json-document");
+  const hero = element("header", "json-document-hero");
+  hero.append(
+    element("p", "json-document-label", "Analysis-owned summary"),
+    element("h3", "json-document-title", summaryTitle(data, file)),
+    element("p", "json-document-description", data.description)
+  );
+  const stats = element("div", "json-document-stats");
+  stats.append(
+    element("span", "", plural(countLeaves(data.numbers), "reported value")),
+    element("span", "", plural(Object.keys(data.numbers).length, "top-level section")),
+    element("span", "", plural(data.files.length, "declared output")),
+    element("span", "", formatSize(source.size)),
+    element("span", "", "Displayed without recomputation")
+  );
+  hero.append(stats, documentActions(source));
+  const warning = warningNode(source.warnings);
+  if (warning) hero.append(warning);
+  const metrics = renderMetricGrid(data.numbers);
+  if (metrics) hero.append(metrics);
+  documentNode.append(hero);
+
+  documentNode.append(jsonSection(
+    "Reported numbers",
+    "Values emitted by the producing analysis",
+    renderJsonTree(data.numbers)
+  ));
+
+  if (data.files.length) {
+    documentNode.append(jsonSection(
+      "Declared outputs",
+      plural(data.files.length, "manifest record"),
+      renderManifestList(data.files, source.key)
+    ));
+  } else {
+    const empty = element("div", "json-tree");
+    empty.append(element("p", "json-truncated", "This is a numbers-only analysis; it declares no separate output files."));
+    documentNode.append(jsonSection("Declared outputs", "No files declared", empty));
+  }
+
+  const extraEntries = Object.entries(data).filter(([key]) => !["description", "numbers", "files"].includes(key));
+  if (extraEntries.length) {
+    documentNode.append(jsonSection(
+      "Additional metadata",
+      plural(extraEntries.length, "top-level field"),
+      renderJsonTree(Object.fromEntries(extraEntries))
+    ));
+  }
+  documentNode.append(rawJsonDetails(source.rawText));
+  return documentNode;
+}
+
+function renderGenericJsonDocument(source, file) {
+  const data = source.data;
+  const documentNode = element("article", "json-document");
+  const hero = element("header", "json-document-hero generic");
+  const type = Array.isArray(data) ? "array" : (data === null ? "null" : typeof data === "object" ? "object" : typeof data);
+  hero.append(
+    element("p", "json-document-label", "JSON document"),
+    element("h3", "json-document-title", file.name),
+    element("p", "json-document-description", "A structured, browsable view of this public JSON file. Keys and original value types are preserved; the raw source remains available for exact inspection.")
+  );
+  const stats = element("div", "json-document-stats");
+  stats.append(
+    element("span", "", `Top-level ${type}`),
+    element("span", "", plural(countLeaves(data), "leaf value")),
+    element("span", "", formatSize(source.size))
+  );
+  hero.append(stats, documentActions(source));
+  const warning = warningNode(source.warnings);
+  if (warning) hero.append(warning);
+  documentNode.append(hero);
+  documentNode.append(jsonSection("Contents", "Collapsible JSON tree", renderJsonTree(data)));
+  documentNode.append(rawJsonDetails(source.rawText));
+  return documentNode;
+}
+
+function renderFiles(files) {
+  const dataCount = files.filter(isData).length;
+  const countText = dataCount
+    ? `${plural(files.length, "file")} | ${plural(dataCount, "data table")}`
+    : plural(files.length, "file");
+  const wrapper = section("All files", countText);
+  const list = element("div", "file-list");
+  list.setAttribute("role", "table");
+  const head = element("div", "file-head");
+  head.setAttribute("role", "row");
+  const headings = [
+    element("span", "", "Name"),
+    element("span", "", "Size"),
+    element("span", "date-heading", "Updated"),
+    element("span", "", "Actions")
+  ];
+  headings.forEach((heading) => heading.setAttribute("role", "columnheader"));
+  head.append(...headings);
+  list.append(head);
+
+  files.forEach((file) => {
+    const url = objectUrl(file.key);
+    const metadata = metadataForDataFile(file);
+    const annotatedData = dataFileForMetadata(file);
+    const datasetteTarget = isData(file) ? file : annotatedData;
+    const datasetteHref = datasetteTarget ? datasetteUrl(datasetteTarget) : null;
+    const row = element("div", "file-row");
+    row.setAttribute("role", "row");
+    const identity = element("div", "file-identity");
+    identity.setAttribute("role", "cell");
+    const badge = element("span", `type-badge ${fileKind(file)}`, typeLabel(file));
+    badge.setAttribute("aria-hidden", "true");
+    const nameWrap = element("div", "file-name-wrap");
+    const name = element("a", "file-name", file.name);
+    name.href = isJson(file) ? fileViewUrl(file.key) : (datasetteHref || url);
+    if (isJson(file)) {
+      name.addEventListener("click", (event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        setFileKey(file.key);
+      });
+    } else {
+      name.target = "_blank";
+      name.rel = "noopener";
+    }
+    nameWrap.append(name, element(
+      "span",
+      "file-detail",
+      isSummaryFile(file)
+        ? "Analysis summary"
+        : (isJson(file)
+          ? "Browsable JSON"
+          : (annotatedData
+            ? `Datasette annotations for ${annotatedData.name}`
+            : (isData(file)
+              ? (metadata ? "Opens in Datasette Lite with annotations" : "Opens in Datasette Lite")
+              : fileKind(file))))
+    ));
+    identity.append(badge, nameWrap);
+
+    const actions = element("div", "file-actions");
+    actions.setAttribute("role", "cell");
+    if (isJson(file)) {
+      actions.append(internalFileLink(
+        isSummaryFile(file) ? "View summary" : "View JSON",
+        file,
+        "button button-summary"
+      ));
+    } else if (isImage(file)) {
+      const preview = element("button", "button", "Preview");
+      preview.type = "button";
+      preview.addEventListener("click", () => openImage(file));
+      actions.append(preview);
+    }
+    actions.append(actionLink(
+      isJson(file)
+        ? "Open raw"
+        : (isData(file)
+          ? "Open file"
+          : (annotatedData ? "Open YAML" : (extension(file.name) === "pdf" ? "View PDF" : "Open"))),
+      url,
+      "",
+      `Open ${file.name}`
+    ));
+    if (datasetteHref) {
+      actions.append(actionLink(
+        annotatedData ? "View table" : "Explore data",
+        datasetteHref,
+        "button-data",
+        annotatedData
+          ? `Explore ${annotatedData.name} with annotations in Datasette Lite`
+          : `Explore ${file.name} in Datasette Lite${metadata ? " with annotations" : ""}`
+      ));
+    }
+
+    const size = element("span", "file-size", formatSize(file.size));
+    const date = element("span", "file-date", formatDate(file.date));
+    size.setAttribute("role", "cell");
+    date.setAttribute("role", "cell");
+    row.append(identity, size, date, actions);
+    list.append(row);
+  });
+
+  wrapper.append(list);
+  return wrapper;
+}
+
+function renderEmpty(title, message) {
+  const state = element("div", "state");
+  const inner = element("div", "state-inner");
+  inner.append(element("h3", "", title), element("p", "", message));
+  state.append(inner);
+  return state;
+}
+
+function updateSummary(folders, files, query) {
+  const images = files.filter(isImage).length;
+  const data = files.filter(isData).length;
+  const parts = [plural(folders.length, "folder"), plural(files.length, "file")];
+  if (images) parts.push(plural(images, "image"));
+  if (data) parts.push(plural(data, "data table"));
+  directorySummary.textContent = query
+    ? `${parts.join(" | ")} matching "${query}"`
+    : parts.join(" | ");
+}
+
+function renderDirectory() {
+  const query = searchInput.value.trim().toLowerCase();
+  const folders = currentListing.folders.filter((folder) => folder.name.toLowerCase().includes(query));
+  const files = currentListing.files.filter((file) => file.name.toLowerCase().includes(query));
+  const images = files.filter(isImage);
+  updateSummary(folders, files, query);
+
+  if (folders.length === 0 && files.length === 0) {
+    content.replaceChildren(renderEmpty(
+      query ? "No matching files" : "This folder is empty",
+      query ? "Try a shorter or different search." : "There are no public objects at this path."
+    ));
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  if (folders.length) fragment.append(renderFolders(folders));
+  const summaryFile = files.find(isSummaryFile);
+  if (summaryFile) fragment.append(renderSummaryPreview(summaryFile));
+  if (images.length) fragment.append(renderImages(images, currentListing.files));
+  if (files.length) fragment.append(renderFiles(files));
+  content.replaceChildren(fragment);
+}
+
+function jsonFileForKey(key) {
+  return {
+    key,
+    name: key.split("/").pop() || "document.json",
+    size: Number.NaN,
+    date: ""
+  };
+}
+
+function renderJsonFailure(key, error) {
+  const sourceUrl = objectUrl(key);
+  const documentNode = element("article", "json-document");
+  const notice = element("div", "json-notice");
+  notice.setAttribute("role", "alert");
+  const inner = element("div", "json-notice-inner");
+  inner.append(
+    element("h3", "", error.code === "too_large" ? "This JSON is too large for the in-page viewer" : "This JSON could not be parsed"),
+    element("p", "", error.message)
+  );
+  const actions = element("div", "json-document-actions");
+  actions.append(
+    backToFolderLink(key),
+    actionLink("Open raw JSON", sourceUrl, "button-summary", "Open raw JSON")
+  );
+  inner.append(actions);
+  notice.append(inner);
+  documentNode.append(notice);
+  if (error.rawText) documentNode.append(rawJsonDetails(error.rawText));
+  return documentNode;
+}
+
+async function renderJsonFile(key, focusTitle) {
+  const file = jsonFileForKey(key);
+  const parent = parentPrefix(key);
+  currentListing = { folders: [], files: [] };
+  searchInput.disabled = true;
+  searchBox.hidden = true;
+  content.classList.add("json-mode");
+  renderBreadcrumb(parent, file.name);
+  folderTitle.textContent = file.name;
+  directorySummary.textContent = "Loading JSON document...";
+  document.title = `${file.name} | JUMP Cell Painting Data Browser`;
+  showLoading();
+
+  try {
+    const source = await loadJsonKey(key);
+    if (getFileKey() !== key) return;
+    const kind = isSummaryEnvelope(source.data) ? "Analysis summary" : "JSON document";
+    directorySummary.textContent = `${kind} | ${formatSize(source.size)}`;
+    content.replaceChildren(
+      isSummaryEnvelope(source.data)
+        ? renderSummaryDocument(source, file)
+        : renderGenericJsonDocument(source, file)
+    );
+  } catch (error) {
+    if (getFileKey() !== key) return;
+    directorySummary.textContent = "JSON viewer unavailable";
+    content.replaceChildren(renderJsonFailure(key, error));
+  }
+  if (focusTitle) folderTitle.focus({ preventScroll: true });
+}
+
+async function render({ focusTitle = false } = {}) {
+  if (activeController) activeController.abort();
+  const fileKey = getFileKey();
+  if (fileKey) {
+    activeController = null;
+    await renderJsonFile(fileKey, focusTitle);
+    return;
+  }
+
+  activeController = new AbortController();
+  const prefix = getPrefix();
+  const title = folderName(prefix);
+  currentListing = { folders: [], files: [] };
+  searchInput.disabled = true;
+  searchBox.hidden = false;
+  content.classList.remove("json-mode");
+  renderBreadcrumb(prefix);
+  folderTitle.textContent = title;
+  directorySummary.textContent = "Loading folder...";
+  document.title = `${title} | JUMP Cell Painting Data Browser`;
+  showLoading();
+
+  try {
+    currentListing = await listObjects(prefix, activeController.signal);
+    searchInput.disabled = false;
+    renderDirectory();
+    if (focusTitle) folderTitle.focus({ preventScroll: true });
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      searchInput.disabled = false;
+      directorySummary.textContent = "Folder unavailable";
+      showError(error);
+    }
+  }
+}
+
+function showToast(message) {
+  window.clearTimeout(toastTimer);
+  toast.textContent = message;
+  toast.classList.add("visible");
+  toastTimer = window.setTimeout(() => toast.classList.remove("visible"), 1800);
+}
+
+async function copyText(value) {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch (error) {
+    const temporary = element("textarea");
+    temporary.value = value;
+    temporary.setAttribute("readonly", "");
+    temporary.style.position = "fixed";
+    temporary.style.opacity = "0";
+    document.body.append(temporary);
+    temporary.select();
+    try {
+      return document.execCommand("copy");
+    } catch (fallbackError) {
+      return false;
+    } finally {
+      temporary.remove();
+    }
+  }
+}
+
+async function copyCurrentView() {
+  const copied = await copyText(window.location.href);
+  showToast(copied ? "Link copied to clipboard" : "Copy was unavailable");
+}
+
+searchInput.addEventListener("input", renderDirectory);
+copyViewButton.addEventListener("click", copyCurrentView);
+dialogClose.addEventListener("click", () => imageDialog.close());
+imageDialog.addEventListener("click", (event) => {
+  if (event.target === imageDialog) imageDialog.close();
+});
+imageDialog.addEventListener("close", () => {
+  dialogImage.removeAttribute("src");
+  dialogImage.alt = "";
+});
+window.addEventListener("popstate", () => {
+  searchInput.value = "";
+  render({ focusTitle: true });
+});
+window.addEventListener("keydown", (event) => {
+  const isTyping = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || "");
+  if (event.key === "/" && !isTyping && !imageDialog.open && !searchInput.disabled && !searchBox.hidden) {
+    event.preventDefault();
+    searchInput.focus();
+  }
+});
+
+homeLink.href = viewUrl(BASE_PREFIX);
+homeLink.addEventListener("click", (event) => {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  setPrefix(BASE_PREFIX);
+});
+
+render();
+</script>
+</body>
+</html>

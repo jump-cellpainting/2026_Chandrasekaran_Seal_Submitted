@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "baseline_manifest_sha256": "f4f4a1473a3717f7695a83610c04039f9ab55ca09145e9a8e3e29597ce7061e8",
+  "removed_outputs": [
+    "data/processed/data-availability-audit/checks.csv",
+    "data/processed/data-availability-audit/proposed_text.md",
+    "data/processed/data-availability-audit/summary.json"
+  ],
+  "claim_removals": [
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "functional_use.source_documents"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "narrative_assertions.partner_nomination.claim"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "narrative_assertions.partner_nomination.source"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "narrative_assertions.partner_nomination.verification_status"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "narrative_assertions.pharmaceutical_library_origin.claim"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "narrative_assertions.pharmaceutical_library_origin.source"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "narrative_assertions.pharmaceutical_library_origin.verification_status"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "narrative_assertions.reference_database_suitability.claim"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "narrative_assertions.reference_database_suitability.source"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "narrative_assertions.reference_database_suitability.verification_status"
+    }
+  ],
+  "claim_replacements": [
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "functional_use.raw_input_distribution",
+      "value": "public Cell Painting Gallery input"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "functional_use.source_url",
+      "value": "https://cellpainting-gallery.s3.amazonaws.com/cpg0016-jump/source_all/workspace/publication_data/2025_Chandrasekaran/jump_production_datastore/external/2026-04-06_JUMP_chems_func_use.csv"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "functional_use.interpretation_caveat",
+      "value": "Curated FUC and predicted FUP counts can overlap. The leading classes are predicted FUP classes, not curated FUC categories."
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "manuscript_contract.path",
+      "new_claim": "numerical_contract.path",
+      "value": "references/compound_collection_contract.json"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "manuscript_contract.sha256",
+      "new_claim": "numerical_contract.sha256",
+      "value": "cd58c37d099951568834eb6bfc658b315e79f934930985b68c76f94ba52a1f79"
+    },
+    {
+      "source": "data/processed/compound-collection-facts/summary.json",
+      "rule": "compound_collection_facts",
+      "claim": "manuscript_contract.schema_version",
+      "new_claim": "numerical_contract.schema_version",
+      "value": 1
+    }
+  ],
+  "checksum_replacements": {
+    "data/processed/compound-collection-facts/summary.json": "73698149ee56cdcb8e39fdd9cb5d9ee6fa30c0dc212704faa34b1b71f529bf21",
+    "data/processed/property-activity-oddsratios/compound_no_source7/binary_trait_oddsratios.csv": "dab3e90c73936bd405f9ffdde5f0ea043753a2dfbb0a223461c1c04736766b90"
+  }
+}
