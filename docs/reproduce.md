@@ -181,15 +181,18 @@ The result directory must contain `data/processed/`.
 
 ## Optional: Slurm without Nix or root
 
-An independent run on one A100 80 GB GPU, 32 CPUs and 400 GB RAM completed all 316 pipeline jobs and validated all six figure sets in about 53 minutes, including setup.
+An independent collaborator reported completing all 316 pipeline jobs and validating all six figure sets on one A100 80 GB GPU, 32 CPUs and 400 GB RAM in about 53 minutes, including setup.
 It used pixi 0.68.0 and conda-forge shell tools instead of Nix.
 This establishes workflow compatibility, not exact agreement with the L40S baseline.
-Harmony-corrected activity calls and GPU embeddings differed, while uncorrected CP/DL copairs outputs and the batch-effect and MitoTox scientific summaries matched.
+The report describes differences in Harmony-corrected activity calls and GPU embeddings, with exact agreement for uncorrected CP/DL copairs outputs and the batch-effect and MitoTox scientific summaries.
+Those results have not been independently rechecked from that run's output bundle.
 Do not change scientific tolerances, replace the baseline or disable the null cache to conceal those differences.
 
 Use a Linux x86-64 GPU allocation with sufficient disk space (at least 250 GB), NVIDIA drivers compatible with the pinned CUDA environments, and outbound HTTPS for package and input downloads.
 The cluster must provide Bash, Git, curl, coreutils and util-linux (`flock` and `setsid`).
 Keep the checkout, environments and outputs on storage that survives the batch job.
+Allow space in the home quota for the 25 GB null cache at `~/.copairs` and package caches, in addition to the checkout's inputs and outputs.
+Check that `ulimit -Hn` permits at least 65536 open files; the workflow requires that limit.
 Use the same repository and revision selection from step 3; skip the AWS launcher commands.
 
 Install the exact Linux pixi binary pinned in `flake.nix`, checking its SHA256 before execution:
@@ -213,6 +216,7 @@ Run the following inside a single-node GPU job, after selecting your site's part
 
 ```bash
 set -euo pipefail
+cd "$(pwd -P)"
 export PATH="$PWD/scratch/bootstrap/bin:$HOME/.pixi/bin:$PATH"
 export CORES="${SLURM_CPUS_PER_TASK:?Request CPUs per task in the Slurm job}"
 export XDG_RUNTIME_DIR="$(mktemp -d "${TMPDIR:-/tmp}/jump-runtime.XXXXXX")"
@@ -223,8 +227,9 @@ just reproduce 2>&1 | tee reproduce.log
 ```
 
 Run from the checkout root and retain Slurm's `CUDA_VISIBLE_DEVICES`; do not replace it with GPU IDs from outside the allocation.
+Resolving the physical checkout directory keeps the shell and Hydra consistent when the project path includes symlinks.
 `CORES` is explicit because `nproc --all` reports the node's CPUs, which may exceed the allocation.
-The workflow's memory budget uses host RAM, so use an exclusive node with its full memory allocation when the cluster does not expose allocation-limited memory in `/proc/meminfo`.
+The workflow's memory budget uses host RAM, so use an exclusive node with its full memory allocation.
 See [Slurm's allocation options](https://slurm.schedmd.com/sbatch.html) for `--cpus-per-task`, `--exclusive` and `--mem=0`; partition, account and GPU request syntax are site-specific.
 Do not run the GPU workflow on a login node.
 Environment builds can probe CUDA, so perform setup on the allocated GPU too.
