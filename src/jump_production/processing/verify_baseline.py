@@ -7,6 +7,7 @@ import math
 from pathlib import Path
 
 import typer
+import yaml
 from loguru import logger
 
 CURATED_TABLES = tuple(
@@ -37,7 +38,7 @@ def load_claims(path: Path) -> dict:
                 "data/processed/fingerprint-metrics/fingerprint_metrics_summary.json",
                 "fingerprint_metrics",
             ):
-                if key[2] == "fastest.transform_time_full_s":
+                if key[2] in ("fastest.transform_time_full_s", "fastest.name"):
                     value = None
                 elif key[2] == "transformations":
                     for transformation in value:
@@ -136,6 +137,35 @@ def read_checksums(path: Path) -> dict[str, str]:
     return result
 
 
+def is_hydra_config(name: str) -> bool:
+    return name.startswith("data/processed/copairs/runs/") and name.endswith("/results/.hydra/hydra.yaml")
+
+
+def hydra_config(path: Path) -> str:
+    """Compare configuration exactly after removing only the runtime checkout root."""
+    try:
+        document = yaml.safe_load(path.read_text())
+        runtime = document["hydra"]["runtime"]
+        root = Path(runtime["cwd"])
+        if not root.is_absolute() or ".." in root.parts:
+            raise ValueError("runtime cwd must be an absolute checkout path")
+
+        def relative(value):
+            location = Path(value)
+            if not location.is_absolute() or ".." in location.parts:
+                raise ValueError("runtime path must be absolute and inside the checkout")
+            return location.relative_to(root).as_posix()
+
+        runtime["output_dir"] = relative(runtime["output_dir"])
+        for source in runtime["config_sources"]:
+            if source["schema"] == "file":
+                source["path"] = relative(source["path"])
+        runtime["cwd"] = "."
+        return json.dumps(document, sort_keys=True)
+    except (KeyError, TypeError, ValueError, yaml.YAMLError) as error:
+        raise ValueError(f"Invalid Hydra runtime metadata: {path}: {error}") from error
+
+
 def verify_files(baseline: Path, actual: Path, policy: dict) -> tuple[int, int]:
     manifest_path = baseline / "MANIFEST.sha256"
     if sha256(manifest_path) != policy["baseline_manifest_sha256"]:
@@ -171,7 +201,12 @@ def verify_files(baseline: Path, actual: Path, policy: dict) -> tuple[int, int]:
         raise ValueError("Replacement checksum does not name a retained exact check")
     checks = {name: replacements.get(name, digest) for name, digest in checks.items() if name not in removed}
     for name, digest in checks.items():
-        if sha256(actual / name) != digest:
+        if is_hydra_config(name):
+            if sha256(baseline / name) != manifest[name]:
+                raise ValueError(f"Unauthenticated baseline input: {name}")
+            if hydra_config(baseline / name) != hydra_config(actual / name):
+                raise ValueError(f"Hydra configuration changed: {name}")
+        elif sha256(actual / name) != digest:
             raise ValueError(f"Artifact checksum changed: {name}")
     return len(expected), len(checks)
 
@@ -193,8 +228,8 @@ def main(baseline: Path, actual: Path) -> None:
     except (ValueError, OSError, KeyError) as error:
         logger.error(str(error))
         raise typer.Exit(1) from error
-    logger.success("{} output paths and {} exact artifact checks agree", file_count, exact_count)
-    logger.success("{} claims agree; only named fingerprint timings and float64 roundoff allowed", count)
+    logger.success("{} output paths and {} artifact checks agree; Hydra runtime checkout roots normalized", file_count, exact_count)
+    logger.success("{} claims agree; only named fingerprint timings, their fastest name and float64 roundoff allowed", count)
     logger.success("Four curated tables agree; only centroid_distance allows absolute drift <= 2e-7")
     logger.success("Batch and MitoTox scientific summaries agree")
 

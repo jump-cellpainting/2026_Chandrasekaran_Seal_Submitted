@@ -15,14 +15,16 @@ The binary-trait table renames one display-selection column; its values, row mem
 | Check | Original snapshot | Source release |
 | --- | ---: | ---: |
 | Required processed paths | 2,005 | 2,002 |
-| Exact artifact checks | 1,146 | 1,144 |
+| Artifact checks | 1,146 | 998 exact hashes + 146 Hydra configurations |
 | Dataset-reference claim rows | 1,581 | 1,571 |
 | Curated compound tables | 4 | 4 |
 | Separately compared scientific summary objects | 2 | 2 |
 
 Two exact-check hashes are replaced with hashes of the deterministically rewritten metadata artifacts.
 The compound-collection summary's envelope description is also rewritten as factual coverage text and is covered by its replacement hash, outside the claim-row count.
-The remaining 1,142 exact checks are unchanged.
+Of the remaining checks, 996 exact hashes are unchanged and 146 Hydra configurations are compared against authenticated baseline files after normalizing only their runtime checkout roots.
+All configuration choices, relative path suffixes and other fields remain exact.
+The timing-derived fingerprint `fastest.name` is treated like its runtime; the claim must still be present, and scientific transformation results remain checked.
 Six metadata replacements are explicit in the projection; scientific counts, values, thresholds and tolerances are unchanged.
 Missing or extra outputs and claims still fail, including reintroduction of retired outputs.
 The original snapshot, input checksum manifest and null cache are not overwritten or republished.

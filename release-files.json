@@ -10,7 +10,7 @@
     "AGENTS.md": "5c0035eadd75fa9639098f5f0ae28d33915ebf11f8f15ad858655526715c9790",
     "CLAUDE.md": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
     "CONSTITUTION.md": "c31d804fa579c5842a679b5b94dcf31a2af88a7e5f9b0ffe43355c8e85e85097",
-    "Justfile": "3dc3b1d16332fbf4b330fa6912fd264831c7d498b8c7a19dee184e663242f382",
+    "Justfile": "fba960e32e25a45051aa27250657d41bf12de0f2496c62e05f016581441b33de",
     "README.md": "dcb21d1a767525bb13a322649050cf2700469e92b5a56aae323c868e79ee5855",
     "Snakefile": "b5ee4e446b57edaf8b58e4d8c2e44cd6c22279fac1706421880fca3b4221f9f6",
     "assets/figure_compound_collection/README.md": "1c340f3082e0e97736a60f81ea0f73fb6ff2c94e7fdf71466288e2f707c4b122",
@@ -79,8 +79,8 @@
     "docs/notebooks.md": "d04bf286184d84454c637032a05ae2e336ef1a0499763af324e89a0dad5f5ab6",
     "docs/paper/dataset_reference.md": "04039d5b1631c9334ee1807d600547aecae0c6a35c0782123592b2ebb860f538",
     "docs/paper/figure_review_checklist.md": "1cfd97712a866e78a75673750490519e926bdbe34caeaec5a2f8c13510e92112",
-    "docs/release.md": "55acd4a4744e2fcd161bc1961049aa0edd5e1397cacfed3978ca5a96816668ee",
-    "docs/reproduce.md": "b4c9fd2e25d41d4498ad9b24cf4f065499187de20ca08d64d168ac963b8de751",
+    "docs/release.md": "082f744777b30cc93a023ac33a5c8235771fd75b1fc229da36f589234b4e749d",
+    "docs/reproduce.md": "8012b1dbb11db8d67fbbbd96e40d87c1846e952807631fafc4268e3fecaabd4e",
     "flake.lock": "fbcc9d84724fd9fdb22636f7e4689775f67bc16102dae29c6ac6738f50afb892",
     "flake.nix": "078d5028a1368cd0214918ba2e3b29eb7907063f856260c6cd3ea54cfdbfc267",
     "index.html": "7cb7853d7844352a77767abc389a7eeed77eaaa9872b2643de8d80e72193dbf2",
@@ -190,7 +190,7 @@
     "src/jump_production/processing/toxicity_pk.py": "7d433f4981a220d6ffef900eabb31cd8cb717b1f31206ec93eab1bccf1f4a605",
     "src/jump_production/processing/umap.py": "e07ccd2aac212d6b953852174df48637dcab1195cbe43a6ae2b9a3dfac5a65ee",
     "src/jump_production/processing/utils.py": "721fa6dc5e301577954cdc3705b7f80ab833d6d1a5f27224b83eb49d2ba858b7",
-    "src/jump_production/processing/verify_baseline.py": "405cdfd7fe313f92399890b05beebad36f2efe8d47e9b9a4aa55cd260d24585c",
+    "src/jump_production/processing/verify_baseline.py": "04fd6e5c5fec73f9e37069555ad0116ce7bb7d2c24a98095e1e7b8511547f396",
     "src/jump_production/queries.py": "d6c46728e297d8b6f37c47fc55ca3aba270755ca3d30e23ce0987d4018ca16df",
     "src/jump_production/release.py": "b58915d73889ceab617948c5f31491cbcf3f8293f14a5ef307eacc9a0212d848",
     "src/jump_production/statistics.py": "36a5bd248c84991214fb8c56549b977d551ec3cf6f91f2e58927723c79381553",
@@ -219,7 +219,7 @@
     "tests/test_structure_activity_figure.py": "3b9f6066af46361c86ea2d9e2a574e446f85a1bc0c10125af8699f114c949e03",
     "tests/test_structure_activity_pairs.py": "9e762730006161e349d48380b16c059524f3229337d84940ffeae7d493ea3e37",
     "tests/test_summaries.py": "51b4d4cb460b6534e72283718d4496784fd0614a5e792f13fd9df4427cd40e96",
-    "tests/test_verify_baseline.py": "910d17a57e98fe0252819d715c0ca275d0f36493632559502ed6b0ab410d41ff",
+    "tests/test_verify_baseline.py": "7d9e4f78d4fd8b5158983b1540dd31452dcb3cb8d600fbe4770f72624e625d2f",
     "tests/test_workflow.py": "560223a7f0fddc3bca5ce75887e682602fc8993392c28d54f40d0b224688d795"
   }
 }

@@ -160,6 +160,9 @@ verify-baseline root=".":
     done
     test "$(wc -l < "$cache/references.sha256")" -eq 8
     (cd "$cache" && sha256sum --check --quiet references.sha256)
+    # These authenticated configs differ by checkout root on other machines.
+    awk '$2 ~ /^data\/processed\/copairs\/runs\/.*\/results\/\.hydra\/hydra.yaml$/ { print $2 }' "$cache/CHECKS.sha256" > "$cache/hydra-paths.txt"
+    rclone copy $s3 --files-from "$cache/hydra-paths.txt" "$src" "$cache"
     # The scientific contract checks the exact retained roster, hashes and claims.
     pixi run python -m jump_production.processing.verify_baseline "$cache" "$actual"
     echo 'baseline: ok'
