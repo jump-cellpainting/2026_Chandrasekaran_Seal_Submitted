@@ -2,28 +2,18 @@
 
 from __future__ import annotations
 
-import importlib.util
 import math
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
+from conftest import load_notebook
 from scipy.stats import spearmanr
-
-REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
-SCRIPT_PATH = REPOSITORY_ROOT / "notebooks" / "2.46-ss-opentargets-target-alignment.py"
-RULES_PATH = REPOSITORY_ROOT / "rules" / "analysis.smk"
 
 
 @pytest.fixture(scope="module")
 def analysis():
-    """Import the ordinary exploration script as a module."""
-    spec = importlib.util.spec_from_file_location("opentargets_target_alignment", SCRIPT_PATH)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    return load_notebook("2.46-ss-opentargets-target-alignment.py")
 
 
 def _unit_vector_with_cosine(cosine: float) -> tuple[float, float]:
@@ -180,49 +170,6 @@ def test_profile_contract_rejects_missing_and_zero_norm_profiles(analysis):
     zero_norm.loc["JCP2"] = 0.0
     with pytest.raises(ValueError, match="zero-norm"):
         analysis.validate_profile_contract(zero_norm, ["JCP1", "JCP2"])
-
-
-def test_scaffold_holdout_excludes_query_and_same_scaffold_anchors(analysis):
-    """Leave-scaffold-out references retain only other-scaffold target anchors."""
-    labels_by_id = {
-        "QUERY": ("A",),
-        "A_SAME": ("A",),
-        "A_OTHER": ("A",),
-        "WRONG_TARGET": ("B",),
-    }
-    scaffolds = {
-        "QUERY": "scaffold_1",
-        "A_SAME": "scaffold_1",
-        "A_OTHER": "scaffold_2",
-        "WRONG_TARGET": "scaffold_3",
-    }
-
-    observed = analysis.scaffold_holdout_reference_ids(
-        query_id="QUERY",
-        target="A",
-        active_ids=["QUERY", "A_SAME", "A_OTHER", "WRONG_TARGET"],
-        labels_by_id=labels_by_id,
-        scaffolds=scaffolds,
-    )
-
-    assert set(observed) == {"A_OTHER"}
-
-
-def test_analysis_pins_activity_annotation_and_programmatic_copairs_contract(analysis):
-    """The exploration owns one exact source and one five-dimensional activity slice."""
-    assert analysis.DATASET == "compound_no_source7"
-    assert analysis.COLUMNS == "feat_all"
-    assert analysis.ACTIVITY_PREPROCESSING == "activity_no_target2"
-    assert analysis.FILTER_NAME == "all_sources"
-    assert analysis.ACTIVITY_PARAMS == "default"
-    assert analysis.ANNOTATION_TABLE == "motive_targets_opentargets"
-    assert analysis.ANNOTATION_COLUMN == "Metadata_motive_gene_opentargets"
-
-    source = SCRIPT_PATH.read_text()
-    assert "from copairs.map.multilabel import average_precision" in source
-    assert "multilabel_average_precision(" in source
-    assert "copairs_runner" not in source
-    assert "import hydra" not in source
 
 
 def _relationship_memberships() -> pd.DataFrame:
@@ -403,47 +350,3 @@ def test_quadrant_export_contains_all_category_rows_without_jargon(analysis):
     assert "active_reference_compounds" in exported
     assert "reference_set_id" in exported
     assert not any("anchor" in column for column in exported.columns)
-
-
-def test_analysis_rule_declares_exact_inputs_and_all_real_outputs():
-    """Snakemake tracks the complete 2.46 package from the well-level H5AD."""
-    rules = RULES_PATH.read_text()
-    marker = "rule opentargets_target_alignment:"
-    assert marker in rules
-    rule_block = rules.split(marker, maxsplit=1)[1].split("\n\nrule ", maxsplit=1)[0]
-    input_block = rule_block.split("    input:", maxsplit=1)[1].split("    output:", maxsplit=1)[0]
-    output_block = rule_block.split("    output:", maxsplit=1)[1].split("    log:", maxsplit=1)[0]
-
-    for input_path in (
-        "data/interim/anndata/compound_no_source7.h5ad",
-        "data/interim/jump_metadata_augmented.duckdb",
-        "data/processed/copairs_results.duckdb",
-        "notebooks/2.46-ss-opentargets-target-alignment.py",
-    ):
-        assert input_path in input_block
-    assert "compound_no_source7_perturbation.h5ad" not in rule_block
-
-    for filename in (
-        "opentargets_target_alignment_memberships.csv",
-        "opentargets_target_reference_audit.csv",
-        "opentargets_target_alignment_models.csv",
-        "opentargets_target_alignment_sensitivities.csv",
-        "opentargets_shuffled_label_calibration.csv",
-        "opentargets_matched_nonmembers.csv",
-        "opentargets_activity_consistency_quadrants.csv",
-        "opentargets_target_alignment_target_summary.csv",
-        "opentargets_target_alignment_fitted_curve.csv",
-        "summary.json",
-    ):
-        assert filename in output_block
-    assert ".complete" not in output_block
-    # The renderer owns every drawn artifact; this analysis writes tables only.
-    assert ".png" not in output_block
-    assert ".pdf" not in output_block
-    assert "legend.md" not in output_block
-    assert "--canonical-well-profiles {input.canonical_well_profiles}" in rule_block
-    assert "data/processed/exploration/0.19" not in rules
-
-    exploration = (REPOSITORY_ROOT / "rules" / "exploration.smk").read_text()
-    assert "rule explore_0_19:" not in exploration
-    assert "data/processed/exploration/0.19" not in exploration

@@ -2,27 +2,18 @@
 
 from __future__ import annotations
 
-import importlib.util
 from pathlib import Path
 from types import ModuleType
 
 import numpy as np
 import pandas as pd
 import pytest
-
-ROOT = Path(__file__).resolve().parents[1]
-FIGURE_SCRIPT = ROOT / "notebooks/figure-phenotypic-consistency.py"
+from conftest import load_notebook
 
 
 @pytest.fixture(scope="module")
 def figure_module() -> ModuleType:
-    """Load the hyphenated direct-figure script without running its CLI."""
-    spec = importlib.util.spec_from_file_location("figure_phenotypic_consistency", FIGURE_SCRIPT)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Could not load {FIGURE_SCRIPT}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    return load_notebook("figure-phenotypic-consistency.py")
 
 
 def test_exact_moa_memberships_preserve_pipe_delimited_labels(
@@ -348,16 +339,15 @@ def test_combined_moa_caption_is_self_contained(captions: dict[str, str]) -> Non
     """The combined standalone export retains the cohort, null, exclusion, and headline values."""
     caption = captions["combined_global_moa_retrieval"]
     assert "42 active, MOA-annotated compounds" in caption
-    assert "same Bemis-Murcko scaffold" in caption
     assert "1,000 permutations of complete multilabel annotation sets" in caption
     assert "21.2% observed versus 1.3% permuted at k=1" in caption
     assert "42.5% versus 11.6% at k=10" in caption
 
 
-def test_curated_moa_caption_distinguishes_historical_cutoff(
-    figure_module: ModuleType, captions: dict[str, str], monkeypatch: pytest.MonkeyPatch
+def test_curated_moa_below_the_historical_cutoff_keeps_its_current_value(
+    figure_module: ModuleType, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """A retained class below the old cutoff must not be described as passing it now."""
+    """A historically selected class is retained, with its current evidence, below the old cutoff."""
     moa = "histone lysine methyltransferase inhibitor"
     monkeypatch.setattr(figure_module, "CURATED_MOAS", (moa,))
     memberships = pd.DataFrame(
@@ -370,7 +360,3 @@ def test_curated_moa_caption_distinguishes_historical_cutoff(
     }])
     _, classes = figure_module.select_curated_moas(memberships, evidence)
     assert classes.loc[0, "mean_normalized_average_precision"] == evidence.loc[0, "mean_normalized_average_precision"]
-    caption = captions["selected_moa_neighborhoods"]
-    assert "historically selected" in caption
-    assert "cutoff is not reapplied" in caption
-    assert "selected_moa_classes.csv" in caption

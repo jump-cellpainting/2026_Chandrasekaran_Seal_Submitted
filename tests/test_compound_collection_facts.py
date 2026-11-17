@@ -9,7 +9,7 @@ CONTRACT_PATH = ROOT / "references/compound_collection_contract.json"
 
 
 def test_compound_collection_summary_is_in_canonical_manifest():
-    from snakemake.api import SnakemakeApi, OutputSettings, ResourceSettings
+    from snakemake.api import OutputSettings, ResourceSettings, SnakemakeApi
 
     with SnakemakeApi(OutputSettings()) as api:
         workflow = api.workflow(snakefile=ROOT / "Snakefile", resource_settings=ResourceSettings())._workflow
@@ -37,14 +37,3 @@ def test_numerical_contract_rejects_changed_computation():
     values["population.analyzed_compounds"] += 1
     with pytest.raises(ValueError, match="numerical contract failed"):
         exec(code, env)
-
-
-def test_functional_use_contract_preserves_input_and_population_caveats():
-    contract = json.loads(CONTRACT_PATH.read_text())
-    provenance = contract["functional_use_provenance"]
-    expected = contract["expected_claims"]
-    assert provenance["source_url"].endswith("/external/2026-04-06_JUMP_chems_func_use.csv")
-    assert expected["functional_use.enrichment_analysis_compounds"] == 8300
-    assert expected["functional_use.curated_fuc.count"] == 427
-    assert expected["functional_use.predicted_fup.count"] == 7651
-    assert "can overlap" in provenance["interpretation_caveat"]

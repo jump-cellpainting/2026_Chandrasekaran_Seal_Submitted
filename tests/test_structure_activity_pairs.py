@@ -1,19 +1,13 @@
 """Scientific unit tests for the cached structure-activity pair analysis."""
 
-import importlib.util
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import pytest
+from conftest import load_notebook
 from scipy.sparse import csr_matrix
 from scipy.spatial.distance import pdist, squareform
 
-_ANALYSIS_PATH = Path(__file__).resolve().parents[1] / "notebooks" / "2.07-ss-structure-activity-pairs.py"
-_SPEC = importlib.util.spec_from_file_location("structure_activity_pairs", _ANALYSIS_PATH)
-assert _SPEC is not None and _SPEC.loader is not None
-_ANALYSIS = importlib.util.module_from_spec(_SPEC)
-_SPEC.loader.exec_module(_ANALYSIS)
+_ANALYSIS = load_notebook("2.07-ss-structure-activity-pairs.py")
 
 STRUCT_HIGH_THRESHOLD = _ANALYSIS.STRUCT_HIGH_THRESHOLD
 TANIMOTO_THRESHOLD_DENOMINATOR = _ANALYSIS.TANIMOTO_THRESHOLD_DENOMINATOR

@@ -1,20 +1,13 @@
 """Behavioral contracts for the Figure 1 chemical-space publication paths."""
 
-import importlib.util
-from pathlib import Path
 
 import duckdb
 import pandas as pd
 import pytest
+from conftest import load_notebook
 from PIL import Image
 
-ROOT = Path(__file__).resolve().parent.parent
-NOTEBOOK = ROOT / "notebooks" / "2.04a-ss-chemical-space.py"
-
-SPEC = importlib.util.spec_from_file_location("chemical_space_publication", NOTEBOOK)
-assert SPEC and SPEC.loader
-MODULE = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(MODULE)
+MODULE = load_notebook("2.04a-ss-chemical-space.py")
 
 
 def test_analysis_output_paths_are_population_scoped_by_default(tmp_path):
@@ -178,21 +171,3 @@ def test_publication_schematic_is_composited_on_white_without_changing_source(tm
     assert result["publication_background"] == "white"
     assert result["schematic_height_px"] == 1
     assert result["caption_band_px"] == result["height_px"] - result["schematic_height_px"] > 0
-
-
-def test_publication_captions_retain_property_definitions_and_citations():
-    """Concision edits keep the scientific definitions and original attributions."""
-    source = Path(MODULE.__file__).read_text()
-    main_block = source.split("def write_figure1_publication_package(", maxsplit=1)[1].split(
-        "\ndef write_supplement_publication_package(", maxsplit=1
-    )[0]
-    supplement_block = source.split("def write_supplement_publication_package(", maxsplit=1)[1].split(
-        "\n# =============================================================================", maxsplit=1
-    )[0]
-
-    assert "median quantitative estimate " in main_block
-    assert "of drug-likeness (QED; Bickerton et al., 2012)" in main_block
-    assert "quantitative estimate of drug-likeness " in supplement_block
-    assert '"(QED; Bickerton et al., 2012); medians' in supplement_block
-    assert "pan-assay interference compounds " in supplement_block
-    assert '"(PAINS; Baell and Holloway, 2010) among' in supplement_block

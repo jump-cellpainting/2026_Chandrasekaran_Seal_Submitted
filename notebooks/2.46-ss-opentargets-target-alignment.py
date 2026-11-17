@@ -674,26 +674,6 @@ def score_target_alignment(
     )
 
 
-def scaffold_holdout_reference_ids(
-    query_id: str,
-    target: str,
-    active_ids: Iterable[str],
-    labels_by_id: dict[str, tuple[str, ...]],
-    scaffolds: dict[str, str],
-) -> tuple[str, ...]:
-    """Return active target anchors after identity and exact-scaffold exclusion."""
-    query_scaffold = str(scaffolds.get(str(query_id), "") or "").strip()
-    return tuple(
-        sorted(
-            reference_id
-            for reference_id in map(str, active_ids)
-            if reference_id != str(query_id)
-            and target in labels_by_id[reference_id]
-            and (not query_scaffold or str(scaffolds.get(reference_id, "") or "").strip() != query_scaffold)
-        )
-    )
-
-
 def add_centroid_calibration(
     memberships: pd.DataFrame,
     profiles: pd.DataFrame,

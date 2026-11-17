@@ -80,8 +80,6 @@ except ImportError:
     HAS_RDKIT = False
     logger.warning("RDKit not available - scaffold structure plots will be skipped")
 
-RANDOM_STATE = 42
-
 app = typer.Typer()
 
 

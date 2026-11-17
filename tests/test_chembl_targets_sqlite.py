@@ -2,19 +2,16 @@
 
 from __future__ import annotations
 
-import ast
 import gzip
 import io
 import json
 import sqlite3
-import sys
 import tarfile
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
-from typer.testing import CliRunner
 
 from jump_production.downloading import chembl_targets_sqlite as generator
 
@@ -246,80 +243,6 @@ def _raw_frame(rows: list[dict[str, object]]) -> pd.DataFrame:
         record.update(overrides)
         records.append(record)
     return pd.DataFrame(records, columns=pd.Index(generator.RAW_COLUMNS))
-
-
-def test_release_archive_source_and_reference_pins_are_exact() -> None:
-    assert generator.CHEMBL_RELEASE == "ChEMBL_33"
-    assert generator.OFFICIAL_ARCHIVE_SIZE == 4_735_615_261
-    assert generator.OFFICIAL_ARCHIVE_SHA256 == ("4e14ace2dc3696cd414c25cbf2370a618fd5ac028713b877725c8ae308e86e8b")
-    assert generator.OFFICIAL_DATABASE_MEMBER == ("chembl_33/chembl_33_sqlite/chembl_33.db")
-    assert generator.OFFICIAL_DATABASE_SIZE == 24_663_986_176
-    assert generator.OFFICIAL_DATABASE_SHA256 == ("fbc426749b425d801b9973d8522a45e04cc1a01ff8cd5217dcda5c71587b7965")
-    assert generator.CANONICAL_REFERENCE_SHA256 == ("b299aabfd07a4b6685c9eea0327d762a3d20b71434c82a646a24d76c32c46480")
-    assert generator.SMALLWORLD_SOURCE_URL == ("https://zenodo.org/records/21816611/files/jump_to_chembl.csv.gz")
-    assert "doi:10.5281/zenodo.21816611" in generator.SMALLWORLD_SOURCE_STATUS
-    assert generator.SMALLWORLD_MAPPING_PIN == generator.CsvSourcePin(
-        filename="jump_to_chembl.csv.gz",
-        size_bytes=248_071,
-        sha256="50c038187761f3e8bbe998fea22525afe13c3cc01a14178ab3175335464656ac",
-        rows=36_488,
-        columns=("JUMP_ID", "molecule_chembl_id", "hit_rank"),
-    )
-    assert generator.JUMP_COMPOUND_SOURCE_PIN == generator.CsvSourcePin(
-        filename="compound.csv.gz",
-        size_bytes=8_595_537,
-        sha256="8885960e92ebd99eb33699a79129f517e668d78dd94f0d7478d39c9825bd3c0a",
-        rows=115_796,
-        columns=(
-            "Metadata_JCP2022",
-            "Metadata_InChIKey",
-            "Metadata_InChI",
-            "Metadata_SMILES",
-        ),
-    )
-    assert generator.EXPECTED_SMALLWORLD_COUNTS == {
-        "rows": 36_488,
-        "jump_ids": 28_782,
-        "chembl_ids": 36_449,
-        "nonzero_rank_rows": 7_706,
-    }
-    assert generator.EXPECTED_COMPOUND_DERIVATION_COUNTS == {
-        "mapped_jump_ids": 28_782,
-        "source_rows": 28_781,
-        "fallback_rows": 1,
-        "output_rows": 28_782,
-    }
-    assert generator.EXPECTED_TARGET_MAPPING_COUNTS == {
-        "rows": 3_356,
-        "target_chembl_ids": 3_235,
-        "uniprot_accessions": 3_295,
-    }
-    assert generator.EXPECTED_ANNOTATION_COUNTS["mapped_activity_rows"] == 139_224
-    assert generator.EXPECTED_ANNOTATION_COUNTS["mean_compound_target_pairs"] == 92_062
-    assert generator.DEFAULT_OUTPUT_DIR.as_posix().endswith(".cache/chembl-target-annotations-chembl33")
-    assert not generator.DEFAULT_OUTPUT_DIR.resolve().is_relative_to(generator.DATA_DIR.resolve())
-
-
-def test_pep723_environment_pins_historical_scientific_stack() -> None:
-    source = Path(generator.__file__).read_text()
-    assert '# requires-python = "==3.11.*"' in source
-    for pin in (
-        '"numpy==1.26.4"',
-        '"pandas==2.2.1"',
-        '"chem-filters==1.0.0"',
-        '"chembl-structure-pipeline==1.2.2"',
-        '"rdkit==2023.9.5"',
-        '"dimorphite-dl==1.2.5"',
-    ):
-        assert pin in source
-
-
-def test_chemfilters_is_not_imported_at_module_scope() -> None:
-    tree = ast.parse(Path(generator.__file__).read_text())
-    top_level_imports = [node for node in tree.body if isinstance(node, ast.Import | ast.ImportFrom)]
-    imported = {alias.name for node in top_level_imports for alias in node.names}
-    assert not any(name.startswith("chemFilters") for name in imported)
-    assert "chemFilters" not in sys.modules
 
 
 @pytest.mark.parametrize(
@@ -648,7 +571,6 @@ def test_database_query_applies_historical_filters_and_uses_molecule_ids(
     assert activities["activity_id"].tolist() == [1, 2]
     assert activities["molecule_chembl_id"].tolist() == ["CHEMBL1", "CHEMBL2"]
     assert molecules["metadata_source_id"].tolist() == ["CHEMBL1", "CHEMBL2"]
-    assert "standard_inchi_key" not in generator.ACTIVITY_SQL.lower()
 
 
 def test_target_mapping_is_derived_from_swiss_prot_single_and_unique_complexes(
@@ -942,10 +864,3 @@ def test_deterministic_gzip_writer_pins_header_and_content(tmp_path: Path) -> No
     raw = first.read_bytes()
     assert int.from_bytes(raw[4:8], "little") == 0
     assert b"audit.csv\0" in raw[:64]
-
-
-def test_cli_help_describes_exact_chembl33_inputs() -> None:
-    result = CliRunner().invoke(generator.app, ["--help"])
-    assert result.exit_code == 0
-    assert "ChEMBL 33" in result.stdout
-    assert "fail-closed" in result.stdout

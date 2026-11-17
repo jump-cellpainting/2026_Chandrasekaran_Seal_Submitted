@@ -175,36 +175,6 @@ def load_compounds(
     return df
 
 
-def load_annotations(con: duckdb.DuckDBPyConnection) -> dict[str, pd.DataFrame]:
-    """Load annotation tables from DuckDB.
-
-    Returns dict of DataFrames keyed by annotation source.
-    """
-    annotations = {}
-
-    # Check which tables exist
-    tables = [row[0] for row in con.execute("SHOW TABLES").fetchall()]
-    logger.info(f"Available tables: {tables}")
-
-    # Load each annotation source if available
-    annotation_tables = {
-        "repurposing_hub": "repurposing_hub_annotations",
-        "chemical_probes": "chemical_probes",
-        "motive": "motive_annotations",
-        "toxcast": "toxcast_annotations",
-    }
-
-    for name, table in annotation_tables.items():
-        if table in tables:
-            df = con.execute(f"SELECT * FROM {table}").fetchdf()
-            annotations[name] = df
-            logger.info(f"Loaded {len(df):,} rows from {table}")
-        else:
-            logger.warning(f"Table {table} not found")
-
-    return annotations
-
-
 def validate_and_order_publication_compounds(
     df: pd.DataFrame,
     canonical_ids: list[str],
@@ -2733,7 +2703,6 @@ def main(
     try:
         # Load data (includes precomputed properties from compound_properties table)
         df = load_compounds(con, analyzed_ids=analyzed_ids)
-        _annotations = load_annotations(con)  # For future use
 
         # Generate individual plots (standalone mode: ax/axes=None, saves to output_dir)
         plot_annotation_coverage(df, output_dir=output_dir, dpi=dpi)

@@ -145,37 +145,6 @@ def transform_concatenate_popcount(X: np.ndarray) -> np.ndarray:
     return np.hstack([X_norm, sqrt_pop_scaled, inv_sqrt_pop_scaled])
 
 
-def transform_minhash(X: np.ndarray, n_hashes: int = 256, seed: int = 42) -> np.ndarray:
-    """Generate MinHash signatures for Jaccard approximation.
-
-    Uses random permutations to create hash functions.
-    For each hash function, the signature is the index of the first set bit
-    in the permuted order.
-
-    The fraction of matching signatures approximates Jaccard similarity.
-    """
-    n_samples, n_features = X.shape
-    rng = np.random.default_rng(seed)
-
-    # Generate random permutation indices for each hash function
-    signatures = np.zeros((n_samples, n_hashes), dtype=np.float32)
-
-    for h in range(n_hashes):
-        # Random permutation of feature indices
-        perm = rng.permutation(n_features)
-
-        # For each sample, find the first set bit in permuted order
-        for i in range(n_samples):
-            for j, idx in enumerate(perm):
-                if X[i, idx] == 1:
-                    signatures[i, h] = j / n_features  # Normalize to [0, 1]
-                    break
-            else:
-                signatures[i, h] = 1.0  # No bits set
-
-    return signatures
-
-
 def transform_minhash_fast(X: np.ndarray, n_hashes: int = 256, seed: int = 42) -> np.ndarray:
     """Fast vectorized MinHash using random hash values.
 

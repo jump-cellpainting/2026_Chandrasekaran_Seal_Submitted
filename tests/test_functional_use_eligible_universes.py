@@ -1,17 +1,10 @@
-import importlib.util
-from pathlib import Path
-
 import duckdb
 import numpy as np
 import pandas as pd
 import pytest
+from conftest import load_notebook
 
-ROOT = Path(__file__).resolve().parents[1]
-NOTEBOOK_PATH = ROOT / "notebooks/2.42-seal-functional-use-classification.py"
-SPEC = importlib.util.spec_from_file_location("functional_use_classification", NOTEBOOK_PATH)
-MODULE = importlib.util.module_from_spec(SPEC)
-assert SPEC.loader is not None
-SPEC.loader.exec_module(MODULE)
+MODULE = load_notebook("2.42-seal-functional-use-classification.py")
 
 
 def test_functional_use_table_is_a_required_workflow_input():

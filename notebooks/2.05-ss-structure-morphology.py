@@ -51,7 +51,6 @@ logger.info(f"GPU acceleration: {'enabled' if HAS_GPU else 'disabled (cupy not a
 DATA_DIR = Path("data")
 COPAIRS_DB = DATA_DIR / "processed/copairs_results.duckdb"
 METADATA_DB = DATA_DIR / "interim/jump_metadata_augmented.duckdb"
-OUTPUT_DIR = DATA_DIR / "processed" / "structure-morphology"
 
 K_NEIGHBORS = 50
 

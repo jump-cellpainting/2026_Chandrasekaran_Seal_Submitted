@@ -177,24 +177,6 @@ def load_assay_annotations(zip_path: Path) -> pl.DataFrame:
     return df
 
 
-def load_cytotox_data(zip_path: Path) -> pl.DataFrame:
-    """Load pre-computed cytotoxicity data from ToxCast summary zip."""
-    logger.info("Loading cytotoxicity data...")
-
-    with zipfile.ZipFile(zip_path, "r") as zf:
-        xlsx_files = [f for f in zf.namelist() if "cytotox_invitrodb" in f and f.endswith(".xlsx")]
-        if not xlsx_files:
-            raise ValueError("Could not find cytotox xlsx in zip")
-
-        with zf.open(xlsx_files[0]) as f:
-            df_pd = pd.read_excel(f)
-            df = pl.from_pandas(df_pd)
-
-    # Key columns: chid, dsstox_substance_id, cytotox_median_um
-    logger.info(f"Loaded cytotoxicity data for {len(df)} chemicals")
-    return df
-
-
 def load_toxcast_data(zip_path: Path) -> pl.DataFrame:
     """Load mc5-6 bioactivity data from ToxCast summary zip."""
     logger.info(f"Loading ToxCast mc5-6 data from {zip_path}")

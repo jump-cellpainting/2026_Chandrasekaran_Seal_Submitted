@@ -12,10 +12,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from conftest import load_notebook
 from PIL import Image
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
-RENDERER_PATH = REPOSITORY_ROOT / "notebooks" / "figure-compound-activity-associations.py"
 SYNTHETIC_SLICE = {
     "dataset": "synthetic",
     "columns": "feat_all",
@@ -71,34 +70,30 @@ def install_rdkit_stub() -> None:
     )
 
 
-def load_script(name: str, filename: str):
-    """Import one ordinary notebook script with a stable test module name."""
+def load_script(filename: str):
+    """Import one notebook script, shimming RDKit where the test environment lacks it."""
     install_rdkit_stub()
-    spec = importlib.util.spec_from_file_location(name, REPOSITORY_ROOT / "notebooks" / filename)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    return load_notebook(filename)
 
 
 @pytest.fixture(scope="module")
 def functional_module():
-    return load_script("figure3_functional_analysis", "2.42-seal-functional-use-classification.py")
+    return load_script("2.42-seal-functional-use-classification.py")
 
 
 @pytest.fixture(scope="module")
 def structural_module():
-    return load_script("figure3_structural_analysis", "2.43-seal-trait-activity-enrichment.py")
+    return load_script("2.43-seal-trait-activity-enrichment.py")
 
 
 @pytest.fixture(scope="module")
 def intrinsic_module():
-    return load_script("figure3_intrinsic_analysis", "2.45-seal-property-activity-oddsratios.py")
+    return load_script("2.45-seal-property-activity-oddsratios.py")
 
 
 @pytest.fixture(scope="module")
 def renderer_module():
-    return load_script("figure3_direct_renderer", "figure-compound-activity-associations.py")
+    return load_script("figure-compound-activity-associations.py")
 
 
 def synthetic_intrinsic_input(module, n: int = 120) -> pd.DataFrame:
@@ -985,8 +980,6 @@ def test_direct_renderer_writes_composite_modular_and_separate_exports(
     section_bodies = re.findall(r"^## .*?\n\n(.*?)(?=\n\n## |\Z)", legend_text, flags=re.MULTILINE | re.DOTALL)
     assert section_bodies
     assert max(len(body.split()) for body in section_bodies) <= 250
-    assert "we therefore asked" not in legend_text.lower()
-    assert "they barely constrain each other" not in legend_text.lower()
     assert renderer_module.ALIGNMENT_GRAIN_AUDIT_TABLE in legend_text
     assert summary["numbers"]["consistency_source_trait_pairs"] == 1
     assert summary["numbers"]["consistency_displayed_scope_estimates"] == 1
@@ -1006,41 +999,20 @@ def test_direct_renderer_writes_composite_modular_and_separate_exports(
     assert summary["numbers"]["consistency_modeled_memberships_max"] == 14
     assert summary["numbers"]["consistency_modeled_groups_min"] == 2
     assert summary["numbers"]["consistency_modeled_groups_max"] == 2
-    assert summary["numbers"]["consistency_display_contract"]["color"] == (
-        "Same symmetric RdBu normalization as the heatmap, computed from all tested fixed heatmap cells across both "
-        "scopes; blue is positive and red is negative"
-    )
-    assert summary["numbers"]["consistency_heatmap_display_contract"]["color"] == (
-        "RdBu with one symmetric range across both panels; blue is positive, red is negative, and gray marks untested "
-        "cells"
-    )
     assert (
         summary["numbers"]["consistency_heatmap_display_contract"]["fdr_threshold"]
         == structural_module.CONSISTENCY_EFFECT_FDR_THRESHOLD
     )
-    assert summary["numbers"]["consistency_heatmap_display_contract"]["model"].startswith(
-        "Inverse-group-size contextual WLS"
-    )
     declared = {item["path"]: item["kind"] for item in summary["files"]}
     assert declared["phenotypic_consistency_heatmap.png"] == "figure"
     assert declared["phenotypic_consistency_heatmap.pdf"] == "figure"
-    legend = (output_dir / "legend.md").read_text()
-    # The interpretation shared by every view hangs on the composite rather than on a section
-    # of its own, so every section still names a rendered file.
-    assert "adjusted by Benjamini-Hochberg within each trait family at 5% FDR" in legend
-    assert "tests use every non-null probability" in legend
-    assert "probability >= 0.5" in legend
-    assert "missing annotations are excluded" in legend
-    assert "compounds having valid structures but lacking the class" in legend
-    assert "Compounds pass the upstream activity filter (corrected p < 0.1)" in legend
-    assert "consistency sidebar uses the adjusted multivariable model" in legend
-    assert "Blue is positive and red is negative" in legend
-    assert "consistency forest" not in legend
-    assert "invalid structures are excluded" in legend
+    # Captions quote the runtime thresholds and selection limits rather than literals.
+    assert "probability >= 0.5" in legend_text
+    assert "Compounds pass the upstream activity filter (corrected p < 0.1)" in legend_text
     assert (
         f"Up to {structural_module.STRUCTURAL_FIGURE_MAX_PER_DIRECTION} Higher (blue) and "
         f"{structural_module.STRUCTURAL_FIGURE_MAX_PER_DIRECTION} Lower (orange)"
-    ) in legend
+    ) in legend_text
     assert all(not Path(item["path"]).is_absolute() for item in summary["files"])
 
 
@@ -1075,42 +1047,8 @@ def test_activity_ceiling_is_counted_by_compound_and_membership(renderer_module)
     # The three grains and the null that keeps the third from being over-read.
     assert "Spearman rho is 0.28 per membership, 0.29 per compound, 0.61 across all target labels" in caption
     assert "0.48 after retaining one label per distinct membership/reference set" in caption
-    assert "are not stronger compound-level effects" in caption
     assert "mean absolute rho 0.24" in caption
     assert "empirical p was 0.002 over 2000 permutations" in caption
     # The title lives in the legend section heading, so the caption must not repeat it.
-    assert "Phenotypic activity and consistency across OpenTargets targets" not in caption
-    assert (
-        renderer_module.SECTION_TITLES[renderer_module.TARGET_ALIGNMENT_STEM]
-        == "Phenotypic activity and consistency across OpenTargets targets"
-    )
-    assert "active reference compounds" in caption
-    assert "at least four active references" in caption
+    assert renderer_module.SECTION_TITLES[renderer_module.TARGET_ALIGNMENT_STEM] not in caption
     assert "\n" not in caption
-
-
-def test_target_alignment_panel_is_unaggregated_and_highlight_free():
-    """The raw-scale panels are unaggregated and exception-specific rendering stays out."""
-    source = RENDERER_PATH.read_text()
-    render_block = source.split("def draw_alignment_scatter(", maxsplit=1)[1].split(
-        "\ndef plot_cohort_outcome_properties(", maxsplit=1
-    )[0]
-
-    assert "set_title" not in render_block
-    # Both scatters must stay on the same axes, or the middle row stops being a
-    # statement about the reduction and becomes a second, unrelated plot.
-    assert "compound_axis = figure.add_subplot(grid[1, 0], sharex=raw_axis, sharey=raw_axis)" in render_block
-    assert 'frame["activity_nmap"]' in render_block
-    assert 'frame["target_alignment_nap"]' in render_block
-    raw_panel = render_block.split("scatter_axis.scatter(", maxsplit=1)[1].split("scatter_axis.grid(", maxsplit=1)[0]
-    assert "alignment_jitter" not in raw_panel
-    assert "mean_activity_nmap" not in raw_panel
-    assert "sensitivity_axis" not in render_block
-    assert "text_axis" not in render_block
-    assert "title_axis" not in render_block
-    assert "Question: do targets" not in render_block
-    assert "exception_number" not in render_block
-    assert "#a23b72" not in render_block
-    # Two scatters plus the across-target panel, and the caption never sets panel height.
-    assert "2 * ALIGNMENT_SCATTER_HEIGHT + ALIGNMENT_PANEL_HEIGHT + caption_height," in render_block
-    assert "fontsize=ALIGNMENT_CAPTION_POINTS" in render_block

@@ -116,42 +116,6 @@ def get_activity_consistency_data(
     return con.execute(query).df()
 
 
-def get_activity_with_replicates(
-    con: duckdb.DuckDBPyConnection,
-    dataset: str,
-) -> pd.DataFrame:
-    """Get activity results with replicate counts.
-
-    The replicate count is computed from the length of the `indices` column,
-    which contains the list of row indices used in the mAP aggregation.
-
-    Parameters
-    ----------
-    con : duckdb.DuckDBPyConnection
-        Database connection
-    dataset : str
-        Dataset name (e.g., 'compound_no_source7')
-
-    Returns
-    -------
-    pd.DataFrame
-        Activity data with columns: Metadata_JCP2022, activity_p, activity_nap, n_replicates
-    """
-    query = f"""
-    SELECT
-        Metadata_JCP2022,
-        corrected_p_value as activity_p,
-        mean_normalized_average_precision as activity_nap,
-        len(string_split(indices, ',')) as n_replicates
-    FROM activity_results
-    WHERE _preprocessing = 'activity_no_target2'
-      AND _filter = 'all_sources'
-      AND _activity_params = 'default'
-      AND _dataset = '{dataset}'
-    """
-    return con.execute(query).df()
-
-
 def get_effect_size_replicate_analysis(
     con: duckdb.DuckDBPyConnection,
     dataset: str,
@@ -898,27 +862,6 @@ def plot_activity_vs_consistency(
 
     plt.tight_layout()
     return fig
-
-
-def print_high_consistency_examples(df: pd.DataFrame, activity_min: float, activity_max: float, n: int = 15) -> None:
-    """Print examples of high-consistency compounds in a given activity range.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Data with activity_p, consistency_nap, target columns
-    activity_min : float
-        Minimum activity p-value
-    activity_max : float
-        Maximum activity p-value
-    n : int
-        Number of examples to show
-    """
-    mask = (df["activity_p"] >= activity_min) & (df["activity_p"] < activity_max)
-    subset = df[mask].sort_values("consistency_nap", ascending=False)
-
-    print(f"\n=== Top {n} high-consistency pairs with activity p in [{activity_min}, {activity_max}) ===")
-    print(subset[["Metadata_JCP2022", "target", "activity_p", "consistency_nap"]].head(n).to_string())
 
 
 # =============================================================================
