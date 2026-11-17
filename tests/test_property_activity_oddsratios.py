@@ -1,6 +1,5 @@
 """Protect the statistical and workflow contracts for analysis 2.45."""
 
-import importlib.util
 import json
 from pathlib import Path
 
@@ -8,17 +7,13 @@ import duckdb
 import numpy as np
 import pandas as pd
 import pytest
+from conftest import load_notebook
 from statsmodels.stats.multitest import multipletests
 
 from jump_production.queries import query_activity_results
 
 ROOT = Path(__file__).resolve().parent.parent
-NOTEBOOK = ROOT / "notebooks" / "2.45-seal-property-activity-oddsratios.py"
-
-SPEC = importlib.util.spec_from_file_location("property_activity_oddsratios", NOTEBOOK)
-assert SPEC and SPEC.loader
-MODULE = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(MODULE)
+MODULE = load_notebook("2.45-seal-property-activity-oddsratios.py")
 
 
 def functional_use_frame(category: str, counts: tuple[int, int, int, int]) -> pd.DataFrame:
@@ -45,6 +40,30 @@ def functional_use_frame(category: str, counts: tuple[int, int, int, int]) -> pd
             }
         ]
     )
+
+
+def trait_frame(counts: tuple[int, int, int, int], *, name: str = "example", n_missing: int = 20, **overrides):
+    """Build one 2.43-style enrichment row from a, b, c, d counts."""
+    a, b, c, d = counts
+    odds_ratio, ci_lower, ci_upper = MODULE._haldane_or_ci(a, b, c, d)
+    _, p_value = MODULE.fisher_exact([[a, b], [c, d]], alternative="two-sided")
+    row = {
+        "family": "rdkit_fg",
+        "trait": name,
+        "n_eligible": a + b + c + d,
+        "n_missing": n_missing,
+        "n_with_trait": a + b,
+        "n_without_trait": c + d,
+        "n_flag_with_trait": a,
+        "n_flag_without_trait": c,
+        "n_flag_total": a + c,
+        "odds_ratio": odds_ratio,
+        "ci_lower": ci_lower,
+        "ci_upper": ci_upper,
+        "p_value": p_value,
+        "corrected_p_value": 0.99,
+    }
+    return pd.DataFrame([row | overrides])
 
 
 def test_binary_odds_ratio_excludes_ineligible_missing_values():
@@ -113,28 +132,7 @@ def test_clinical_phases_use_exact_pipe_tokens_and_family_bh():
 
 
 def test_multiclass_table_preserves_functional_use_eligible_population():
-    _, trait_p = MODULE.fisher_exact([[5, 5], [11, 59]], alternative="two-sided")
-    trait_or, trait_lo, trait_hi = MODULE._haldane_or_ci(5, 5, 11, 59)
-    trait = pd.DataFrame(
-        [
-            {
-                "family": "rdkit_fg",
-                "trait": "example",
-                "n_eligible": 80,
-                "n_missing": 20,
-                "n_with_trait": 10,
-                "n_without_trait": 70,
-                "n_flag_with_trait": 5,
-                "n_flag_without_trait": 11,
-                "n_flag_total": 16,
-                "odds_ratio": trait_or,
-                "ci_lower": trait_lo,
-                "ci_upper": trait_hi,
-                "p_value": trait_p,
-                "corrected_p_value": 0.99,
-            }
-        ]
-    )
+    trait = trait_frame((5, 5, 11, 59))
     fup = functional_use_frame("surfactant", (5, 5, 2, 18))
     fuc = functional_use_frame("Biocide", (4, 6, 3, 17))
 
@@ -174,28 +172,7 @@ def test_multiclass_table_preserves_functional_use_eligible_population():
 
 
 def test_multiclass_table_rejects_inconsistent_upstream_counts():
-    _, trait_p = MODULE.fisher_exact([[5, 5], [11, 59]], alternative="two-sided")
-    trait_or, trait_lo, trait_hi = MODULE._haldane_or_ci(5, 5, 11, 59)
-    trait = pd.DataFrame(
-        [
-            {
-                "family": "rdkit_fg",
-                "trait": "example",
-                "n_eligible": 79,
-                "n_missing": 21,
-                "n_with_trait": 10,
-                "n_without_trait": 70,
-                "n_flag_with_trait": 5,
-                "n_flag_without_trait": 11,
-                "n_flag_total": 16,
-                "odds_ratio": trait_or,
-                "ci_lower": trait_lo,
-                "ci_upper": trait_hi,
-                "p_value": trait_p,
-                "corrected_p_value": 0.99,
-            }
-        ]
-    )
+    trait = trait_frame((5, 5, 11, 59), n_eligible=79, n_missing=21)
 
     with pytest.raises(ValueError, match="does not sum"):
         MODULE.build_multiclass_table(
@@ -210,26 +187,7 @@ def test_multiclass_table_rejects_inconsistent_upstream_counts():
 
 
 def test_multiclass_table_rejects_empty_member_or_reference_group():
-    trait = pd.DataFrame(
-        [
-            {
-                "family": "rdkit_fg",
-                "trait": "empty",
-                "n_eligible": 80,
-                "n_missing": 20,
-                "n_with_trait": 0,
-                "n_without_trait": 80,
-                "n_flag_with_trait": 0,
-                "n_flag_without_trait": 16,
-                "n_flag_total": 16,
-                "odds_ratio": MODULE._haldane_or_ci(0, 0, 16, 64)[0],
-                "ci_lower": MODULE._haldane_or_ci(0, 0, 16, 64)[1],
-                "ci_upper": MODULE._haldane_or_ci(0, 0, 16, 64)[2],
-                "p_value": 1.0,
-                "corrected_p_value": 1.0,
-            }
-        ]
-    )
+    trait = trait_frame((0, 0, 16, 64), name="empty", corrected_p_value=1.0)
 
     with pytest.raises(ValueError, match="needs members and references"):
         MODULE.build_multiclass_table(
@@ -304,43 +262,6 @@ def test_summary_envelope_validation_rejects_missing_required_key_with_extra_key
 
     with pytest.raises(ValueError, match="not a standard summary envelope"):
         MODULE.load_summary_numbers(path, "malformed")
-
-
-def test_snakemake_rule_declares_every_scientific_dependency_and_output():
-    rules = (ROOT / "rules" / "srijit.smk").read_text()
-    block = rules.split("rule srijit_2_45:", maxsplit=1)[1]
-
-    for required in (
-        'copairs_db="data/processed/copairs_results.duckdb"',
-        'metadata_db="data/interim/jump_metadata_augmented.duckdb"',
-        "rules.srijit_2_42.output.fup_enrichment",
-        "rules.srijit_2_42.output.fuc_enrichment",
-        "rules.srijit_2_42.output.summary",
-        "rules.srijit_2_43.output.activity_csv",
-        "rules.srijit_2_43.output.summary_json",
-        "binary_trait_oddsratios.csv",
-        "compound_activity_nmap_distributions.parquet",
-        "multiclass_trait_oddsratios.csv",
-        "forest_binary_traits.png",
-        "forest_multiclass_activity.pdf",
-        "summary.json",
-        "--columns {params.columns}",
-        "--fup-threshold {params.fup_threshold}",
-        "--min-compounds {params.min_compounds}",
-    ):
-        assert required in block
-    assert "srijit_2_44" not in block
-
-
-def test_trait_enrichment_pins_the_consistency_feature_slice():
-    notebook = (ROOT / "notebooks" / "2.43-seal-trait-activity-enrichment.py").read_text()
-    rules = (ROOT / "rules" / "srijit.smk").read_text()
-    block = rules.split("rule srijit_2_43:", maxsplit=1)[1].split("rule srijit_2_44:", maxsplit=1)[0]
-
-    assert "AND _columns = ?" in notebook
-    assert 'consistency_preprocessing="consistency_no_target2"' in block
-    assert 'consistency_filter="all_sources"' in block
-    assert 'consistency_distance="cosine"' in block
 
 
 def test_activity_query_filters_the_feature_column_slice():

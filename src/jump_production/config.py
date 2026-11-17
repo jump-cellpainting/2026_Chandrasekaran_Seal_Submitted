@@ -19,7 +19,6 @@ RAW_DATA_DIR = DATA_DIR / "raw"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
-ACTIVITY_DIR = PROCESSED_DATA_DIR / "copairs/runs/activity"
 
 # Visualization defaults
 DEFAULT_DPI = 150  # Default DPI for figure saving (CLI --dpi option default)

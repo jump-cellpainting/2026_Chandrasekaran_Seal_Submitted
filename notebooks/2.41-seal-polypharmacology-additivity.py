@@ -159,18 +159,6 @@ def find_all_trios(
         [single_jcps],
     ).df()
 
-    def count_extra_targets(row: pd.Series, expected_target: str) -> int:
-        """Count targets from other sources that differ from the expected single target."""
-        extra = set()
-        for col in ["Metadata_motive_gene_biokg", "Metadata_motive_gene_opentargets", "Metadata_chmprb_target_genes"]:
-            val = row.get(col)
-            if pd.notna(val):
-                for g in str(val).split("|"):
-                    g = g.strip()
-                    if g and g != expected_target:
-                        extra.add(g)
-        return len(extra)
-
     # Build lookup: jcp -> set of extra genes per annotation source
     cross_map = {}
     for _, row in cross_df.iterrows():

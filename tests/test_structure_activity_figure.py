@@ -7,7 +7,6 @@ rather than in the cached `2.07` analysis, so it needs its own coverage.
 
 from __future__ import annotations
 
-import importlib.util
 import json
 from pathlib import Path
 from types import ModuleType
@@ -15,20 +14,12 @@ from types import ModuleType
 import numpy as np
 import pandas as pd
 import pytest
-
-ROOT = Path(__file__).resolve().parents[1]
-FIGURE_SCRIPT = ROOT / "notebooks/figure-structure-activity.py"
+from conftest import load_notebook
 
 
 @pytest.fixture(scope="module")
 def figure_module() -> ModuleType:
-    """Load the hyphenated renderer without running its CLI."""
-    spec = importlib.util.spec_from_file_location("figure_structure_activity", FIGURE_SCRIPT)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Could not load {FIGURE_SCRIPT}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    return load_notebook("figure-structure-activity.py")
 
 
 def build_pairs(rows: list[tuple[str, str, str, str, float, str]]) -> pd.DataFrame:

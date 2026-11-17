@@ -45,7 +45,6 @@ from jump_production.visualization import (
 # Configuration
 COPAIRS_DB = Path("data/processed/copairs_results.duckdb")
 METADATA_DB = Path("data/interim/jump_metadata_augmented.duckdb")
-OUTPUT_DIR = Path("data/processed/compound-traits")
 
 app = typer.Typer()
 

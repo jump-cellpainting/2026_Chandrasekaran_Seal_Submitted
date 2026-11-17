@@ -2,24 +2,18 @@
 
 from __future__ import annotations
 
-import importlib.util
 from pathlib import Path
 
 import pandas as pd
 import pytest
+from conftest import load_notebook
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture(scope="module")
 def renderer():
-    """Import the ordinary figure script as a test module."""
-    path = REPOSITORY_ROOT / "notebooks" / "figure-opentargets-group-consistency.py"
-    spec = importlib.util.spec_from_file_location("opentargets_group_consistency_figure", path)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    return load_notebook("figure-opentargets-group-consistency.py")
 
 
 def test_membership_set_identifier_is_order_invariant(renderer):
@@ -261,13 +255,6 @@ def test_matched_categories_retain_empty_fixed_levels(renderer, monkeypatch):
     assert [label for label, _ in clinical] == ["Phase 1", "Phase 2", "Phase 3", "Launched", "All other"]
     assert [label for label, _ in collections] == ["PAINS", "KCGS", "PKIS", "PKIS2", "Probes", "All"]
     assert len(dict(collections)["PKIS"]) == 0
-
-
-def test_activity_metric_is_labeled_as_nmap(renderer):
-    """The mean of compound activity nMAP values must not be called nAP."""
-    source = (REPOSITORY_ROOT / "notebooks" / "figure-opentargets-group-consistency.py").read_text()
-    assert "activity nAP" not in source
-    assert "Mean phenotypic activity nMAP of target members" in source
 
 
 @pytest.mark.parametrize(

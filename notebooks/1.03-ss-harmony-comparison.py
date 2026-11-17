@@ -60,16 +60,6 @@ CONFIG_COLORS = {
     "DL_rsc_source": "#fdd0a2",
 }
 
-# Markers: circle = recipe, triangle = _rsc (Batch), square = _rsc_source (Source)
-CONFIG_MARKERS = {
-    "CP_recipe": "o",
-    "CP_rsc": "^",
-    "CP_rsc_source": "s",
-    "DL_recipe": "o",
-    "DL_rsc": "^",
-    "DL_rsc_source": "s",
-}
-
 CONSISTENCY_TARGET = "repurposing"
 
 app = typer.Typer()

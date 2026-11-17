@@ -208,7 +208,6 @@ CONSISTENCY_UNTESTED_COLOR = "#D9D9D9"
 
 # The shared property-figure system lives in jump_production.visualization so this
 # renderer and figure-opentargets-group-consistency.py cannot drift apart.
-FAMILY_FIGSIZE = (PROPERTY_FIGURE_WIDTH_IN, PROPERTY_FIGURE_PANEL_HEIGHT_IN)
 FAMILY_BLUE = PROPERTY_FIGURE_COLOR["blue"]
 FAMILY_DARK_GRAY = PROPERTY_FIGURE_COLOR["dark_gray"]
 FAMILY_GRAY = PROPERTY_FIGURE_COLOR["gray"]
@@ -240,17 +239,6 @@ DRAWER_COLORS = {
     "screen": (ACTIVITY_INK, ACTIVITY_TINT),
     "activity": (ACTIVITY_INK, ACTIVITY_TINT),
     "consistency": (CONSISTENCY_INK, CONSISTENCY_TINT),
-}
-# Short enough to sit inside a column of this strip.
-DRAWER_X_LABELS = {
-    "Calculated LogP": "LogP",
-    "Molecular weight (Da)": "MW (Da)",
-    "Rotatable bonds": "Rot. bonds",
-    "TPSA (angstrom^2)": "TPSA",
-    "Fraction Csp3": "Fr. Csp3",
-    "Number of violations": "Violations",
-    "Clinical development stage": "Phase",
-    "Curated collection": "Collection",
 }
 
 app = typer.Typer(add_completion=False, pretty_exceptions_show_locals=False)

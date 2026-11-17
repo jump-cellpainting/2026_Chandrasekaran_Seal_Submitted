@@ -1,17 +1,12 @@
 """Well ordering must not change the floating-point source adjustment."""
 
-import importlib.util
-from pathlib import Path
-
 import duckdb
 import pandas as pd
+from conftest import load_notebook
 
 
 def test_well_density_order_is_independent_of_table_insertion():
-    path = Path(__file__).resolve().parents[1] / "notebooks/2.02b-ss-cell-count-quality.py"
-    spec = importlib.util.spec_from_file_location("cell_density", path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    module = load_notebook("2.02b-ss-cell-count-quality.py")
 
     def query(reverse):
         with duckdb.connect() as con:
