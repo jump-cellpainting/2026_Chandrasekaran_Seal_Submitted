@@ -195,6 +195,7 @@ Use the same repository and revision selection from step 3; skip the AWS launche
 Install the exact Linux pixi binary pinned in `flake.nix`, checking its SHA256 before execution:
 
 ```bash
+set -euo pipefail
 mkdir -p scratch/bootstrap/bin
 curl --proto '=https' --tlsv1.2 -fsSL \
     https://github.com/prefix-dev/pixi/releases/download/v0.68.0/pixi-x86_64-unknown-linux-musl \
@@ -204,7 +205,7 @@ printf '%s  %s\n' \
     scratch/bootstrap/bin/pixi | sha256sum --check
 chmod +x scratch/bootstrap/bin/pixi
 export PATH="$PWD/scratch/bootstrap/bin:$HOME/.pixi/bin:$PATH"
-pixi global install --environment jump-tools --channel conda-forge just rclone uv cmake ninja
+pixi global install --environment jump-tools --channel conda-forge just rclone uv cmake ninja 'python=3.12'
 ```
 
 These are [user-level shell tools](https://pixi.prefix.dev/latest/reference/cli/pixi/global/install/); analysis dependencies still come from the unchanged `pixi.lock`.
