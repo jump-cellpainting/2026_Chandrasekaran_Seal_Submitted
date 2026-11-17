@@ -5,6 +5,8 @@ The recommended route uses a Mac or Linux computer to launch a Linux GPU instanc
 Your local computer does not need a GPU, Nix, pixi, direnv, Kata, or any Broad credentials.
 The bootstrap installs Nix on the instance, and the repository's pinned environment supplies the pipeline tools and Python environments.
 Inputs, the null cache, and the comparison snapshot are public downloads; S3 write access is unnecessary.
+If AWS is unavailable, use the [Slurm route](#optional-slurm-without-nix-or-root) below.
+Workflow completion and agreement with the L40S baseline are separate outcomes; report both on other GPU hardware.
 
 ## 1. Prepare the computer that launches AWS
 
@@ -177,6 +179,68 @@ nix --extra-experimental-features 'nix-command flakes' develop --command just ve
 
 The result directory must contain `data/processed/`.
 
+## Optional: Slurm without Nix or root
+
+An independent collaborator reported completing all 316 pipeline jobs and validating all six figure sets on one A100 80 GB GPU, 32 CPUs and 400 GB RAM in about 53 minutes, including setup.
+It used pixi 0.68.0 and conda-forge shell tools instead of Nix.
+This establishes workflow compatibility, not exact agreement with the L40S baseline.
+The report describes differences in Harmony-corrected activity calls and GPU embeddings, with exact agreement for uncorrected CP/DL copairs outputs and the batch-effect and MitoTox scientific summaries.
+Those results have not been independently rechecked from that run's output bundle.
+Do not change scientific tolerances, replace the baseline or disable the null cache to conceal those differences.
+
+Use a Linux x86-64 GPU allocation with sufficient disk space (at least 250 GB), NVIDIA drivers compatible with the pinned CUDA environments, and outbound HTTPS for package and input downloads.
+The cluster must provide Bash, Git, curl, coreutils and util-linux (`flock` and `setsid`).
+Keep the checkout, environments and outputs on storage that survives the batch job.
+Allow space in the home quota for the 25 GB null cache at `~/.copairs` and package caches, in addition to the checkout's inputs and outputs.
+Check that `ulimit -Hn` permits at least 65536 open files; the workflow requires that limit.
+Use the same repository and revision selection from step 3; skip the AWS launcher commands.
+
+Install the exact Linux pixi binary pinned in `flake.nix`, checking its SHA256 before execution:
+
+```bash
+set -euo pipefail
+mkdir -p scratch/bootstrap/bin
+curl --proto '=https' --tlsv1.2 -fsSL \
+    https://github.com/prefix-dev/pixi/releases/download/v0.68.0/pixi-x86_64-unknown-linux-musl \
+    -o scratch/bootstrap/bin/pixi
+printf '%s  %s\n' \
+    "$(printf '%s' OpRgmobG7Bu2GW8TAw733m3omxQLfhFOX6zWwPoDL8g= | base64 -d | od -An -tx1 | tr -d ' \n')" \
+    scratch/bootstrap/bin/pixi | sha256sum --check
+chmod +x scratch/bootstrap/bin/pixi
+export PATH="$PWD/scratch/bootstrap/bin:$HOME/.pixi/bin:$PATH"
+pixi global install --environment jump-tools --channel conda-forge just rclone uv cmake ninja 'python=3.12'
+```
+
+These are [user-level shell tools](https://pixi.prefix.dev/latest/reference/cli/pixi/global/install/); analysis dependencies still come from the unchanged `pixi.lock`.
+Run the following inside a single-node GPU job, after selecting your site's partition/account and requesting at least 32 CPUs and sufficient RAM (400 GB was used in the A100 run):
+
+```bash
+set -euo pipefail
+cd "$(pwd -P)"
+export PATH="$PWD/scratch/bootstrap/bin:$HOME/.pixi/bin:$PATH"
+export CORES="${SLURM_CPUS_PER_TASK:?Request CPUs per task in the Slurm job}"
+export XDG_RUNTIME_DIR="$(mktemp -d "${TMPDIR:-/tmp}/jump-runtime.XXXXXX")"
+chmod 700 "$XDG_RUNTIME_DIR"
+git rev-parse HEAD
+nvidia-smi
+just reproduce 2>&1 | tee reproduce.log
+```
+
+Run from the checkout root and retain Slurm's `CUDA_VISIBLE_DEVICES`; do not replace it with GPU IDs from outside the allocation.
+Resolving the physical checkout directory keeps the shell and Hydra consistent when the project path includes symlinks.
+`CORES` is explicit because `nproc --all` reports the node's CPUs, which may exceed the allocation.
+The workflow's memory budget uses host RAM, so use an exclusive node with its full memory allocation.
+See [Slurm's allocation options](https://slurm.schedmd.com/sbatch.html) for `--cpus-per-task`, `--exclusive` and `--mem=0`; partition, account and GPU request syntax are site-specific.
+Do not run the GPU workflow on a login node.
+Environment builds can probe CUDA, so perform setup on the allocated GPU too.
+If compute nodes cannot download packages or public data, arrange a site-supported network/setup route before starting; copying an environment built without visible drivers is not a validated substitute.
+
+Inspect `scratch/rerun/progress.log`, `reproduce.log` and the scheduler exit status.
+`STAGE pipeline ok` and `STAGE figures ok` establish workflow and figure validation; only a successful baseline comparison establishes agreement.
+An A100 run may finish those stages and then exit nonzero on a genuine baseline difference.
+Keep the results and report the mismatch rather than calling it `baseline: ok`.
+After a verifier-only update, use `just verify-baseline` to check retained outputs without recomputing them.
+
 ## Timing and agreement contract
 
 Before the source-release projection, fresh-machine cached runs took 37 minutes on one L40S and 29 minutes on four L40S GPUs (g6e.12xlarge).
@@ -195,7 +259,10 @@ Uncached `reproduce: ok` confirms workflow completion and figure validation only
 The latest fresh uncached run at `6684371` took 3 hours 35 minutes 54 seconds; earlier uncached runs took 6 to 7 hours.
 
 The current immutable snapshot is [cached-l40s-20261115-04d51ad](https://cellpainting-gallery.s3.amazonaws.com/cpg0016-jump/source_all/workspace/publication_data/2025_Chandrasekaran/jump_production_snapshots/cached-l40s-20261115-04d51ad/README.md). Its root manifest SHA256 is pinned in the Justfile.
-The verifier downloads only authenticated comparison inputs, applies the explicit source-release projection in `configs/scientific_baseline.json`, requires the complete 2,002-file processed roster, checks 1,144 exact artifacts, and compares the full 1,571-row dataset-reference claim roster.
+The verifier downloads only authenticated comparison inputs, applies the explicit source-release projection in `configs/scientific_baseline.json`, requires the complete 2,002-file processed roster, checks 998 exact artifact hashes and 146 Hydra configurations, and compares the full 1,571-row dataset-reference claim roster.
+For Hydra, only `runtime.cwd` and the checkout-root prefixes of `runtime.output_dir` and file-schema `runtime.config_sources` are normalized.
+Relative suffixes, configuration choices and every other field must match the authenticated baseline configuration exactly.
+The original files and their absolute paths remain intact as run provenance.
 The projection retires only three editorial audit outputs and ten non-scientific claim rows, replaces six provenance metadata values/keys, and pins two rewritten artifact hashes.
 Every retained scientific value, output path and tolerance remains checked.
 See [the release contract](release.md) for the migration and validation limits.
@@ -204,7 +271,8 @@ The batch and MitoTox summary `numbers` objects are also checked, and all four c
 Only `centroid_distance` permits absolute drift up to 2e-7, bounding the measured float32 reduction variation.
 Claim and summary floating values allow relative roundoff up to 1e-12 with no absolute tolerance; integer counts remain exact.
 
-The only ignored claim timing values are `fastest.transform_time_full_s` and each `transformations` entry's `transform_time_full_s` and `transform_time_sample_s`, under source `data/processed/fingerprint-metrics/fingerprint_metrics_summary.json` and rule `fingerprint_metrics`.
+The only ignored timing-derived claim values are `fastest.name`, `fastest.transform_time_full_s` and each `transformations` entry's `transform_time_full_s` and `transform_time_sample_s`, under source `data/processed/fingerprint-metrics/fingerprint_metrics_summary.json` and rule `fingerprint_metrics`.
+The fastest method is selected by measured runtime, so its name can change across machines or repeated runs.
 Timing keys must remain present and all other scientific values in those records are checked.
 Snapshot `provenance.json` names every byte-check exclusion and reason, including rendering, timestamps, row order, database/container serialization and duplicate summary wrappers.
 These exclusions do not remove files from the required roster.
@@ -228,3 +296,7 @@ Only documentation and its allowlist hashes were adapted for publication; the pr
 An earlier fresh run exposed unspecified well ordering before the cell-density source regression, which changed one Spearman correlation by about 4.6e-11 and failed an exact CSV hash.
 The tested commit fixes the query order by source, plate, well and compound, restoring the existing baseline bytes without changing calculations, inputs, hashes or tolerances.
 Local contract tests and projected-snapshot checks remain useful, but do not replace a fresh reproduction when executable source changes.
+
+On 2026-11-17, a fresh Codex session reproduced public revision `b1c8c55db404fcd6ab9112168be1248de8111dd5` on a new g6e.8xlarge with the pinned AMI and no pre-existing environment, null cache or outputs.
+It passed all 316 jobs, figure validation and the complete comparison contract in 38 minutes 7 seconds (`started 2026-11-17T03:30:58Z` to `STAGE done` at `04:09:05Z`), with `baseline: ok`, `reproduce: ok` and `STAGE exit=0`.
+Afterward, the no-root pixi/tool installation, Python validator prerequisites and physical-directory step passed isolated checks on that Linux GPU machine; this was not a new Slurm or A100 workflow run.
