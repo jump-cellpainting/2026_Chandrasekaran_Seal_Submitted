@@ -123,7 +123,8 @@ def test_migration_preserves_science_and_exact_claim_roster(tmp_path, change):
 
 
 @pytest.mark.parametrize("change", ["none", "scientific_bytes", "missing", "extra", "symlink", "root_symlink", "manifest",
-                                    "hydra_root", "hydra_choice", "hydra_suffix", "hydra_missing", "hydra_reference"])
+                                    "hydra_root", "hydra_choice", "hydra_suffix", "hydra_missing", "hydra_reference",
+                                    "added_missing", "added_in_snapshot", "added_outside"])
 def test_file_projection_keeps_exact_scientific_checks(tmp_path, change):
     from jump_production.processing.verify_baseline import (
         CURATED_TABLES,
@@ -166,7 +167,10 @@ def test_file_projection_keeps_exact_scientific_checks(tmp_path, change):
     records = {name: sha256(baseline / name) for name in ("CHECKS.sha256", "CLAIMS.csv", *CURATED_TABLES, *SCIENTIFIC_SUMMARIES)}
     records.update({kept: sha256(actual / kept), retired: "0" * 64, hydra: sha256(baseline / hydra)})
     (baseline / "MANIFEST.sha256").write_text("".join(f"{digest}  {name}\n" for name, digest in records.items()))
-    policy = {"baseline_manifest_sha256": sha256(baseline / "MANIFEST.sha256"), "removed_outputs": [retired], "checksum_replacements": {}}
+    added = "data/processed/catalog.json"
+    (actual / added).write_text("{}\n")
+    policy = {"baseline_manifest_sha256": sha256(baseline / "MANIFEST.sha256"), "removed_outputs": [retired],
+              "added_outputs": [added], "checksum_replacements": {}}
     if change == "scientific_bytes":
         (actual / kept).write_text("count\n112461\n")
     elif change == "missing":
@@ -191,8 +195,15 @@ def test_file_projection_keeps_exact_scientific_checks(tmp_path, change):
         (actual / hydra).write_text(config.replace("    cwd: /home/ubuntu/jump_production\n", ""))
     elif change == "hydra_reference":
         (baseline / hydra).write_text(config.replace("compound_no_source7", "different_dataset"))
+    elif change == "added_missing":
+        (actual / added).unlink()
+    elif change == "added_in_snapshot":
+        policy["added_outputs"] = [kept]
+    elif change == "added_outside":
+        policy["added_outputs"] = ["data/raw/profiles/compound.parquet"]
     if change in ("none", "hydra_root"):
-        assert verify_files(baseline, actual, policy) == (8, 2)
+        # Eight snapshot paths remain after the retirement, plus the one explicitly added output.
+        assert verify_files(baseline, actual, policy) == (9, 2)
     else:
         with pytest.raises(ValueError):
             verify_files(baseline, actual, policy)

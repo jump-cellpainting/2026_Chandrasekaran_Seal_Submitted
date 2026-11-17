@@ -25,4 +25,5 @@ direnv exec . just dataset-reference view
 ```
 
 To extend the report, emit the value in its owning analysis, declare its summary as a rule output and add the summary to the manifest rule.
+Register every new summary in `configs/results_catalog.yaml` as well, whether or not it joins the report; see the [data browser](../data-browser.md).
 Generated reports remain ignored and are rebuilt from the declared inputs.

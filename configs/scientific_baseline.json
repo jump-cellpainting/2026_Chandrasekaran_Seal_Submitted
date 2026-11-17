@@ -6,6 +6,9 @@
     "data/processed/data-availability-audit/proposed_text.md",
     "data/processed/data-availability-audit/summary.json"
   ],
+  "added_outputs": [
+    "data/processed/catalog.json"
+  ],
   "claim_removals": [
     {
       "source": "data/processed/compound-collection-facts/summary.json",

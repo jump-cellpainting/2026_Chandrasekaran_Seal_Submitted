@@ -118,7 +118,8 @@ reproduce:
     fi
 
     snake() { {{SNAKEMAKE}} "$@" {{GPU_RESOURCES}} mem_mb="$mem_mb" --scheduler greedy --consider-ancient download_mitotox=script; }
-    targets="all batch_and_source7 explore srijit"
+    # results_catalog lists analyses from all four groups, so it is built last and named here.
+    targets="all batch_and_source7 explore srijit results_catalog"
     snake data/interim/image_dimensions.csv --cores 1
     snake $targets --cores "$cores" --printshellcmds --rerun-incomplete --keep-going
     stage pipeline ok
@@ -262,6 +263,10 @@ batch-and-source7:
 srijit:
     @echo "Running Srijit's analysis notebooks..."
     @{{SNAKEMAKE}} srijit --cores {{CORES}} {{GPU_RESOURCES}} --printshellcmds
+
+# Build the results catalog read by the data browser (builds every analysis it lists)
+catalog:
+    @{{SNAKEMAKE}} results_catalog --cores {{CORES}} {{GPU_RESOURCES}} --printshellcmds --scheduler greedy
 
 # ==================== DATA SYNC ====================
 

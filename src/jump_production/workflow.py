@@ -13,6 +13,25 @@ from pathlib import Path
 from jump_production import config as _cfg
 
 
+def _rule_script(rule) -> str | None:
+    """Return the analysis script a rule declares among its named inputs, if any."""
+    names = list(rule.input.keys())
+    for name in ("script", *(name for name in names if name.endswith("_script"))):
+        value = rule.input.get(name) if name in names else None
+        if isinstance(value, str):
+            return str(value)
+    return None
+
+
+def declared_outputs_from_rules(rules) -> list[dict]:
+    """Return every output declaration, with the producing rule and its analysis script."""
+    return [
+        {"rule": rule.name, "output": str(out), "script": _rule_script(rule)}
+        for rule in rules
+        for out in rule.output
+    ]
+
+
 def declared_json_outputs_from_rules(rules) -> list[dict]:
     """Return JSON output declarations from an already-parsed rule collection."""
     return [
@@ -23,12 +42,8 @@ def declared_json_outputs_from_rules(rules) -> list[dict]:
     ]
 
 
-def declared_json_outputs(snakefile=None) -> list[dict]:
-    """Return ``[{"rule", "output"}, ...]`` for every `.json` output declared in the workflow.
-
-    Parses the Snakefile in-process via the Snakemake API (no DAG build). `output` is the declared
-    path with f-strings resolved; wildcard rules yield an unexpanded pattern.
-    """
+def _parsed_rules(snakefile=None) -> list:
+    """Parse the Snakefile in-process via the Snakemake API and return its rules (no DAG build)."""
     from snakemake.api import (
         ConfigSettings,
         DeploymentSettings,
@@ -49,13 +64,27 @@ def declared_json_outputs(snakefile=None) -> list[dict]:
             workflow_settings=WorkflowSettings(),
             deployment_settings=DeploymentSettings(),
         )._workflow  # property parses the Snakefile on access; no DAG is built
-        return declared_json_outputs_from_rules(workflow.rules)
+        return list(workflow.rules)
+
+
+def declared_json_outputs(snakefile=None) -> list[dict]:
+    """Return ``[{"rule", "output"}, ...]`` for every `.json` output declared in the workflow.
+
+    Parses the Snakefile in-process via the Snakemake API (no DAG build). `output` is the declared
+    path with f-strings resolved; wildcard rules yield an unexpanded pattern.
+    """
+    return declared_json_outputs_from_rules(_parsed_rules(snakefile))
+
+
+def declared_outputs(snakefile=None) -> list[dict]:
+    """Return ``[{"rule", "output", "script"}, ...]`` for every output declared in the workflow."""
+    return declared_outputs_from_rules(_parsed_rules(snakefile))
 
 
 _WILDCARD = re.compile(r"\{[^{}]+\}")
 
 
-def _matches_output(pattern: str, path: str) -> bool:
+def matches_output(pattern: str, path: str) -> bool:
     """Return whether a concrete path matches a declared Snakemake output pattern."""
     pieces = []
     start = 0
@@ -81,7 +110,7 @@ def build_dataset_reference_manifest(summary_paths, *, canonical_key, declaratio
     for path in paths:
         if not (path.startswith("data/") and path.endswith(".json")):
             raise ValueError(f"Dataset-reference input is not a data JSON path: {path}")
-        producers = {decl["rule"] for decl in declarations if _matches_output(str(decl["output"]), path)}
+        producers = {decl["rule"] for decl in declarations if matches_output(str(decl["output"]), path)}
         if len(producers) != 1:
             raise ValueError(f"Expected exactly one producer for {path}, found {sorted(producers)}")
         summaries.append({"rule": producers.pop(), "path": path})

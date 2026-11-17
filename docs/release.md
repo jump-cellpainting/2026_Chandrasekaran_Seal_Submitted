@@ -14,7 +14,7 @@ The binary-trait table renames one display-selection column; its values, row mem
 
 | Check | Original snapshot | Source release |
 | --- | ---: | ---: |
-| Required processed paths | 2,005 | 2,002 |
+| Required processed paths | 2,005 | 2,002 retained + 1 added |
 | Artifact checks | 1,146 | 998 exact hashes + 146 Hydra configurations |
 | Dataset-reference claim rows | 1,581 | 1,571 |
 | Curated compound tables | 4 | 4 |
@@ -27,6 +27,14 @@ All configuration choices, relative path suffixes and other fields remain exact.
 The timing-derived fingerprint `fastest.name` is treated like its runtime; the claim must still be present, and scientific transformation results remain checked.
 Six metadata replacements are explicit in the projection; scientific counts, values, thresholds and tolerances are unchanged.
 Missing or extra outputs and claims still fail, including reintroduction of retired outputs.
+
+The projection names one output that postdates the snapshot: `data/processed/catalog.json`, the [results catalog](data-browser.md).
+It is derived from the summary envelopes and an authored registry, and restates no scientific value.
+The verifier requires it, checks that every entry and file it lists exists and that every summary envelope in the output tree is cataloged, and compares it with no baseline bytes.
+Any other path absent from the snapshot still fails.
+Fifteen summary envelopes used to declare their files by absolute path and now declare them relative to the checkout.
+Their bytes already depended on where the repository was cloned, so none was among the exact-hash checks; their descriptions and `numbers` are unchanged.
+All 998 exact hashes, 50 summary envelopes among them, the 146 Hydra configurations and the 1,571 claim rows are checked exactly as before.
 The original snapshot, input checksum manifest and null cache are not overwritten or republished.
 
 Pre-publication source revision `7404bb75a420e11dc673a7a6ed55c2d61a86bee8` passed a fresh L40S reproduction, including every projected check above; the exact machine, timing and run markers are recorded in [the reproduction guide](reproduce.md).

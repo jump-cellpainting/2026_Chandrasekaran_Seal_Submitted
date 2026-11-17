@@ -10,6 +10,8 @@ import typer
 import yaml
 from loguru import logger
 
+from jump_production.catalog import validate_catalog
+
 CURATED_TABLES = tuple(
     f"data/processed/commercial-compounds/curated_compounds_{size}.csv"
     for size in ("160c_1pc", "160c_2pc", "320c_1pc", "320c_2pc")
@@ -179,6 +181,13 @@ def verify_files(baseline: Path, actual: Path, policy: dict) -> tuple[int, int]:
     if not removed <= expected or len(removed) != len(policy["removed_outputs"]):
         raise ValueError("Invalid retired output roster")
     expected -= removed
+    # Outputs introduced after the snapshot are named one by one; any other extra path still fails.
+    added = set(policy["added_outputs"])
+    if len(added) != len(policy["added_outputs"]) or added & set(manifest) or not all(
+        name.startswith("data/processed/") and ".." not in Path(name).parts for name in added
+    ):
+        raise ValueError("Invalid added output roster")
+    expected |= added
     observed = set()
     output_root = actual / "data/processed"
     if output_root.is_symlink() or (actual / "data").is_symlink():
@@ -217,6 +226,7 @@ def main(baseline: Path, actual: Path) -> None:
         raise ValueError("Unsupported scientific baseline policy")
     try:
         file_count, exact_count = verify_files(baseline, actual, policy)
+        entry_count, cataloged_files = validate_catalog(actual)
         count = verify_claims(baseline / "CLAIMS.csv", actual / "data/processed/dataset_reference/dataset_reference.csv", policy)
         for table in CURATED_TABLES:
             verify_curated(baseline / table, actual / table)
@@ -225,10 +235,11 @@ def main(baseline: Path, actual: Path) -> None:
             observed = json.loads((actual / summary).read_text())["numbers"]
             if not equal_values(expected, observed):
                 raise ValueError(f"Scientific summary changed: {summary}")
-    except (ValueError, OSError, KeyError) as error:
+    except (ValueError, OSError, KeyError, TypeError) as error:
         logger.error(str(error))
         raise typer.Exit(1) from error
     logger.success("{} output paths and {} artifact checks agree; Hydra runtime checkout roots normalized", file_count, exact_count)
+    logger.success("Results catalog lists {} entries and {} existing files; every summary envelope is cataloged", entry_count, cataloged_files)
     logger.success("{} claims agree; only named fingerprint timings, their fastest name and float64 roundoff allowed", count)
     logger.success("Four curated tables agree; only centroid_distance allows absolute drift <= 2e-7")
     logger.success("Batch and MitoTox scientific summaries agree")

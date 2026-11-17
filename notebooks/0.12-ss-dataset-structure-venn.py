@@ -297,7 +297,8 @@ def _(mo):
         ),
         "numbers": _summary_numbers,
         "files": [
-            {"path": str(_fig_dir / name), "kind": "figure", "caption": caption}
+            # Relative to the checkout, like every other envelope: no machine-specific prefix.
+            {"path": (_fig_dir / name).relative_to(REPO).as_posix(), "kind": "figure", "caption": caption}
             for name, caption in (
                 ("orf_crispr_venn.png", "ORF / CRISPR gene overlap"),
                 ("upset_site_combinations.png", "site-combination structure (UpSet)"),
