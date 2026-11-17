@@ -296,3 +296,7 @@ Only documentation and its allowlist hashes were adapted for publication; the pr
 An earlier fresh run exposed unspecified well ordering before the cell-density source regression, which changed one Spearman correlation by about 4.6e-11 and failed an exact CSV hash.
 The tested commit fixes the query order by source, plate, well and compound, restoring the existing baseline bytes without changing calculations, inputs, hashes or tolerances.
 Local contract tests and projected-snapshot checks remain useful, but do not replace a fresh reproduction when executable source changes.
+
+On 2026-11-17, a fresh Codex session reproduced public revision `b1c8c55db404fcd6ab9112168be1248de8111dd5` on a new g6e.8xlarge with the pinned AMI and no pre-existing environment, null cache or outputs.
+It passed all 316 jobs, figure validation and the complete comparison contract in 38 minutes 7 seconds (`started 2026-11-17T03:30:58Z` to `STAGE done` at `04:09:05Z`), with `baseline: ok`, `reproduce: ok` and `STAGE exit=0`.
+Afterward, the no-root pixi/tool installation, Python validator prerequisites and physical-directory step passed isolated checks on that Linux GPU machine; this was not a new Slurm or A100 workflow run.
