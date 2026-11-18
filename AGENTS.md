@@ -18,7 +18,8 @@ Put analysis Python in numbered `notebooks/` files and reusable processing in `s
 Use Typer for command arguments and Loguru for processor logging.
 Snakemake rules declare actual output files, including analysis summary envelopes.
 Report membership is defined by `rule dataset_reference_manifest`; see [dataset reference](docs/paper/dataset_reference.md).
-Register every summary in `configs/results_catalog.yaml`; changes to the catalog or to `index.html` follow the [data browser guide](docs/data-browser.md) and `just test-browser`.
+Register every summary in `configs/results_catalog.yaml`; changes to the registry, the catalog or `index.html` follow the [data browser guide](docs/data-browser.md) and `just test-browser`.
+Output paths under `data/processed`, summary file names and the published locations are a fixed [layout contract](docs/data-browser.md#layout-contract) with the data browser and with shared links; read it before renaming, moving or removing an output.
 Figure changes follow the [figure checklist](docs/paper/figure_review_checklist.md).
 
 Run relevant checks and repair affected callers before declaring a change complete.

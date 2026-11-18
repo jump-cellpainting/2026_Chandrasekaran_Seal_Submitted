@@ -15,6 +15,10 @@
 #
 # Entries appear in the browser in this order within their section. Titles describe what a result
 # is; they do not cite manuscript figure numbers, which change between versions.
+#
+# Paths here are part of the layout contract in docs/data-browser.md, which the published page and
+# shared links rely on. A summary's file name ends in `summary.json`, and section `figures` holds
+# exactly the entries under data/processed/figures/. Read that section before changing a path.
 
 schema_version: 1
 repository: https://github.com/jump-cellpainting/2026_Chandrasekaran_Seal_Submitted

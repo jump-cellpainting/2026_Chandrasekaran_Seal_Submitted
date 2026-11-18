@@ -283,9 +283,43 @@ def test_registry_rejects_entries_the_browser_could_not_present(tmp_path, change
         load_registry(path)
 
 
+def layout_problems(registry: dict) -> list[str]:
+    """Return registry paths that break the names the published page reads without a catalog.
+
+    The page finds analyses in such a tree by summary file name and figure packages by folder, and
+    it labels a cataloged entry as a figure by section id. See the layout contract in
+    docs/data-browser.md.
+    """
+    problems = []
+    for entry in registry["entries"]:
+        location = entry.get("summary", entry.get("path"))
+        if "summary" in entry and not location.endswith("summary.json"):
+            problems.append(f"summary file name must end in summary.json: {location}")
+        if location.startswith("data/processed/figures/") != (entry["section"] == "figures"):
+            problems.append(f"section figures holds exactly the entries under data/processed/figures/: {location}")
+    return problems
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        (lambda entries: entries[1].update(summary="data/processed/activity/results.json"), "must end in summary.json"),
+        (lambda entries: entries[1].update(section="figures"), "section figures holds exactly"),
+        (lambda entries: entries[0].update(summary="data/processed/panels/collection/summary.json"), "section figures holds exactly"),
+    ],
+)
+def test_layout_check_names_what_the_browser_could_not_find_without_a_catalog(change, message):
+    registry = json.loads(json.dumps(REGISTRY))
+    assert layout_problems(registry) == []
+    change(registry["entries"])
+
+    assert [problem for problem in layout_problems(registry) if message in problem]
+
+
 def test_committed_registry_matches_the_workflow():
     """Every registered file has one producing rule, and every declared summary is registered."""
     registry = load_registry(PROJ_ROOT / "configs/results_catalog.yaml")
+    assert layout_problems(registry) == []
     declarations = declared_outputs()
     inputs = [*registry_inputs(registry), *optional_summaries(registry)]
     assert len(inputs) == len(set(inputs))
@@ -305,8 +339,13 @@ def test_committed_registry_matches_the_workflow():
     )
     assert not unregistered
 
-    catalog_rule = [d for d in declarations if d["output"] == "data/processed/catalog.json"]
-    assert [d["rule"] for d in catalog_rule] == ["results_catalog"]
+    # The page reads two files by fixed name at the root of a results tree: the catalog and the
+    # reported numbers. Neither moves without a change to the page and a new publication.
+    fixed = {"data/processed/catalog.json", "data/processed/dataset_reference/dataset_reference.json"}
+    assert {d["output"]: d["rule"] for d in declarations if d["output"] in fixed} == {
+        "data/processed/catalog.json": "results_catalog",
+        "data/processed/dataset_reference/dataset_reference.json": "dataset_reference",
+    }
 
     # An entry is optional exactly when no default target builds it. The positive-control heatmap
     # is the one opt-in figure: cataloging it must not pull it into the pinned output roster.
