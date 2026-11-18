@@ -21,9 +21,10 @@ repository: https://github.com/jump-cellpainting/2026_Chandrasekaran_Seal_Submit
 
 sections:
   - id: figures
-    title: Paper figures
+    title: Paper figure assets
     description: >-
-      Figure packages: the rendered panels, their legends and the tables each panel is drawn from.
+      Selected plots, panels and tables used to assemble paper figures.
+      This is not a complete set of final paper figures; related components may also appear in other analysis folders.
   - id: collection
     title: Compound collection
     description: >-

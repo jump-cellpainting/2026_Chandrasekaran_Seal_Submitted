@@ -2952,7 +2952,7 @@ function discoverResults(onProgress) {
       let latest = "";
       for (const file of objects.values()) if (file.date > latest) latest = file.date;
       const sections = [
-        { id: "figures", title: "Paper figures", description: "Figure packages: the rendered panels, their legends and the tables each panel is drawn from." },
+        { id: "figures", title: "Paper figure assets", description: "Selected plots, panels and tables used to assemble paper figures. This is not a complete set of final paper figures; related components may also appear in other analysis folders." },
         { id: "analyses", title: "Analyses", description: "Every analysis that published a summary, listed by its folder name." }
       ].filter((section) => entries.some((entry) => entry.section === section.id));
       return finishModel({ mode: "discovered", root, repository: REPOSITORY_URL, revision: "", sections, entries, updated: latest });
