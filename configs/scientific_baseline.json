@@ -6,6 +6,9 @@
     "data/processed/data-availability-audit/proposed_text.md",
     "data/processed/data-availability-audit/summary.json"
   ],
+  "added_outputs": [
+    "data/processed/catalog.json"
+  ],
   "claim_removals": [
     {
       "source": "data/processed/compound-collection-facts/summary.json",
@@ -97,10 +100,18 @@
       "claim": "manuscript_contract.schema_version",
       "new_claim": "numerical_contract.schema_version",
       "value": 1
+    },
+    {
+      "source": "data/processed/property-activity-oddsratios/compound_no_source7/summary.json",
+      "rule": "srijit_2_45",
+      "claim": "provenance.functional_use_summary.sha256",
+      "value": "688616e8bdfbecb71e6a5fcf2d47f8ddec6c81ce45429c25a5f3f7c09b8463e7"
     }
   ],
   "checksum_replacements": {
     "data/processed/compound-collection-facts/summary.json": "73698149ee56cdcb8e39fdd9cb5d9ee6fa30c0dc212704faa34b1b71f529bf21",
-    "data/processed/property-activity-oddsratios/compound_no_source7/binary_trait_oddsratios.csv": "dab3e90c73936bd405f9ffdde5f0ea043753a2dfbb0a223461c1c04736766b90"
+    "data/processed/figures/figure_compound_activity_associations/summary.json": "f1dc733f8b516d851e00bc2b7db32a4486f7f6d78b5b8f3d88f1fbd5827358a1",
+    "data/processed/property-activity-oddsratios/compound_no_source7/binary_trait_oddsratios.csv": "dab3e90c73936bd405f9ffdde5f0ea043753a2dfbb0a223461c1c04736766b90",
+    "data/processed/property-activity-oddsratios/compound_no_source7/summary.json": "209e6b43c1b701e528943aceec4ccc3a25ca854ffabc4d805ab9ab9ae71a0170"
   }
 }

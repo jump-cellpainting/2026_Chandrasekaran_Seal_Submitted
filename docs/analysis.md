@@ -36,7 +36,10 @@ The run matrix is defined in `configs/snakemake/copairs_runs.yaml`.
 ## Profiles, summaries, and reproducibility
 
 - **summary.json envelope convention**: every analysis notebook emits one summary envelope `{description, numbers, files}` via `from jump_production.summaries import write_summary, index_files`; each Snakemake rule must declare its `summary.json` as an output, and paper-report membership is the `summaries` input of `rule dataset_reference_manifest`.
-  The generated manifest is the only discovery path used locally and on S3.
+  The generated manifest is the only membership definition for the paper report, locally and on S3.
+  A path in `files` is relative either to the checkout (`data/processed/...`) or, in a publication package, to the summary's own directory; `write_summary` rewrites absolute paths inside the checkout, so an envelope never names the machine that wrote it.
+- **Results catalog**: `rule results_catalog` writes `data/processed/catalog.json`, the index the [data browser](data-browser.md) reads.
+  `configs/results_catalog.yaml` registers every summary with a title and section; add a new analysis there, or `just verify-baseline` fails on the uncataloged envelope.
   Cast numpy scalars to int/float in `numbers` (the writer uses `json.dumps(default=str)`, which would stringify them).
   Sandbox-pure notebooks (e.g. 0.12) inline the envelope dict instead of importing `jump_production`.
 

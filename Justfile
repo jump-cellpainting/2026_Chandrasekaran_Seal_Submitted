@@ -118,7 +118,8 @@ reproduce:
     fi
 
     snake() { {{SNAKEMAKE}} "$@" {{GPU_RESOURCES}} mem_mb="$mem_mb" --scheduler greedy --consider-ancient download_mitotox=script; }
-    targets="all batch_and_source7 explore srijit"
+    # results_catalog lists analyses from all four groups, so it is built last and named here.
+    targets="all batch_and_source7 explore srijit results_catalog"
     snake data/interim/image_dimensions.csv --cores 1
     snake $targets --cores "$cores" --printshellcmds --rerun-incomplete --keep-going
     stage pipeline ok
@@ -263,6 +264,10 @@ srijit:
     @echo "Running Srijit's analysis notebooks..."
     @{{SNAKEMAKE}} srijit --cores {{CORES}} {{GPU_RESOURCES}} --printshellcmds
 
+# Build the results catalog read by the data browser (builds every analysis it lists)
+catalog:
+    @{{SNAKEMAKE}} results_catalog --cores {{CORES}} {{GPU_RESOURCES}} --printshellcmds --scheduler greedy
+
 # ==================== DATA SYNC ====================
 
 # Download original upstream sources (these can differ from the pinned reproduction inputs).
@@ -365,6 +370,11 @@ validate-figures:
 # Run tests (pytest lives in the `test` pixi env; a bare `pixi run pytest` won't find it)
 test *ARGS:
     @pixi run -e test pytest {{ARGS}}
+
+# Drive index.html in a real browser over fixture output trees (needs Chrome or Chromium).
+# Playwright stays out of the pinned environments; JUMP_BROWSER_LIVE=1 also reads the public bucket.
+test-browser *ARGS:
+    @PYTHONPATH=src uv run --no-project --with playwright --with pytest --with pyyaml --with loguru --with python-dotenv pytest tests/test_data_browser.py {{ARGS}}
 
 # Run snakemake linting (filters out conda/container warnings since we use pixi)
 snakelint:

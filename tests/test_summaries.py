@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from jump_production.config import PROJ_ROOT
 from jump_production.summaries import index_files, write_summary
 
 
@@ -30,6 +31,30 @@ def test_index_files_keeps_joined_paths_by_default(tmp_path: Path) -> None:
     ]
     assert [record["kind"] for record in records] == ["table", "figure"]
     assert [record["caption"] for record in records] == ["activity rates", "panel"]
+
+
+def test_paths_inside_the_checkout_never_name_the_machine(tmp_path: Path) -> None:
+    # Analyses that build their output directory from jump_production.config hold absolute paths.
+    # The same analysis must write the same envelope wherever the repository is cloned.
+    output_dir = PROJ_ROOT / "data" / "processed" / "example"
+
+    summary = write_summary(
+        tmp_path / "summary.json",
+        description="Synthetic analysis.",
+        numbers={"rows": 1},
+        files=[
+            output_dir / "figure.png",
+            {"path": str(output_dir / "tables" / "rates.csv"), "caption": "Rates"},
+            "data/processed/example/already_relative.csv",
+        ],
+    )
+
+    assert [record["path"] for record in summary["files"]] == [
+        "data/processed/example/figure.png",
+        "data/processed/example/tables/rates.csv",
+        "data/processed/example/already_relative.csv",
+    ]
+    assert str(PROJ_ROOT) not in (tmp_path / "summary.json").read_text()
 
 
 def test_index_files_emits_package_relative_paths_for_publication(tmp_path: Path) -> None:

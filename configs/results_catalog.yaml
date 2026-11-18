@@ -1,0 +1,456 @@
+# Authored registry for the results catalog (data/processed/catalog.json).
+#
+# This file is the membership definition and the only place where a title or section is written.
+# `rule results_catalog` builds every file named here, then joins these entries with the summary
+# envelopes. Descriptions and numbers come from the envelopes, never from this file.
+#
+# An entry is one of:
+#   summary:  a `{description, numbers, files}` envelope written by an analysis.
+#             Optional `highlights` name keys in that envelope's `numbers` (dotted for nesting) and
+#             give each a reader-facing label. The value is read from the envelope at build time.
+#             `optional: true` marks an opt-in target outside the default run: it is cataloged
+#             when its summary exists, and the catalog never causes it to be built.
+#   path:     results without an envelope, described here. A path ending in `/` is a directory and
+#             names in `requires` the file that proves it was built; otherwise it is one file.
+#
+# Entries appear in the browser in this order within their section. Titles describe what a result
+# is; they do not cite manuscript figure numbers, which change between versions.
+
+schema_version: 1
+repository: https://github.com/jump-cellpainting/2026_Chandrasekaran_Seal_Submitted
+
+sections:
+  - id: figures
+    title: Paper figures
+    description: >-
+      Figure packages: the rendered panels, their legends and the tables each panel is drawn from.
+  - id: collection
+    title: Compound collection
+    description: >-
+      What was screened: the structure of the dataset and the chemistry, annotations and external
+      identifiers of its compounds.
+  - id: activity
+    title: Phenotypic activity and consistency
+    description: >-
+      Which compounds produce a detectable phenotype, which annotation groups share one, and the
+      scores behind both.
+  - id: maps
+    title: Morphology maps
+    description: >-
+      UMAP views of the profiles for each feature set and compound subset. Profiles exclude
+      Source 7 unless a title says otherwise.
+  - id: reproducibility
+    title: Reproducibility, batch effects and data quality
+    description: >-
+      How results hold across sites, feature sets and batch-correction choices, with checks on cell
+      count and plate position.
+  - id: structure
+    title: Chemical structure and phenotype
+    description: >-
+      How chemical structure and compound properties relate to morphology and phenotypic activity.
+  - id: applications
+    title: Annotation-driven analyses
+    description: >-
+      Analyses built on external annotations: targets, functional use, toxicity, kinase probes and
+      commercial availability.
+
+entries:
+  # ------------------------------------------------------------------ Paper figures
+  - summary: data/processed/figures/figure_compound_collection/summary.json
+    section: figures
+    title: Compound collection and its chemical characterization
+    highlights:
+      - { key: dataset_structure.full_collection_compounds, label: Compounds in the full collection }
+      - { key: population.analyzed_compounds, label: Compounds analyzed }
+      - { key: target_moa_annotations.target_or_moa_any.count, label: With a target or MOA annotation }
+  - summary: data/processed/figures/figure_phenotypic_consistency/summary.json
+    section: figures
+    title: Phenotypic activity and consistency across the collection
+    highlights:
+      - { key: well_level_profiles, label: Well-level profiles }
+      - { key: perturbation_level_profiles, label: Compound-level profiles }
+      - { key: active_perturbations, label: Phenotypically active compounds }
+  - summary: data/processed/figures/figure_compound_activity_associations/summary.json
+    section: figures
+    title: Compound properties associated with activity and consistency
+    highlights:
+      - { key: analyzed_compounds, label: Compounds analyzed }
+      - { key: phenotypically_active_compounds, label: Phenotypically active compounds }
+  - summary: data/processed/figures/figure_opentargets_group_consistency/summary.json
+    section: figures
+    title: Phenotypic consistency of OpenTargets target groups
+  - summary: data/processed/figures/figure_suppl_structure/summary.json
+    section: figures
+    title: Structure and morphology among active compounds
+    highlights:
+      - { key: phenotypically_active_compounds, label: Phenotypically active compounds }
+      - { key: active_compounds_analyzed, label: Active compounds analyzed }
+  - summary: data/processed/figures/figure_suppl_chemical_properties/summary.json
+    section: figures
+    title: Chemical properties of the analyzed compounds
+  - summary: data/processed/figures/figure_positive_control_reproducibility/summary.json
+    section: figures
+    title: Positive-control reproducibility across sources
+    optional: true
+    highlights:
+      - { key: compounds, label: Positive controls }
+      - { key: sources, label: Sources }
+      - { key: matched_compound_source_pairs, label: Compound-source pairs }
+
+  # ------------------------------------------------------------------ Compound collection
+  - summary: data/processed/dataset_structure/summary.json
+    section: collection
+    title: Dataset structure and compound exchange between sites
+    highlights:
+      - { key: headline.compounds_perturbation, label: Compounds }
+      - { key: headline.tested_wells, label: Tested wells }
+      - { key: headline.total_images, label: Images }
+      - { key: headline.single_cell_profiles_compound, label: Single-cell profiles from compound sources }
+  - summary: data/processed/compound-collection-facts/summary.json
+    section: collection
+    title: Compound collection facts
+    highlights:
+      - { key: population.analyzed_compounds, label: Compounds analyzed }
+      - { key: clinical_development.annotated_total, label: With a clinical-phase annotation }
+      - { key: dual_sourcing.count, label: Associated with two or more compound sources }
+  - summary: data/processed/chemical-space/all/chemical_space_summary.json
+    section: collection
+    title: Chemical space of the full released collection
+    highlights: &chemical_space_highlights
+      - { key: total_compounds, label: Compounds }
+      - { key: scaffold_diversity.unique_scaffolds, label: Unique Murcko scaffolds }
+      - { key: annotated_any.count, label: With any annotation }
+      - { key: pains_structural_alerts.pains_flagged, label: PAINS-flagged }
+  - summary: data/processed/chemical-space/compound_no_source7/chemical_space_summary.json
+    section: collection
+    title: Chemical space of the analyzed compounds
+    highlights: *chemical_space_highlights
+  - summary: data/processed/unichem-mapping/summary.json
+    section: collection
+    title: External database coverage through UniChem
+    highlights:
+      - { key: total_compounds, label: Compounds }
+      - { key: mapped_compounds, label: Mapped to an external database }
+      - { key: n_databases, label: External databases }
+  - summary: data/processed/circos-plots/summary.json
+    section: collection
+    title: Experiment metadata overview
+    highlights:
+      - { key: n_plates, label: Plates }
+      - { key: n_sources, label: Sources }
+  - summary: data/processed/dataset-storage-sizes/summary.json
+    section: collection
+    title: Storage footprint of the profiles
+
+  # ------------------------------------------------------------------ Activity and consistency
+  - summary: data/processed/activity-summary/summary.json
+    section: activity
+    title: Phenotypic activity headline
+    highlights:
+      - { key: analyzed_compounds, label: Compounds analyzed }
+      - { key: phenotypically_active_compounds, label: Phenotypically active compounds }
+      - { key: active_rate_percent, label: Active rate }
+  - path: data/processed/copairs_results.duckdb
+    section: activity
+    title: Activity and consistency results database
+    description: >-
+      One DuckDB database aggregating every copairs run: per-compound activity results and scores,
+      and per-group consistency results and scores. Each row carries the configuration that
+      produced it in columns prefixed with an underscore, so filter on dataset, preprocessing,
+      filter and activity parameters to select one run.
+  - path: data/processed/copairs/runs/
+    requires: data/processed/copairs/runs/.complete
+    section: activity
+    title: Per-run activity and consistency outputs
+    description: >-
+      One folder per copairs run, named by dataset, feature columns, preprocessing, filter and
+      parameters. Each holds the mean average precision results, the per-profile average precision
+      scores, a diagnostic plot, the run log and the exact configuration used.
+  - path: data/processed/target-consistency/
+    requires: data/processed/target-consistency/.complete
+    section: activity
+    title: Consistency of target and annotation groups
+    description: >-
+      For each profile set, annotation source and distance metric: the group consistency results
+      table, a volcano plot, a dot plot and UMAP grids of the groups.
+  - path: data/processed/dataset_reference/
+    requires: data/processed/dataset_reference/dataset_reference.csv
+    section: activity
+    title: Reported numbers in one table
+    description: >-
+      Every number from the paper-report summaries collated into one table. Each row names its
+      claim key, value, source summary and producing rule. Nothing here is recomputed.
+    files:
+      - dataset_reference.csv
+      - dataset_reference.json
+  - summary: data/processed/exploration/0.01/compound_no_source7/summary.json
+    section: activity
+    title: Cosine versus absolute-cosine distance for consistency
+  - summary: data/processed/exploration/0.05/compound_no_source7/summary.json
+    section: activity
+    title: Sensitivity of consistency to the activity threshold
+  - summary: data/processed/exploration/0.06/compound_no_source7/summary.json
+    section: activity
+    title: Relationship between activity and consistency
+  - summary: data/processed/exploration/0.07/compound_no_source7/summary.json
+    section: activity
+    title: Statistical power of the activity test
+
+  # ------------------------------------------------------------------ Morphology maps
+  - summary: data/processed/umap/compound_no_source7/cosine_all/summary.json
+    section: maps
+    title: "UMAP of CellProfiler profiles: all compounds, cosine distance"
+    highlights: &umap_highlights
+      - { key: n_points_by_level.well, label: Wells plotted }
+      - { key: n_points_by_level.perturbation, label: Compounds plotted }
+  - summary: data/processed/umap/compound_no_source7/cosine_active/summary.json
+    section: maps
+    title: "UMAP of CellProfiler profiles: phenotypically active compounds, cosine distance"
+    highlights: *umap_highlights
+  - summary: data/processed/umap/compound_no_source7/euclidean_all/summary.json
+    section: maps
+    title: "UMAP of CellProfiler profiles: all compounds, Euclidean distance"
+    highlights: *umap_highlights
+  - summary: data/processed/umap/compound_DL_CPCNN_no_source7/cosine_all/summary.json
+    section: maps
+    title: "UMAP of deep-learning (CPCNN) profiles: all compounds, cosine distance"
+    highlights: *umap_highlights
+  - summary: data/processed/umap/compound_with_source7/cosine_all/summary.json
+    section: maps
+    title: UMAP of CellProfiler profiles including Source 7
+    highlights: *umap_highlights
+  - summary: data/processed/umap/compound_DL_CPCNN_with_source7/cosine_all/summary.json
+    section: maps
+    title: UMAP of deep-learning (CPCNN) profiles including Source 7
+    highlights: *umap_highlights
+  - summary: data/processed/umap/compound_no_source7_rsc/cosine_all/summary.json
+    section: maps
+    title: UMAP of CellProfiler profiles re-corrected with Harmony by batch
+    highlights: *umap_highlights
+  - summary: data/processed/umap/compound_no_source7_rsc_source/cosine_all/summary.json
+    section: maps
+    title: UMAP of CellProfiler profiles re-corrected with Harmony by source
+    highlights: *umap_highlights
+  - summary: data/processed/umap/compound_DL_CPCNN_no_source7_rsc/cosine_all/summary.json
+    section: maps
+    title: UMAP of deep-learning (CPCNN) profiles re-corrected with Harmony by batch
+    highlights: *umap_highlights
+  - summary: data/processed/umap/compound_DL_CPCNN_no_source7_rsc_source/cosine_all/summary.json
+    section: maps
+    title: UMAP of deep-learning (CPCNN) profiles re-corrected with Harmony by source
+    highlights: *umap_highlights
+  - summary: data/processed/exploration/0.04/compound_no_source7/summary.json
+    section: maps
+    title: Stability of UMAP layouts across random seeds
+    highlights:
+      - { key: per_metric.cosine.mean_procrustes_correlation, label: "Mean Procrustes correlation, cosine" }
+      - { key: per_metric.euclidean.mean_procrustes_correlation, label: "Mean Procrustes correlation, Euclidean" }
+
+  # ------------------------------------------------------------------ Reproducibility and quality
+  - summary: data/processed/cross-source-reproducibility/compound_no_source7/activity_only_target2/summary.json
+    section: reproducibility
+    title: "Cross-source reproducibility of activity: Target-2 plate compounds"
+    highlights: &cross_source_highlights
+      - { key: n_compounds, label: Compounds }
+      - { key: n_sources, label: Sources }
+      - { key: mean_nmAP_within_all, label: Mean normalized mAP within a source }
+      - { key: mean_nmAP_cross_all, label: Mean normalized mAP across sources }
+  - summary: data/processed/cross-source-reproducibility/compound_no_source7/activity_only_target2_no_source9/summary.json
+    section: reproducibility
+    title: "Cross-source reproducibility of activity: Target-2 plate compounds, excluding Source 9"
+    highlights: *cross_source_highlights
+  - summary: data/processed/cross-source-reproducibility/compound_no_source7/activity_poscon_only/summary.json
+    section: reproducibility
+    title: "Cross-source reproducibility of activity: positive controls"
+    highlights: *cross_source_highlights
+  - summary: data/processed/data-quality/compound_no_source7/activity_no_target2/summary.json
+    section: reproducibility
+    title: Cell count and plate-edge quality checks
+  - summary: data/processed/batch-effect/summary.json
+    section: reproducibility
+    title: "Batch mixing: CellProfiler versus deep-learning features"
+    highlights:
+      - { key: per_dataset.CP_no_s7.iLISI_median, label: "Median iLISI, CellProfiler features" }
+      - { key: per_dataset.DL_no_s7.iLISI_median, label: "Median iLISI, deep-learning features" }
+  - summary: data/processed/harmony-comparison/summary.json
+    section: reproducibility
+    title: Effect of re-tuned Harmony correction on activity and consistency
+  - path: data/processed/source7-comparison/
+    requires: data/processed/source7-comparison/dilution_summary.csv
+    section: reproducibility
+    title: Including or excluding Source 7
+    description: >-
+      Activity and annotation-group consistency with and without Source 7, for CellProfiler and
+      deep-learning features, compared on identical compound pools.
+  - summary: data/processed/profile-comparison/compound_no_source7_vs_compound_DL_CPCNN_no_source7/activity/default/summary.json
+    section: reproducibility
+    title: "CellProfiler versus deep-learning features: activity calls"
+    highlights: &profile_comparison_highlights
+      - { key: n_items, label: Items compared }
+      - { key: concordance_fraction, label: Concordance fraction }
+  - summary: data/processed/profile-comparison/compound_no_source7_active_union_vs_compound_DL_CPCNN_no_source7_active_union/consistency/repurposing/cosine/summary.json
+    section: reproducibility
+    title: "CellProfiler versus deep-learning features: consistency of Repurposing Hub targets"
+    highlights: *profile_comparison_highlights
+  - summary: data/processed/profile-comparison/compound_no_source7_active_union_vs_compound_DL_CPCNN_no_source7_active_union/consistency/moa/cosine/summary.json
+    section: reproducibility
+    title: "CellProfiler versus deep-learning features: consistency of Repurposing Hub mechanisms of action"
+    highlights: *profile_comparison_highlights
+  - summary: data/processed/profile-comparison/compound_no_source7_active_union_vs_compound_DL_CPCNN_no_source7_active_union/consistency/disease_area/cosine/summary.json
+    section: reproducibility
+    title: "CellProfiler versus deep-learning features: consistency of Repurposing Hub disease areas"
+    highlights: *profile_comparison_highlights
+  - summary: data/processed/profile-comparison/compound_no_source7_active_union_vs_compound_DL_CPCNN_no_source7_active_union/consistency/uniprot/cosine/summary.json
+    section: reproducibility
+    title: "CellProfiler versus deep-learning features: consistency of ChEMBL protein targets"
+    highlights: *profile_comparison_highlights
+  - summary: data/processed/profile-comparison/compound_no_source7_active_union_vs_compound_DL_CPCNN_no_source7_active_union/consistency/chemical_probes/cosine/summary.json
+    section: reproducibility
+    title: "CellProfiler versus deep-learning features: consistency of Chemical Probes targets"
+    highlights: *profile_comparison_highlights
+  - summary: data/processed/profile-comparison/compound_no_source7_active_union_vs_compound_DL_CPCNN_no_source7_active_union/consistency/motive_biokg/cosine/summary.json
+    section: reproducibility
+    title: "CellProfiler versus deep-learning features: consistency of MOTIVE BioKG targets"
+    highlights: *profile_comparison_highlights
+  - summary: data/processed/profile-comparison/compound_no_source7_active_union_vs_compound_DL_CPCNN_no_source7_active_union/consistency/motive_opentargets/cosine/summary.json
+    section: reproducibility
+    title: "CellProfiler versus deep-learning features: consistency of MOTIVE OpenTargets targets"
+    highlights: *profile_comparison_highlights
+  - summary: data/processed/profile-comparison/compound_no_source7_active_union_vs_compound_DL_CPCNN_no_source7_active_union/consistency/motive_primekg/cosine/summary.json
+    section: reproducibility
+    title: "CellProfiler versus deep-learning features: consistency of MOTIVE PrimeKG targets"
+    highlights: *profile_comparison_highlights
+  - summary: data/processed/profile-comparison/compound_no_source7_active_union_vs_compound_DL_CPCNN_no_source7_active_union/consistency/toxcast_assay/cosine/summary.json
+    section: reproducibility
+    title: "CellProfiler versus deep-learning features: consistency of ToxCast assays"
+    highlights: *profile_comparison_highlights
+
+  # ------------------------------------------------------------------ Structure and phenotype
+  - summary: data/processed/structure-morphology/compound_no_source7/activity_no_target2/morgan/structure_morphology_summary.json
+    section: structure
+    title: "Structure and morphology neighborhoods: Morgan fingerprints"
+    highlights: &structure_morphology_highlights
+      - { key: n_compounds, label: Active compounds }
+      - { key: mean_jaccard, label: Mean neighbor overlap (Jaccard) }
+      - { key: ratio_vs_random, label: Ratio to random overlap }
+  - summary: data/processed/structure-morphology/compound_no_source7/activity_no_target2/chemberta/structure_morphology_summary.json
+    section: structure
+    title: "Structure and morphology neighborhoods: ChemBERTa embeddings"
+    highlights: *structure_morphology_highlights
+  - summary: data/processed/structure-activity-pairs/compound_no_source7/summary.json
+    section: structure
+    title: Structure and activity-state pairs among active compounds
+    highlights:
+      - { key: phenotypically_active_compounds, label: Phenotypically active compounds }
+      - { key: active_compounds_analyzed, label: Active compounds analyzed }
+  - summary: data/processed/activity-cliffs/compound_no_source7/summary.json
+    section: structure
+    title: "Activity cliffs: similar structures with different morphology"
+    highlights:
+      - { key: n_compounds, label: Compounds }
+      - { key: n_pairs_analyzed, label: Compound pairs analyzed }
+      - { key: cliff_pairs.n_cliff_pairs, label: Cliff pairs }
+  - summary: data/processed/activity-cliffs-phenoseeker/compound_no_source7/summary.json
+    section: structure
+    title: PhenoSeeker scaffold-series procedure applied to JUMP
+  - summary: data/processed/substructure-morphology/compound_no_source7/summary.json
+    section: structure
+    title: "Substructure and morphology: all compounds"
+    highlights: &substructure_highlights
+      - { key: n_compounds_profiled, label: Compounds profiled }
+  - summary: data/processed/substructure-morphology/compound_no_source7_active/summary.json
+    section: structure
+    title: "Substructure and morphology: phenotypically active compounds"
+    highlights: *substructure_highlights
+  - summary: data/processed/sar-vignette/compound_no_source7/activity_no_target2/summary.json
+    section: structure
+    title: Structural alerts for phenotypic activity
+  - summary: data/processed/trait-activity-enrichment/compound_no_source7/summary.json
+    section: structure
+    title: Enrichment of structural and target traits among active and consistent compounds
+    highlights:
+      - { key: n_activity_compounds, label: Compounds tested for activity }
+      - { key: n_active, label: Phenotypically active compounds }
+  - summary: data/processed/property-activity-oddsratios/compound_no_source7/summary.json
+    section: structure
+    title: Compound traits associated with phenotypic activity
+    highlights:
+      - { key: n_compounds, label: Compounds }
+      - { key: n_active, label: Phenotypically active compounds }
+      - { key: n_binary_traits_tested, label: Binary traits tested }
+      - { key: n_binary_significant, label: Binary traits significant }
+  - summary: data/processed/compound-traits/compound_no_source7/activity_no_target2/compound_traits_summary.json
+    section: structure
+    title: Physicochemical traits and phenotypic activity
+    highlights:
+      - { key: dataset_stats.n_compounds, label: Compounds }
+      - { key: dataset_stats.n_active, label: Phenotypically active compounds }
+  - summary: data/processed/phenotype-prediction/compound_no_source7/activity_no_target2/morgan/summary.json
+    section: structure
+    title: Predicting phenotypic activity from chemical structure
+    highlights:
+      - { key: n_compounds, label: Compounds sampled }
+      - { key: classification.random_split.roc_auc, label: "ROC-AUC, random split" }
+      - { key: classification.scaffold_split.roc_auc, label: "ROC-AUC, scaffold split" }
+  - summary: data/processed/pains-prediction/compound_no_source7/summary.json
+    section: structure
+    title: Predicting PAINS alerts from morphology
+    highlights:
+      - { key: n_compounds, label: Compounds }
+      - { key: n_pains, label: PAINS-flagged compounds }
+  - summary: data/processed/fingerprint-metrics/fingerprint_metrics_summary.json
+    section: structure
+    title: Fingerprint transformations that approximate Tanimoto similarity
+    highlights:
+      - { key: n_compounds_full, label: Compounds }
+      - { key: n_samples_evaluated, label: Compounds evaluated }
+  - summary: data/processed/exploration/0.02/summary.json
+    section: structure
+    title: Random versus stratified sampling at the scale of this dataset (simulation)
+
+  # ------------------------------------------------------------------ Annotation-driven analyses
+  - summary: data/processed/functional-use-classification/summary.json
+    section: applications
+    title: Functional use classes and phenotypic activity
+    highlights:
+      - { key: n_canonical_activity_compounds, label: Compounds analyzed }
+      - { key: n_functional_use_overlap, label: With functional-use data }
+  - summary: data/processed/opentargets-target-alignment/compound_no_source7/summary.json
+    section: applications
+    title: "OpenTargets target groups: activity versus consistency"
+  - summary: data/processed/kinase-chemical-probes/compound_no_source7/summary.json
+    section: applications
+    title: Kinase and chemical-probe libraries in the collection
+  - summary: data/processed/mitotox-analysis/compound_no_source7/summary.json
+    section: applications
+    title: Mitochondrial toxicity mechanisms in morphology space
+    highlights:
+      - { key: n_matched_to_jump, label: MitoTox compounds matched }
+      - { key: n_toxic, label: Mitotoxic }
+      - { key: n_nontoxic, label: Not mitotoxic }
+  - summary: data/processed/toxicity-pk-prediction/compound_no_source7/summary.json
+    section: applications
+    title: Predicting toxicity and pharmacokinetics from morphology and structure
+  - summary: data/processed/polypharmacology/compound_no_source7/summary.json
+    section: applications
+    title: Dual-target compounds compared with single-target compounds
+    highlights:
+      - { key: n_target_pairs_analyzed, label: Target pairs analyzed }
+      - { key: n_trios_analyzed, label: Compound trios analyzed }
+  - summary: data/processed/mmp9-inhibitors/summary.json
+    section: applications
+    title: Compounds targeting MMP9
+    highlights:
+      - { key: total_compounds, label: Compounds }
+  - summary: data/processed/commercial-compounds/summary.json
+    section: applications
+    title: Commercially available compounds with distinctive profiles
+    highlights:
+      - { key: molport_search.total_hits, label: Compounds found at MolPort }
+      - { key: filtering.n_active_molport_available, label: Active and available at MolPort }
+  - summary: data/processed/gene-compound-matching/summary.json
+    section: applications
+    title: Direct gene-compound matching against a permutation baseline
+    highlights:
+      - { key: n_compounds, label: Compounds }
+      - { key: n_orf_genes, label: ORF genes }

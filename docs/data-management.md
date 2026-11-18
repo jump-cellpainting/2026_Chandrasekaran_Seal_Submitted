@@ -14,7 +14,8 @@ This does not delete unrelated cache files, but replaces matching names.
 Every downloaded file is checked against the pinned manifest; the cache is specific to the copairs revision in `pyproject.toml`.
 See the reproduction guide for the uncached diagnostic option and its different verification contract.
 
-A complete rebuild runs `all`, `batch_and_source7`, `explore` and `srijit`.
+A complete rebuild runs `all`, `batch_and_source7`, `explore`, `srijit` and `results_catalog`.
+The catalog indexes analyses from all four groups, so it is its own target and is not part of `all`.
 `just reproduce` orchestrates these targets, validates figures and verifies the scientific output contract.
 `just unlock` releases a stale Snakemake lock after a terminated run; confirm no workflow is running first.
 Keep trial renders and logs under `scratch/`, outside `data/`.
