@@ -56,9 +56,9 @@ A tree published with a `catalog.json` is read from that catalog, and the page d
 | The bucket, the publication prefix, and under it `jump_production_datastore/processed/` for results and `jump_production_datastore/raw/profiles/` for profiles | The location constants that open the script in `index.html`, `S3_PROJECT_PATH` in the Justfile and the links in `README.md` | The browser tests, whose trees are laid out at these locations | `just test-browser` |
 | A results tree is the checkout's `data/processed/`, published in a folder named `processed/` | Envelope paths written as `data/processed/...` | The browser tests | `just test-browser` |
 | Every output path under `data/processed/` | Shared links, the registry and the dataset-reference report | The registry test, for a registered path whose rule no longer writes it; the baseline verifier, for the complete roster of output paths | `just test`; `just verify-baseline` |
-| One analysis per folder, described by one envelope whose file name ends in `summary.json` | Finding analyses without a catalog; the test that every summary is registered | The registry loader | `just test`; the catalog build |
+| One analysis per folder, described by one envelope whose file name ends in `summary.json` | Finding analyses without a catalog; the test that every summary is registered | The registry test | `just test` |
 | The envelope shape `{description, numbers, files}`, each file named as `data/processed/...` or relative to the envelope | Every view of an analysis | The catalog build and catalog validation | The catalog build; `just verify-baseline` |
-| A figure package is `figures/figure_<name>/` with a `legend.md`, and registry section `figures` holds exactly the entries under `figures/` | The figure section and label, the legend on a figure page and `just validate-figures` | The registry loader; figure validation | `just test`; `just reproduce` |
+| A figure package is `figures/figure_<name>/` with a `legend.md`, and registry section `figures` holds exactly the entries under `figures/` | The figure section and label, the legend on a figure page and `just validate-figures` | The registry test; figure validation | `just test`; `just reproduce` |
 | The reported numbers are `dataset_reference/dataset_reference.json` at the root of the tree, each row with `claim`, `value` and `source` | "Reported numbers" and searching by value | The registry test, which names the rule that writes this file; the baseline verifier | `just test`; `just verify-baseline` |
 | The catalog is `catalog.json` at the root of the tree, with paths relative to itself | Reading a tree from its catalog | The registry test; catalog validation | `just test`; `just verify-baseline` |
 | The addresses `?prefix=`, `?file=`, `?q=`, `?view=numbers` and `&filter=` | Shared links and bookmarks | The browser tests | `just test-browser` |
@@ -129,10 +129,10 @@ The page also shows a folder whose summary the catalog does not list as an analy
 
 Give the analysis its own folder under `data/processed/` and name its envelope `summary.json`, as the [layout contract](#layout-contract) requires.
 Register the new summary in `configs/results_catalog.yaml` with a title and a section.
-Four checks keep the registry and the workflow together:
+Three checks keep the registry and the workflow together:
 
-- The registry loader rejects a summary whose file name does not end in `summary.json`, and an entry that is in section `figures` without being under `figures/` or the reverse.
 - `tests/test_catalog.py` requires every registered file to have exactly one producing rule and every declared summary output to be registered, as optional when no default target builds it.
+  It also requires a summary's file name to end in `summary.json`, and section `figures` to hold exactly the entries under `figures/`.
 - The catalog build fails on a missing summary, a missing declared file or an unknown headline key.
 - `just verify-baseline` requires the catalog, and fails if any envelope in the output tree is not cataloged.
 
