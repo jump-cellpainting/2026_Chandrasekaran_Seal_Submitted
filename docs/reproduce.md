@@ -101,7 +101,8 @@ These checkout commands select the release revision and create a local branch fo
 Uncommitted local edits are not transferred.
 The script normally tries larger types too; `TYPES=g6e.8xlarge` keeps this example within the 32-vCPU quota.
 If this type has no capacity, retry later or deliberately choose another tested L40S type after checking its quota: g6e.12xlarge needs 48 vCPUs, g6e.16xlarge needs 64.
-If a launch fails after creating a key or security group, use the cleanup command in step 5 for that same name.
+Running `scripts/ec2.sh up` again with the same name reuses the key pair and security group it already created, so a retry needs no cleanup first.
+If you give up on a launch that created a key or security group, use the cleanup command in step 5 for that same name.
 SSH readiness retries for five minutes (`SSH_WAIT_SECONDS=300`, plus the final connection attempt); on timeout, check the reported SSH error, your key, and whether your current public IP is still allowed by the security group.
 The instance remains running after this timeout: fix access and continue with `scripts/ec2.sh push`, or use `scripts/ec2.sh down --yes` to clean up; rerunning `up` will report "already exists", and compute charges continue until the instance stops, with disk charges continuing until cleanup.
 
@@ -301,3 +302,11 @@ Local contract tests and projected-snapshot checks remain useful, but do not rep
 On 2026-11-17, a fresh Codex session reproduced public revision `b1c8c55db404fcd6ab9112168be1248de8111dd5` on a new g6e.8xlarge with the pinned AMI and no pre-existing environment, null cache or outputs.
 It passed all 316 jobs, figure validation and the complete comparison contract in 38 minutes 7 seconds (`started 2026-11-17T03:30:58Z` to `STAGE done` at `04:09:05Z`), with `baseline: ok`, `reproduce: ok` and `STAGE exit=0`.
 Afterward, the no-root pixi/tool installation, Python validator prerequisites and physical-directory step passed isolated checks on that Linux GPU machine; this was not a new Slurm or A100 workflow run.
+
+On 2026-11-18, two fresh agent sessions, each given only this guide at a pinned commit, reproduced the data-browser changes on new g6e.8xlarge instances with the pinned AMI and no pre-existing environment, null cache or outputs.
+The first, at `cffd5f85965bde26ef2dc84c8c9784bbbe644f0e`, completed all 317 jobs and figure validation and then failed baseline verification with `STAGE exit=1`.
+Two exact-checked summaries record the content hash of a summary whose declared file paths had become relative to the checkout; no scientific value differed.
+The second, at `58a5b12c442d430613aabf7d1f96b658b0da1fce`, adds the two checksum replacements and one claim replacement described in [the release contract](release.md).
+It passed all 317 jobs, figure validation, 2,003 output paths, 1,144 artifact checks, 1,571 claims, four curated tables and both scientific summary comparisons in 37 minutes 31 seconds (`started 2026-11-18T17:53:57Z` to `STAGE done` at `18:31:28Z`), with `baseline: ok`, `reproduce: ok` and `STAGE exit=0`.
+The job count is one higher than in earlier runs because the results catalog is built last.
+Both launches were first refused for lack of L40S capacity and succeeded on a retry under the same name; both instances and their disks, security groups and key pairs were deleted afterwards.

@@ -45,7 +45,8 @@ That provenance hash used to depend on where the repository was cloned; it no lo
 A local preflight that re-emitted only the fifteen envelopes did not show this dependency, and the first fresh reproduction of the change failed on it.
 The original snapshot, input checksum manifest and null cache are not overwritten or republished.
 
-Pre-publication source revision `7404bb75a420e11dc673a7a6ed55c2d61a86bee8` passed a fresh L40S reproduction, including every projected check above; the exact machine, timing and run markers are recorded in [the reproduction guide](reproduce.md).
+Pre-publication source revision `7404bb75a420e11dc673a7a6ed55c2d61a86bee8` passed a fresh L40S reproduction of the projection as it then stood; the exact machine, timing and run markers are recorded in [the reproduction guide](reproduce.md).
+Public revision `58a5b12c442d430613aabf7d1f96b658b0da1fce` passed a fresh L40S reproduction of the projection as described above, including the results catalog and all four replaced hashes; the same guide records that run and the failed run that preceded it.
 The public repository has a new signed root commit with byte-identical executable source, scientific configurations and dependency/input pins; only documentation and its allowlist hashes were adapted for publication.
 Its stable well ordering before cell-density regression restores the existing exact CSV baseline without changing scientific calculations or tolerances.
 A local projected-snapshot check validates the adapter and reporting contract without recomputing scientific results, so executable changes still require a full GPU reproduction.
