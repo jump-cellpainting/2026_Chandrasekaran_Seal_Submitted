@@ -284,6 +284,27 @@ rule figure_suppl_chemical_properties:
         "--dpi {DEFAULT_DPI} 2>&1 | tee {log}"
 
 
+rule figure_positive_control_reproducibility:
+    """Build the positive-control heatmap as an explicit target."""
+    input:
+        copairs_db="data/processed/copairs_results.duckdb",
+        metadata_db="data/interim/jump_metadata_augmented.duckdb",
+        script="notebooks/figure-positive-control-reproducibility.py",
+        query="src/jump_production/queries.py",
+        helpers=FIGURE_HELPERS
+    output:
+        png="data/processed/figures/figure_positive_control_reproducibility/poscon_heatmap.png",
+        pdf="data/processed/figures/figure_positive_control_reproducibility/poscon_heatmap.pdf",
+        table="data/processed/figures/figure_positive_control_reproducibility/poscon_heatmap.csv",
+        legend="data/processed/figures/figure_positive_control_reproducibility/legend.md",
+        summary="data/processed/figures/figure_positive_control_reproducibility/summary.json"
+    log:
+        "logs/figures/figure_positive_control_reproducibility.log"
+    shell:
+        "pixi run python {input.script:q} --copairs-db {input.copairs_db:q} "
+        "--metadata-db {input.metadata_db:q} --dpi {DEFAULT_DPI} 2>&1 | tee {log:q}"
+
+
 rule all_figures:
     """Build the six paper-figure directories without a catalog landing page."""
     input:
