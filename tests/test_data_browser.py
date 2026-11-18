@@ -612,6 +612,51 @@ def test_without_a_catalog_headlines_are_only_top_level_results(uncataloged):
     assert page.locator(".summary-metric").count() == 0
 
 
+def test_very_large_folders_are_listed_in_steps_and_drawn_in_batches(browser, tmp_path):
+    """The publication prefix holds folders with tens of thousands of objects; opening one must stay cheap."""
+    cache = tmp_path / "jump_production_null_cache/run/seed0"
+    cache.mkdir(parents=True)
+    for index in range(45):
+        (cache / f"null_{index:04d}.npy").write_bytes(b"0")
+
+    # Listing: the page reads five listing pages at a time (four objects each here) and says so.
+    bucket = Bucket(tmp_path)
+    session = Session(browser, bucket)
+    page = session.open(f"?prefix={PUBLICATION}jump_production_null_cache/run/seed0/")
+    assert page.locator(".file-row").count() == 20
+    assert session.header()[2] == "0 folders | 20 files | more not yet listed"
+    assert "more than the 20 entries listed so far" in page.inner_text(".listing-notice")
+    listing_requests = len(bucket.requests)
+    page.fill("#search", "null_0044")
+    session.settle()
+    assert page.locator(".file-row").count() == 0  # the filter only searches what is listed
+    page.fill("#search", "")
+    page.click(".listing-notice button:has-text('List more')")
+    page.wait_for_function("document.querySelectorAll('.file-row').length === 40")
+    page.click(".listing-notice button:has-text('List more')")
+    page.wait_for_function("document.querySelectorAll('.file-row').length === 45")
+    assert page.locator(".listing-notice").count() == 0
+    assert session.header()[2] == "0 folders | 45 files"
+    assert len(bucket.requests) - listing_requests == 7  # 5 pages, then 2: never the whole folder at once
+    session.page.close()
+    assert not session.problems
+
+    # Drawing: a fully listed folder still shows its rows 200 at a time.
+    wide = tmp_path / "wide/jump_production_null_cache/run/seed1"
+    wide.mkdir(parents=True)
+    for index in range(230):
+        (wide / f"null_{index:04d}.npy").write_bytes(b"0")
+    session = Session(browser, Bucket(tmp_path / "wide", page_size=1000))
+    page = session.open(f"?prefix={PUBLICATION}jump_production_null_cache/run/seed1/")
+    assert session.header()[2] == "0 folders | 230 files"
+    assert page.locator(".file-row").count() == 200
+    assert page.inner_text(".batch-more") == "Show 30 more files"
+    page.click(".batch-more")
+    assert page.locator(".file-row").count() == 230 and page.locator(".batch-more").count() == 0
+    session.page.close()
+    assert not session.problems
+
+
 def test_newest_results_tree_with_a_catalog_is_the_one_shown(browser, outputs, tmp_path):
     """Publishing a new output tree beside the old one is one added line in RESULTS_PREFIXES."""
     publish(outputs, tmp_path, catalog=True)

@@ -1960,6 +1960,28 @@ a.claim-analysis:hover {
   border-top: 0;
 }
 
+.listing-notice {
+  margin-top: 18px;
+  padding: 15px 17px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-size: 0.76rem;
+}
+
+.listing-notice p {
+  margin: 0;
+}
+
+.listing-notice .json-document-actions {
+  margin-top: 12px;
+}
+
+.batch-more {
+  margin: 12px 0 0;
+}
+
 @media (max-width: 820px) {
   .summary-card-actions {
     flex-wrap: wrap;
@@ -2077,6 +2099,11 @@ const DATASETTE_URL = "https://lite.datasette.io/";
 const DATASETTE_MAX_BYTES = 200 * 1024 * 1024;
 const DATASETTE_SLOW_BYTES = 25 * 1024 * 1024;
 const LARGE_FILE_BYTES = 50 * 1024 * 1024;
+// Some public folders hold tens of thousands of objects. A folder is listed a few pages at a time
+// and its rows are drawn in batches, so opening one never stalls the page.
+const LIST_PAGES_PER_LOAD = 5;
+const FILE_ROWS_PER_BATCH = 200;
+const IMAGE_CARDS_PER_BATCH = 60;
 const JSON_MAX_BYTES = 2 * 1024 * 1024;
 const TEXT_MAX_BYTES = 1024 * 1024;
 const NOTE_MAX_BYTES = 200 * 1024;
@@ -2436,11 +2463,13 @@ function objectRecords(xml, prefix) {
 
 const byName = (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" });
 
-// One level of a folder: its subfolders and its own files.
-async function listObjects(prefix, signal) {
-  const folders = new Map();
-  const files = new Map();
-  let continuationToken = null;
+// One level of a folder: its subfolders and its own files. A large folder is read a few listing
+// pages at a time; `nextToken` is set while more remains, and `previous` continues an earlier read.
+async function listObjects(prefix, signal, previous = null) {
+  const folders = new Map((previous?.folders || []).map((folder) => [folder.prefix, folder]));
+  const files = new Map((previous?.files || []).map((file) => [file.key, file]));
+  let continuationToken = previous?.nextToken || null;
+  let pages = 0;
   do {
     const params = new URLSearchParams({ "list-type": "2", prefix, delimiter: "/" });
     if (continuationToken) params.set("continuation-token", continuationToken);
@@ -2452,8 +2481,33 @@ async function listObjects(prefix, signal) {
     }
     for (const record of objectRecords(xml, prefix)) files.set(record.key, record);
     continuationToken = childText(xml, "IsTruncated") === "true" ? childText(xml, "NextContinuationToken") : null;
-  } while (continuationToken);
-  return { folders: [...folders.values()].sort(byName), files: [...files.values()].sort(byName) };
+    pages += 1;
+  } while (continuationToken && pages < LIST_PAGES_PER_LOAD);
+  return {
+    folders: [...folders.values()].sort(byName),
+    files: [...files.values()].sort(byName),
+    nextToken: continuationToken
+  };
+}
+
+// Append items to a container in batches behind a "Show more" button.
+function appendInBatches(container, items, batchSize, makeNode, noun) {
+  let shown = 0;
+  let more = null;
+  const appendBatch = () => {
+    if (more) more.remove();
+    const end = Math.min(shown + batchSize, items.length);
+    for (; shown < end; shown += 1) container.append(makeNode(items[shown]));
+    if (shown < items.length) {
+      const remaining = items.length - shown;
+      more = element("button", "button batch-more", `Show ${plural(Math.min(batchSize, remaining), `more ${noun}`)}`);
+      more.type = "button";
+      more.setAttribute("aria-label", `Show more; ${plural(remaining, noun)} not yet shown`);
+      more.addEventListener("click", appendBatch);
+      container.after(more);
+    }
+  };
+  appendBatch();
 }
 
 // Every object under a prefix, as a map from key to its record.
@@ -3817,7 +3871,7 @@ function nestedImages(prefix, listed, entry) {
 function renderImages(images, allFiles, entry) {
   const wrapper = section("Image previews", plural(images.length, "image"));
   const grid = element("div", "image-grid");
-  for (const file of images) {
+  const imageCard = (file) => {
     const url = objectUrl(file.key);
     const caption = captionFor(file, entry);
     const sized = Number.isFinite(file.size);
@@ -3870,9 +3924,10 @@ function renderImages(images, allFiles, entry) {
     details.append(links);
     info.append(details);
     card.append(preview, info);
-    grid.append(card);
-  }
+    return card;
+  };
   wrapper.append(grid);
+  appendInBatches(grid, images, IMAGE_CARDS_PER_BATCH, imageCard, "image");
   return wrapper;
 }
 
@@ -3917,7 +3972,7 @@ function renderFiles(files, allFiles) {
   head.append(...headings);
   list.append(head);
 
-  for (const file of files) {
+  const fileRow = (file) => {
     const url = objectUrl(file.key);
     const metadata = metadataForDataFile(file, allFiles);
     const annotatedData = dataFileForMetadata(file, allFiles);
@@ -3983,10 +4038,11 @@ function renderFiles(files, allFiles) {
     size.setAttribute("role", "cell");
     date.setAttribute("role", "cell");
     row.append(identity, size, date, actions);
-    list.append(row);
-  }
+    return row;
+  };
 
   wrapper.append(list);
+  appendInBatches(list, files, FILE_ROWS_PER_BATCH, fileRow, "file");
   return wrapper;
 }
 
@@ -4000,6 +4056,8 @@ function renderFolderBody(prefix, model) {
   const parts = [plural(folders.length, "folder"), plural(files.length, "file")];
   if (images.length) parts.push(plural(images.length, "image"));
   if (data) parts.push(plural(data, "data table"));
+  const partial = Boolean(currentListing.nextToken);
+  if (partial) parts.push("more not yet listed");
   directorySummary.textContent = query ? `${parts.join(" | ")} matching "${query}"` : parts.join(" | ");
 
   const fragment = document.createDocumentFragment();
@@ -4027,7 +4085,38 @@ function renderFolderBody(prefix, model) {
   if (folders.length) fragment.append(renderFolders(folders, model));
   if (images.length + nested.length) fragment.append(renderImages([...images, ...nested], currentListing.files, currentEntry));
   if (files.length) fragment.append(renderFiles(files, currentListing.files));
+  if (partial) fragment.append(listingNotice(prefix, model));
   content.replaceChildren(fragment);
+}
+
+// A very large folder is listed in steps; say so, and let the reader continue or take the path.
+function listingNotice(prefix, model) {
+  const notice = element("div", "listing-notice");
+  notice.setAttribute("role", "status");
+  const listed = currentListing.folders.length + currentListing.files.length;
+  notice.append(element("p", "", `This folder holds more than the ${plural(listed, "entry", "entries")} listed so far. The filter only searches what is listed.`));
+  const actions = element("div", "json-document-actions");
+  const more = element("button", "button button-primary", "List more");
+  more.type = "button";
+  more.addEventListener("click", async () => {
+    more.disabled = true;
+    more.textContent = "Listing...";
+    const token = renderToken;
+    try {
+      const next = await listObjects(prefix, activeController?.signal, currentListing);
+      if (token !== renderToken) return;
+      currentListing = next;
+      renderFolderBody(prefix, model);
+    } catch (error) {
+      if (error.name === "AbortError" || token !== renderToken) return;
+      more.disabled = false;
+      more.textContent = "List more";
+      showToast("The folder could not be listed further");
+    }
+  });
+  actions.append(more, copyButton("Copy S3 path", s3Uri(prefix), "S3 path copied to clipboard"));
+  notice.append(actions);
+  return notice;
 }
 
 async function renderFolder(route, token) {

@@ -20,6 +20,7 @@ The overview lists every result set under its section, and one search box covers
 An analysis page shows its title and description, headline numbers, the producing rule, a link to the analysis source at the revision that produced the results, figure previews with captions, the figure legend, and every file with the actions that suit it.
 "Reported numbers" lists every value in the dataset-reference report and links each to the summary that reports it.
 "All files" is the plain folder view of the publication prefix, including the profiles and inputs.
+Some of those folders hold tens of thousands of objects, so a folder is listed 5,000 entries at a time and its rows are drawn 200 at a time.
 
 Tables open in Datasette Lite, which loads a whole table into browser memory.
 Tables up to 170 MB opened in testing and a 770 MB table failed, so above 200 MB the page offers a download and the S3 path instead.
@@ -84,7 +85,7 @@ Readers of envelopes should use the catalog's resolved paths instead of interpre
 ## Testing the page
 
 `just test-browser` drives `index.html` in Chrome or Chromium over small output trees written by the real envelope writer and catalog builder, answering the page's bucket requests locally.
-It covers the cataloged and the uncataloged case, both path conventions, missing and foreign paths, the size limit, text rendering and address handling.
+It covers the cataloged and the uncataloged case, both path conventions, missing and foreign paths, the size limit, very large folders, text rendering and address handling.
 `JUMP_BROWSER_LIVE=1 just test-browser` also reads the public bucket.
 Playwright is fetched by `uv` for that command and is not part of the pinned environments, so plain `just test` skips these tests.
 
