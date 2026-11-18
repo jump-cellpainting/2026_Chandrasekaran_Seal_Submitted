@@ -9,6 +9,7 @@ Playwright is not part of the pinned environments. Run with `just test-browser`;
 published bucket.
 """
 
+import contextlib
 import json
 import mimetypes
 import os
@@ -52,6 +53,13 @@ REGISTRY = {
             "summary": "data/processed/figures/figure_collection/summary.json",
             "section": "figures",
             "title": "Compound collection figure",
+        },
+        {
+            "summary": "data/processed/figures/figure_optional_heatmap/summary.json",
+            "section": "figures",
+            "title": "Positive-control heatmap",
+            "optional": True,
+            "highlights": [{"key": "matched_pairs", "label": "Compound-source pairs"}],
         },
         {
             "summary": "data/processed/activity-summary/summary.json",
@@ -171,11 +179,14 @@ def build_outputs(root: Path) -> Path:
     quality = processed / "quality/compound_no_source7"
     (quality / "edge_effects").mkdir(parents=True)
     (quality / "edge_effects/edge_heatmap.png").write_bytes(PNG)
+    # The workflow runs from the checkout root with relative paths, so the index is `data/...`.
+    with contextlib.chdir(root):
+        nested = index_files(Path("data/processed/quality/compound_no_source7/edge_effects"))
     write_summary(
         quality / "summary.json",
         description="Whether plate-edge wells differ from interior wells.",
         numbers={"n_wells": 558928},
-        files=index_files(quality / "edge_effects"),
+        files=nested,
     )
 
     reference = processed / "dataset_reference"
@@ -191,6 +202,21 @@ def build_outputs(root: Path) -> Path:
     (reference / "dataset_reference.json").write_text(json.dumps(rows))
     (processed / "results.duckdb").write_bytes(b"duckdb\n")
     return root
+
+
+def build_opt_in_figure(processed: Path) -> None:
+    """Write the opt-in figure package the way its renderer does: bare names, a legend, a table."""
+    figure = processed / "figures/figure_optional_heatmap"
+    figure.mkdir(parents=True)
+    (figure / "heatmap.png").write_bytes(PNG)
+    (figure / "heatmap.csv").write_text("source,compound,value\nsource_1,C1,0.5\n")
+    (figure / "legend.md").write_text("# figure_optional_heatmap: Heatmap\n\n## Heatmap (`heatmap.png`)\n\nValues per source.\n")
+    write_summary(
+        figure / "summary.json",
+        description="Positive-control reproducibility across sources",
+        numbers={"dataset": "compound_no_source7", "compounds": 8, "matched_pairs": 71},
+        files=["heatmap.png", "heatmap.csv", "legend.md"],
+    )
 
 
 def publish(root: Path, bucket_root: Path, *, catalog: bool) -> None:
@@ -625,6 +651,47 @@ def test_newest_results_tree_with_a_catalog_is_the_one_shown(browser, outputs, t
     page = session.open()
     assert session.header()[2].startswith("5 result sets in 2 sections")
     assert page.locator(".entry-card").first.get_attribute("href").startswith(f"/index.html?prefix={PROCESSED}")
+    session.page.close()
+    assert not session.problems
+
+
+def test_opt_in_figure_is_presented_whether_or_not_the_catalog_lists_it(browser, outputs, tmp_path):
+    # The default run does not build it: the catalog and the overview simply do not list it.
+    published = tmp_path / "published"
+    publish(outputs, published, catalog=True)
+    session = Session(browser, Bucket(published))
+    page = session.open()
+    assert "Positive-control heatmap" not in texts(page, ".entry-title")
+
+    # Built into a tree whose catalog predates it: no overview entry, but its folder is still an
+    # analysis page with the legend, the figure and the table, described by its own summary.
+    build_opt_in_figure(published / "jump_production_datastore/processed")
+    session.page.close()
+    session = Session(browser, Bucket(published))
+    page = session.open(f"?prefix={PROCESSED}figures/figure_optional_heatmap/")
+    assert session.header()[:2] == ("PAPER FIGURE", "Optional heatmap")
+    assert "Positive-control reproducibility across sources" in page.inner_text(".summary-description")
+    assert texts(page, ".summary-metric") == ["8 Compounds", "71 Matched pairs"]
+    assert "Values per source." in page.locator(".section", has_text="Figure legends").inner_text()
+    assert texts(page, ".image-name") == ["heatmap.png"]
+    assert texts(page.locator(".file-row", has_text="heatmap.csv"), ".file-actions > *") == ["Open file", "Explore data"]
+    assert "Positive-control heatmap" not in texts(session.open(), ".entry-title")
+    session.page.close()
+    assert not session.problems
+
+    # Built before the catalog: listed under its section with the authored title and headline.
+    rebuilt = tmp_path / "rebuilt-outputs"
+    shutil.copytree(outputs, rebuilt)
+    build_opt_in_figure(rebuilt / "data/processed")
+    republished = tmp_path / "republished"
+    publish(rebuilt, republished, catalog=True)
+    session = Session(browser, Bucket(republished))
+    page = session.open()
+    assert texts(page, "#section-figures .entry-title") == ["Compound collection figure", "Positive-control heatmap"]
+    page.click(".entry-card:has-text('Positive-control heatmap')")
+    session.settle()
+    assert session.header()[:2] == ("PAPER FIGURE", "Positive-control heatmap")
+    assert texts(page, ".summary-metric") == ["71 Compound-source pairs"]
     session.page.close()
     assert not session.problems
 

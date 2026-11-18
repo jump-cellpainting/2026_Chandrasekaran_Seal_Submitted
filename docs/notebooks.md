@@ -38,3 +38,4 @@ direnv exec . just validate-figure figure_positive_control_reproducibility
 
 The figure directory contains the PNG, vector PDF, plotted values, caption, and summary.
 Build this figure in a separate output tree when comparing an exact reproduction against the pinned baseline.
+The results catalog lists it as an optional entry: run `direnv exec . just catalog` after building it to include it in `data/processed/catalog.json`.

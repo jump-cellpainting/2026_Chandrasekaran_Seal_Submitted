@@ -7,8 +7,9 @@ every analysis with an authored title and section, its envelope description, its
 and script, and its declared files resolved to paths that are known to exist.
 
 Two inputs define it. `configs/results_catalog.yaml` is the authored registry: sections, and one
-entry per analysis giving its title, section and optional headline numbers. The envelopes supply
-everything computed. The catalog never recomputes or restates a scientific value; a headline is a
+entry per analysis giving its title, section and optional headline numbers. An entry marked
+`optional` belongs to an opt-in target: it is cataloged when its summary exists and is never a
+reason to build it. The envelopes supply everything computed. The catalog never recomputes or restates a scientific value; a headline is a
 key into an envelope's `numbers`, and the build fails if the key is absent.
 
 Every path in the catalog is relative to the catalog's own directory, so the tree can be mirrored
@@ -70,7 +71,7 @@ def load_registry(path) -> dict:
             raise ValueError(f"Registry entry must be a mapping: {entry!r}")
         if ("summary" in entry) == ("path" in entry):
             raise ValueError(f"Registry entry needs exactly one of summary or path: {entry!r}")
-        allowed = {"summary", "section", "title", "highlights"} if "summary" in entry else {
+        allowed = {"summary", "section", "title", "highlights", "optional"} if "summary" in entry else {
             "path", "requires", "section", "title", "description", "files",
         }
         required = {"summary", "section", "title"} if "summary" in entry else {
@@ -83,12 +84,14 @@ def load_registry(path) -> dict:
                 raise ValueError(f"Registry entry field {key} must be non-empty text: {entry!r}")
         if entry["section"] not in section_ids:
             raise ValueError(f"Registry entry names an unknown section: {entry!r}")
+        if not isinstance(entry.get("optional", False), bool):
+            raise ValueError(f"Registry entry field optional must be true or false: {entry!r}")
         for highlight in entry.get("highlights", []):
             if not isinstance(highlight, dict) or set(highlight) != {"key", "label"}:
                 raise ValueError(f"Highlight needs exactly key and label: {highlight!r}")
         if not all(isinstance(name, str) and name for name in entry.get("files", [])):
             raise ValueError(f"Resource files must be non-empty paths: {entry!r}")
-    used = {entry["section"] for entry in entries}
+    used = {entry["section"] for entry in entries if not entry.get("optional")}
     if used != set(section_ids):
         raise ValueError(f"Sections without entries: {sorted(set(section_ids) - used)}")
     return registry
@@ -96,7 +99,16 @@ def load_registry(path) -> dict:
 
 def registry_inputs(registry: dict) -> list[str]:
     """Return the files the workflow must build before the catalog can be written."""
-    return [entry["summary"] if "summary" in entry else entry.get("requires", entry["path"]) for entry in registry["entries"]]
+    return [
+        entry["summary"] if "summary" in entry else entry.get("requires", entry["path"])
+        for entry in registry["entries"]
+        if not entry.get("optional")
+    ]
+
+
+def optional_summaries(registry: dict) -> list[str]:
+    """Return summaries of opt-in analyses: cataloged when they were built, never required."""
+    return [entry["summary"] for entry in registry["entries"] if entry.get("optional")]
 
 
 def _inside_processed(path: str) -> PurePosixPath:
@@ -282,6 +294,8 @@ def build_catalog(registry: dict, *, root, declarations: list[dict], canonical_k
     entries = [
         (_summary_entry if "summary" in entry else _resource_entry)(root, entry, declarations)
         for entry in registry["entries"]
+        # An opt-in analysis that was not built is simply absent from the catalog.
+        if not (entry.get("optional") and not (root / entry["summary"]).exists())
     ]
     identifiers = [entry["id"] for entry in entries]
     duplicates = sorted({identifier for identifier in identifiers if identifiers.count(identifier) > 1})

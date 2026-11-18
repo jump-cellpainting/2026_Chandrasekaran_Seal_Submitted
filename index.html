@@ -2914,11 +2914,13 @@ async function loadResults(onProgress) {
   return (await loadCatalog()) || discoverResults(onProgress);
 }
 
-// The analysis that a folder holds, if any. Inside the cataloged tree the catalog is the authority;
-// anywhere else, such as an older results tree, a summary file in the folder describes it.
+// The analysis that a folder holds, if any. The catalog describes what it lists; a summary file
+// describes anything else, such as an older results tree or an opt-in figure built after the
+// catalog was written.
 async function entryForFolder(prefix, listing) {
   const catalog = await loadCatalog();
-  if (catalog && prefix.startsWith(catalog.root)) return catalog.byPrefix.get(prefix) || null;
+  const cataloged = catalog?.byPrefix.get(prefix);
+  if (cataloged) return cataloged;
   for (const file of listing.files.filter((candidate) => looksLikeSummary(candidate) && candidate.size <= JSON_MAX_BYTES)) {
     try {
       const source = await loadJsonKey(file.key);

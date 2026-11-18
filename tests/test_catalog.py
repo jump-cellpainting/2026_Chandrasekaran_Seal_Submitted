@@ -9,6 +9,7 @@ import yaml
 from jump_production.catalog import (
     build_catalog,
     load_registry,
+    optional_summaries,
     registry_inputs,
     validate_catalog,
     write_catalog,
@@ -187,6 +188,41 @@ def test_catalog_build_fails_closed(tmp_path, damage, message):
         catalog_for(root, registry)
 
 
+def test_opt_in_analysis_is_cataloged_only_when_it_was_built(tmp_path):
+    root = build_tree(tmp_path)
+    registry = json.loads(json.dumps(REGISTRY))
+    optional = {
+        "summary": "data/processed/figures/heatmap/summary.json",
+        "section": "figures",
+        "title": "Opt-in heatmap",
+        "optional": True,
+        "highlights": [{"key": "pairs", "label": "Pairs"}],
+    }
+    registry["entries"].insert(1, optional)
+
+    # Never a reason to build it: the workflow's required inputs do not name it.
+    assert optional["summary"] not in registry_inputs(registry)
+    assert optional_summaries(registry) == [optional["summary"]]
+    assert [entry["id"] for entry in catalog_for(root, registry)["entries"]] == [
+        "figures/collection", "activity", "runs", "results.duckdb",
+    ]
+
+    heatmap = root / "data/processed/figures/heatmap"
+    heatmap.mkdir()
+    (heatmap / "heatmap.png").write_bytes(b"png\n")
+    write_summary(heatmap / "summary.json", description="A heatmap.", numbers={"pairs": 71}, files=["heatmap.png"])
+    catalog = catalog_for(root, registry)
+    assert [entry["id"] for entry in catalog["entries"]][:2] == ["figures/collection", "figures/heatmap"]
+    assert catalog["entries"][1]["highlights"] == [{"key": "pairs", "label": "Pairs", "value": 71}]
+    (root / "data/processed/catalog.json").write_text(json.dumps(catalog))
+    assert validate_catalog(root) == (5, 6)
+
+    # Once built it is held to the same checks as any other analysis.
+    (heatmap / "heatmap.png").unlink()
+    with pytest.raises(ValueError, match="was not written"):
+        catalog_for(root, registry)
+
+
 def test_absolute_paths_inside_the_checkout_are_still_resolved(tmp_path):
     root = build_tree(tmp_path)
     activity = root / "data/processed/activity/summary.json"
@@ -231,6 +267,10 @@ def test_validation_requires_every_envelope_and_file(tmp_path, damage):
         lambda registry: registry["entries"][0].update(description="Authored text for an envelope"),
         lambda registry: registry["entries"][1].update(highlights=[{"key": "counts.active"}]),
         lambda registry: registry["entries"][3].pop("description"),
+        lambda registry: registry["entries"][0].update(optional="yes"),
+        lambda registry: registry["entries"][3].update(optional=True),
+        # A section must not depend on an opt-in entry to have something to show.
+        lambda registry: registry["entries"][0].update(optional=True),
     ],
 )
 def test_registry_rejects_entries_the_browser_could_not_present(tmp_path, change):
@@ -247,7 +287,7 @@ def test_committed_registry_matches_the_workflow():
     """Every registered file has one producing rule, and every declared summary is registered."""
     registry = load_registry(PROJ_ROOT / "configs/results_catalog.yaml")
     declarations = declared_outputs()
-    inputs = registry_inputs(registry)
+    inputs = [*registry_inputs(registry), *optional_summaries(registry)]
     assert len(inputs) == len(set(inputs))
 
     for path in inputs:
@@ -267,3 +307,9 @@ def test_committed_registry_matches_the_workflow():
 
     catalog_rule = [d for d in declarations if d["output"] == "data/processed/catalog.json"]
     assert [d["rule"] for d in catalog_rule] == ["results_catalog"]
+
+    # An entry is optional exactly when no default target builds it. The positive-control heatmap
+    # is the one opt-in figure: cataloging it must not pull it into the pinned output roster.
+    assert optional_summaries(registry) == [
+        "data/processed/figures/figure_positive_control_reproducibility/summary.json"
+    ]

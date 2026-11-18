@@ -58,12 +58,17 @@ The catalog also records the source repository and the commit that produced the 
 The catalog lists analyses from the `all`, `batch_and_source7`, `explore` and `srijit` targets, so it is a target of its own.
 `just reproduce` builds it last; `just catalog` builds it and everything it lists.
 
+An entry marked `optional: true` belongs to an opt-in target that the default run does not build.
+It is cataloged when its summary exists and the catalog never causes it to be built, so the pinned output roster is unaffected.
+The [positive-control heatmap](notebooks.md#positive-control-reproducibility-heatmap) is registered this way: build it, run `just catalog`, and it appears under the paper figures.
+The page also shows a folder whose summary the catalog does not list as an analysis, described by that summary, so an opt-in figure published beside an older catalog still reads properly.
+
 ## Adding an analysis
 
 Register the new summary in `configs/results_catalog.yaml` with a title and a section.
 Three checks keep the registry and the workflow together:
 
-- `tests/test_catalog.py` requires every registered file to have exactly one producing rule and every declared summary output to be registered.
+- `tests/test_catalog.py` requires every registered file to have exactly one producing rule and every declared summary output to be registered, as optional when no default target builds it.
 - The catalog build fails on a missing summary, a missing declared file or an unknown headline key.
 - `just verify-baseline` requires the catalog, and fails if any envelope in the output tree is not cataloged.
 

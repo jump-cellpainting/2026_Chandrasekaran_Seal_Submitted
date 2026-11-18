@@ -8,6 +8,8 @@
 #   summary:  a `{description, numbers, files}` envelope written by an analysis.
 #             Optional `highlights` name keys in that envelope's `numbers` (dotted for nesting) and
 #             give each a reader-facing label. The value is read from the envelope at build time.
+#             `optional: true` marks an opt-in target outside the default run: it is cataloged
+#             when its summary exists, and the catalog never causes it to be built.
 #   path:     results without an envelope, described here. A path ending in `/` is a directory and
 #             names in `requires` the file that proves it was built; otherwise it is one file.
 #
@@ -86,6 +88,14 @@ entries:
   - summary: data/processed/figures/figure_suppl_chemical_properties/summary.json
     section: figures
     title: Chemical properties of the analyzed compounds
+  - summary: data/processed/figures/figure_positive_control_reproducibility/summary.json
+    section: figures
+    title: Positive-control reproducibility across sources
+    optional: true
+    highlights:
+      - { key: compounds, label: Positive controls }
+      - { key: sources, label: Sources }
+      - { key: matched_compound_source_pairs, label: Compound-source pairs }
 
   # ------------------------------------------------------------------ Compound collection
   - summary: data/processed/dataset_structure/summary.json

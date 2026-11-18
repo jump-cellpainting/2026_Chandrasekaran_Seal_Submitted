@@ -20,11 +20,21 @@ rule results_catalog:
     declared file is missing. `just verify-baseline` then requires every envelope to be cataloged.
     """
     input:
-        summaries=[entry["summary"] for entry in _RESULTS_CATALOG_ENTRIES if "summary" in entry],
+        summaries=[
+            entry["summary"]
+            for entry in _RESULTS_CATALOG_ENTRIES
+            if "summary" in entry and not entry.get("optional")
+        ],
         resources=[
             entry.get("requires", entry["path"])
             for entry in _RESULTS_CATALOG_ENTRIES
             if "summary" not in entry
+        ],
+        # Opt-in analyses are listed when they have been built and are never built for the catalog.
+        optional=[
+            entry["summary"]
+            for entry in _RESULTS_CATALOG_ENTRIES
+            if entry.get("optional") and os.path.exists(entry["summary"])
         ],
         registry=RESULTS_CATALOG_REGISTRY,
         analysis_config="configs/snakemake/analysis.yaml",
