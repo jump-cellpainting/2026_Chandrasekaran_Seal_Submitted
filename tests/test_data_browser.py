@@ -18,7 +18,7 @@ import shutil
 from datetime import UTC, datetime
 from email.utils import formatdate
 from pathlib import Path
-from urllib.parse import parse_qs, unquote, urlsplit
+from urllib.parse import parse_qs, quote, unquote, urlsplit
 from xml.sax.saxutils import escape
 
 import pytest
@@ -482,7 +482,11 @@ def test_summary_document_opens_declared_outputs_in_both_path_conventions(catalo
 
 
 def test_large_tables_are_offered_as_downloads_not_browser_previews(cataloged):
-    page = cataloged.open(f"?prefix={DATASTORE}raw/profiles/")
+    # The overview's Profiles link leads to the folder that holds the profile tables.
+    page = cataloged.open()
+    page.click(".folder-card:has-text('Well-level profiles')")
+    cataloged.settle()
+    assert page.url == f"{ORIGIN}/index.html?prefix={DATASTORE}raw/profiles/"
     rows = {row.locator(".file-name").inner_text(): row for row in page.locator(".file-row").all()}
 
     large = rows["compound_no_source7.parquet"]
@@ -748,17 +752,45 @@ def test_page_works_against_the_published_bucket(browser):
     page.wait_for_selector(".entry-card", timeout=120_000)
     count = int(re.match(r"(\d+) result sets", session.header()[2]).group(1))
     assert count >= 60 and page.locator(".entry-card").count() == count
+    figures = [card.get_attribute("href") for card in page.locator("#section-figures .entry-card").all()]
+
+    # Every result set the overview lists is in the bucket. The page does not check a catalog
+    # against the bucket, so a folder renamed or removed under its catalog shows up here.
+    listed = [parse_qs(urlsplit(card.get_attribute("href")).query) for card in page.locator(".entry-card").all()]
+    keys = [query["prefix"][0] + query.get("filter", [""])[0] for query in listed]
+    found = page.evaluate(
+        "(urls) => Promise.all(urls.map((url) => fetch(url).then((reply) => reply.text()).then((xml) => xml.includes('<Key>'))))",
+        [f"{BUCKET}/?list-type=2&max-keys=1&prefix={quote(key, safe='')}" for key in keys],
+    )
+    assert not [key for key, present in zip(keys, found) if not present]
 
     page.fill("#search", "activity summary")
     session.settle()
     page.wait_for_selector(".claim-row", timeout=60_000)
     page.click(".entry-card")
     session.settle()
-    assert session.header()[0] == "ANALYSIS"
+    assert session.header()[0] in ("ANALYSIS", "PAPER FIGURE")
     assert page.locator(".summary-metric").count() >= 2
 
     page = session.open(f"?prefix={DATASTORE}raw/profiles/")
     row = page.locator(".file-row", has_text="compound_no_source7.parquet").first
     assert texts(row, ".file-actions > *") == ["Download", "Copy S3 path"]
+
+    # Figure packages are where the page looks for them, each with its legend and its panels.
+    assert figures
+    for href in figures:
+        page = session.open(href.removeprefix("/index.html"))
+        page.wait_for_selector(".image-card", timeout=60_000)
+        assert session.header()[0] == "PAPER FIGURE", href
+        assert page.locator(".section", has_text="Figure legends").count() == 1, href
+
+    # So is the table of reported numbers, and each row names an analysis the overview lists.
+    # A row whose analysis folder was renamed or removed shows its raw source path instead, and
+    # every such row matches this search.
+    page = session.open("?view=numbers")
+    page.wait_for_selector(".claim-row", timeout=120_000)
+    page = session.open("?view=numbers&q=data/processed/")
+    page.wait_for_function("document.querySelector('#directory-summary').textContent.includes('matching')", timeout=120_000)
+    assert not [name for name in texts(page, ".claim-analysis") if name.startswith("data/")]
     session.page.close()
     assert not session.problems

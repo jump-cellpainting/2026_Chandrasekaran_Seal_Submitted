@@ -28,6 +28,7 @@ from jump_production.workflow import matches_output
 SCHEMA_VERSION = 1
 PROCESSED = "data/processed"
 CATALOG_PATH = f"{PROCESSED}/catalog.json"
+FIGURES = f"{PROCESSED}/figures/"
 FILE_KINDS = ("figure", "table", "data")
 SCALARS = (str, int, float, bool)
 
@@ -84,6 +85,13 @@ def load_registry(path) -> dict:
                 raise ValueError(f"Registry entry field {key} must be non-empty text: {entry!r}")
         if entry["section"] not in section_ids:
             raise ValueError(f"Registry entry names an unknown section: {entry!r}")
+        # The published page also reads trees that have no catalog. It finds analyses there by
+        # this file name and figure packages by this folder, so the registry keeps to both.
+        if "summary" in entry and not entry["summary"].endswith("summary.json"):
+            raise ValueError(f"Summary file names must end in summary.json: {entry['summary']}")
+        location = entry.get("summary", entry.get("path"))
+        if location.startswith(FIGURES) != (entry["section"] == "figures"):
+            raise ValueError(f"Section figures holds exactly the entries under {FIGURES}: {location}")
         if not isinstance(entry.get("optional", False), bool):
             raise ValueError(f"Registry entry field optional must be true or false: {entry!r}")
         for highlight in entry.get("highlights", []):

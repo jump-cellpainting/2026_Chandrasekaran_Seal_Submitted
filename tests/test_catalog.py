@@ -283,6 +283,25 @@ def test_registry_rejects_entries_the_browser_could_not_present(tmp_path, change
         load_registry(path)
 
 
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        (lambda entries: entries[1].update(summary="data/processed/activity/results.json"), "must end in summary.json"),
+        (lambda entries: entries[1].update(section="figures"), "Section figures holds exactly"),
+        (lambda entries: entries[0].update(summary="data/processed/panels/collection/summary.json"), "Section figures holds exactly"),
+    ],
+)
+def test_registry_keeps_the_names_the_browser_reads_without_a_catalog(tmp_path, change, message):
+    """The published page finds analyses by summary file name and figure packages by folder."""
+    registry = json.loads(json.dumps(REGISTRY))
+    change(registry["entries"])
+    path = tmp_path / "registry.yaml"
+    path.write_text(yaml.safe_dump(registry))
+
+    with pytest.raises(ValueError, match=message):
+        load_registry(path)
+
+
 def test_committed_registry_matches_the_workflow():
     """Every registered file has one producing rule, and every declared summary is registered."""
     registry = load_registry(PROJ_ROOT / "configs/results_catalog.yaml")
@@ -305,8 +324,13 @@ def test_committed_registry_matches_the_workflow():
     )
     assert not unregistered
 
-    catalog_rule = [d for d in declarations if d["output"] == "data/processed/catalog.json"]
-    assert [d["rule"] for d in catalog_rule] == ["results_catalog"]
+    # The page reads two files by fixed name at the root of a results tree: the catalog and the
+    # reported numbers. Neither moves without a change to the page and a new publication.
+    fixed = {"data/processed/catalog.json", "data/processed/dataset_reference/dataset_reference.json"}
+    assert {d["output"]: d["rule"] for d in declarations if d["output"] in fixed} == {
+        "data/processed/catalog.json": "results_catalog",
+        "data/processed/dataset_reference/dataset_reference.json": "dataset_reference",
+    }
 
     # An entry is optional exactly when no default target builds it. The positive-control heatmap
     # is the one opt-in figure: cataloging it must not pull it into the pinned output roster.
