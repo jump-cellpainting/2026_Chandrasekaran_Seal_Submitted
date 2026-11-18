@@ -27,8 +27,10 @@ Circle sizes and overlaps are schematic; select the image to view it at full res
 ## Explore the results
 
 The [publication data browser](https://cellpainting-gallery.s3.amazonaws.com/cpg0016-jump/source_all/workspace/publication_data/2025_Chandrasekaran/index.html) provides figures, analysis summaries, profiles, and result tables hosted in the Cell Painting Gallery.
-Preview images, read summaries, and explore CSV and Parquet tables directly in your browser.
+Start from the overview of analyses, or search across analyses, files and the numbers they report.
+Preview images and legends, read summaries, and explore CSV and Parquet tables directly in your browser.
 No installation or AWS account is needed to browse.
+[How the browser finds and presents results](docs/data-browser.md) describes the catalog behind it.
 
 ## Reproduce the analysis
 

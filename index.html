@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Browse, preview, and explore the public JUMP Cell Painting chemical dataset.">
+<meta name="description" content="Search, preview, and explore the published results of the JUMP Cell Painting chemical dataset.">
 <meta name="color-scheme" content="light">
-<title>JUMP Cell Painting Data Browser | Publication</title>
+<title>JUMP Cell Painting Data Browser</title>
 <style>
 :root {
   --ink: #14271f;
@@ -273,13 +273,12 @@ h1 {
 .folder-title {
   max-width: 650px;
   margin: 0;
-  overflow: hidden;
   font-size: clamp(1.35rem, 3vw, 1.85rem);
   font-weight: 720;
   letter-spacing: -0.035em;
   line-height: 1.12;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .directory-summary {
@@ -1695,12 +1694,298 @@ h1 {
     transition-duration: 0.01ms !important;
   }
 }
+
+.folder-action {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.section-description {
+  max-width: 760px;
+  margin: -5px 0 14px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.entry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 10px;
+}
+
+.entry-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+  padding: 15px 16px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--surface-soft);
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.entry-card:hover {
+  border-color: #b8c9bf;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(30, 58, 46, 0.07);
+  transform: translateY(-2px);
+}
+
+.entry-title {
+  font-size: 0.84rem;
+  font-weight: 720;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+}
+
+.entry-qualifier,
+.json-document-qualifier {
+  color: var(--data);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.62rem;
+  overflow-wrap: anywhere;
+}
+
+.json-document-qualifier {
+  margin: 9px 0 0;
+  font-size: 0.7rem;
+}
+
+.entry-description {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.71rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.entry-meta {
+  margin-top: auto;
+  padding-top: 6px;
+  color: var(--faint);
+  font-size: 0.64rem;
+  font-weight: 650;
+}
+
+.claim-list {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.claim-head,
+.claim-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.9fr) minmax(180px, 1.6fr) minmax(160px, 1.4fr);
+  align-items: center;
+  column-gap: 18px;
+  padding: 0 14px;
+}
+
+.claim-head {
+  min-height: 38px;
+  border-bottom: 1px solid var(--line);
+  color: var(--faint);
+  background: var(--surface-soft);
+  font-size: 0.64rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.claim-row {
+  min-height: 46px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  background: #ffffff;
+}
+
+.claim-row + .claim-row {
+  border-top: 1px solid var(--line);
+}
+
+.claim-value {
+  color: #3f3a81;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.claim-key {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.64rem;
+  overflow-wrap: anywhere;
+}
+
+.claim-analysis {
+  color: var(--ink);
+  font-size: 0.7rem;
+  font-weight: 620;
+  text-decoration: none;
+}
+
+a.claim-analysis:hover {
+  color: var(--accent-dark);
+  text-decoration: underline;
+  text-decoration-color: rgba(25, 118, 90, 0.35);
+  text-underline-offset: 3px;
+}
+
+.note-card {
+  padding: 17px 19px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.prose {
+  max-width: 860px;
+  color: #36443e;
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose > :last-child {
+  margin-bottom: 0;
+}
+
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  margin: 18px 0 6px;
+  color: var(--ink);
+  font-size: 0.84rem;
+  font-weight: 730;
+  letter-spacing: -0.01em;
+}
+
+.prose h3 {
+  font-size: 0.98rem;
+}
+
+.prose p,
+.prose ul,
+.prose ol,
+.prose pre,
+.prose-table {
+  margin: 0 0 10px;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 20px;
+}
+
+.prose code {
+  padding: 1px 5px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface-soft);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.prose pre {
+  padding: 12px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #f5f7f5;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.66rem;
+  line-height: 1.6;
+}
+
+.prose a {
+  color: var(--accent-dark);
+  text-decoration-color: rgba(25, 118, 90, 0.3);
+  text-underline-offset: 3px;
+}
+
+.prose-table {
+  overflow-x: auto;
+}
+
+.prose table {
+  border-collapse: collapse;
+  font-size: 0.7rem;
+}
+
+.prose th,
+.prose td {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th {
+  background: var(--surface-soft);
+  font-weight: 720;
+}
+
+.image-caption {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.66rem;
+  line-height: 1.45;
+}
+
+.missing-note {
+  border-color: rgba(167, 60, 60, 0.25);
+  color: var(--danger);
+}
+
+.text-document {
+  margin-top: 0;
+}
+
+.text-document pre {
+  max-height: 70vh;
+  border-top: 0;
+}
+
+@media (max-width: 820px) {
+  .summary-card-actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 600px) {
+  .entry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .claim-head {
+    display: none;
+  }
+
+  .claim-row {
+    grid-template-columns: 1fr;
+    row-gap: 3px;
+  }
+}
 </style>
 </head>
 <body>
 <div class="page">
   <header class="topbar">
-    <a class="identity" id="home-link" href="index.html" aria-label="Go to the publication data root">
+    <a class="identity" id="home-link" href="index.html" aria-label="Go to the overview">
       <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
       <span class="identity-copy">
         <strong>JUMP Cell Painting</strong>
@@ -1715,27 +2000,27 @@ h1 {
     <h1 id="page-title">Explore the data behind the map.</h1>
     <p class="hero-copy">Browse the public JUMP Cell Painting chemical dataset, preview figures in place, and open tabular results in a full data explorer without installing anything.</p>
     <div class="feature-list" aria-label="Browser capabilities">
-      <span>Images preview inline</span>
+      <span>Search analyses, files and reported numbers</span>
+      <span>Figures, legends and summaries preview inline</span>
       <span>CSV and Parquet open in Datasette Lite</span>
-      <span>Public files on Amazon S3</span>
     </div>
   </section>
 
   <div class="breadcrumb-wrap">
-    <nav class="breadcrumb" id="breadcrumb" aria-label="Folder breadcrumb"></nav>
+    <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb"></nav>
   </div>
 
   <main class="browser" aria-labelledby="folder-title">
     <header class="browser-header">
       <div>
-        <p class="location-label">Current folder</p>
-        <h2 class="folder-title" id="folder-title" tabindex="-1">Project root</h2>
-        <p class="directory-summary" id="directory-summary" aria-live="polite">Loading folder...</p>
+        <p class="location-label" id="location-label">Published results</p>
+        <h2 class="folder-title" id="folder-title" tabindex="-1">Overview</h2>
+        <p class="directory-summary" id="directory-summary" aria-live="polite">Loading results...</p>
       </div>
       <div class="toolbar">
         <label class="search-box" id="search-box">
-          <span class="visually-hidden">Filter this folder</span>
-          <input id="search" type="search" placeholder="Filter this folder" autocomplete="off" spellcheck="false">
+          <span class="visually-hidden" id="search-label">Search</span>
+          <input id="search" type="search" placeholder="Search" autocomplete="off" spellcheck="false">
           <kbd aria-hidden="true">/</kbd>
         </label>
         <button class="button" id="copy-view" type="button">Copy view</button>
@@ -1745,7 +2030,7 @@ h1 {
       <div class="state" role="status">
         <div class="state-inner">
           <div class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-          <p>Loading public files...</p>
+          <p>Loading the results catalog...</p>
         </div>
       </div>
     </div>
@@ -1777,21 +2062,77 @@ h1 {
 
 <script>
 const BUCKET = "cellpainting-gallery";
-const BASE_PREFIX = "cpg0016-jump/source_all/workspace/publication_data/2025_Chandrasekaran/jump_production_datastore/";
 const S3_URL = `https://${BUCKET}.s3.amazonaws.com`;
+const PUBLICATION_PREFIX = "cpg0016-jump/source_all/workspace/publication_data/2025_Chandrasekaran/";
+const DATASTORE_PREFIX = `${PUBLICATION_PREFIX}jump_production_datastore/`;
+// Result trees, preferred first. The first one that publishes a catalog.json is shown with its
+// authored titles and sections; without a catalog the last tree is read from its summary files.
+const RESULTS_PREFIXES = [`${DATASTORE_PREFIX}processed/`];
+const PROFILES_PREFIX = `${DATASTORE_PREFIX}raw/profiles/`;
+const REPOSITORY_URL = "https://github.com/jump-cellpainting/2026_Chandrasekaran_Seal_Submitted";
+const PAPER_URL = "https://doi.org/10.1101/2023.03.23.534023";
 const DATASETTE_URL = "https://lite.datasette.io/";
-const DATASTORE_PREFIX = BASE_PREFIX;
+// Datasette Lite loads a whole table into browser memory. Tables up to 170 MB opened in testing;
+// a 770 MB table failed, so larger files are offered as downloads instead.
+const DATASETTE_MAX_BYTES = 200 * 1024 * 1024;
+const DATASETTE_SLOW_BYTES = 25 * 1024 * 1024;
+const LARGE_FILE_BYTES = 50 * 1024 * 1024;
 const JSON_MAX_BYTES = 2 * 1024 * 1024;
+const TEXT_MAX_BYTES = 1024 * 1024;
+const NOTE_MAX_BYTES = 200 * 1024;
 const NONFINITE_KEY = "__jump_json_nonfinite__";
 const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif", "webp", "avif", "svg"]);
 const DATA_EXTENSIONS = new Set(["csv", "parquet"]);
 const TEXT_EXTENSIONS = new Set(["txt", "md", "log", "yaml", "yml"]);
+const FILE_NOTES = {
+  duckdb: "DuckDB database; download and query it with DuckDB",
+  h5ad: "AnnData file; download and open it with anndata or scanpy",
+  parquet: "Parquet table",
+  csv: "CSV table",
+  tsv: "Tab-separated table",
+  gz: "Compressed file",
+  zip: "Zip archive",
+  xlsx: "Spreadsheet",
+  npz: "NumPy archive",
+  pdf: "PDF document",
+  png: "Image",
+  jpg: "Image",
+  jpeg: "Image",
+  svg: "Vector image",
+  html: "HTML page",
+  md: "Notes",
+  txt: "Text",
+  log: "Run log",
+  yaml: "Configuration",
+  yml: "Configuration",
+  complete: "Workflow marker",
+  sha256: "Checksum list",
+  md5: "Checksum list"
+};
+const FOLDER_NOTES = {
+  [`${PUBLICATION_PREFIX}datasets/`]: "JUMP metadata tables",
+  [`${PUBLICATION_PREFIX}jump_production_datastore/`]: "Inputs, profiles and analysis results",
+  [`${PUBLICATION_PREFIX}jump_production_null_cache/`]: "Cached null distributions used to reproduce the analysis",
+  [`${PUBLICATION_PREFIX}jump_production_snapshots/`]: "Pinned outputs that reproductions are compared with",
+  [`${DATASTORE_PREFIX}external/`]: "Input annotations and metadata",
+  [`${DATASTORE_PREFIX}raw/`]: "Profiles",
+  [`${DATASTORE_PREFIX}raw/profiles/`]: "Well-level profiles as Parquet tables",
+  [`${DATASTORE_PREFIX}interim/`]: "Intermediate files built by the workflow",
+  [`${DATASTORE_PREFIX}processed/`]: "Analysis results"
+};
+const DISPLAY_WORDS = {
+  umap: "UMAP", mmp9: "MMP9", sar: "SAR", pk: "PK", pains: "PAINS", opentargets: "OpenTargets",
+  unichem: "UniChem", mitotox: "MitoTox", phenoseeker: "PhenoSeeker", oddsratios: "odds ratios",
+  moa: "MOA", cpcnn: "CPCNN", dl: "DL", duckdb: "DuckDB", id: "ID", ids: "IDs"
+};
+const PARAMETER_KEY = /(threshold|cutoff|seed|folds|neighbors|sample_frac|n_bits|permutations?|fdr|^min_|_min_)/i;
 
 const breadcrumb = document.getElementById("breadcrumb");
 const content = document.getElementById("directory-content");
 const copyViewButton = document.getElementById("copy-view");
 const directorySummary = document.getElementById("directory-summary");
 const folderTitle = document.getElementById("folder-title");
+const locationLabel = document.getElementById("location-label");
 const homeLink = document.getElementById("home-link");
 const imageDialog = document.getElementById("image-dialog");
 const dialogClose = document.getElementById("dialog-close");
@@ -1801,12 +2142,27 @@ const dialogOriginal = document.getElementById("dialog-original");
 const dialogTitle = document.getElementById("dialog-title");
 const searchBox = document.getElementById("search-box");
 const searchInput = document.getElementById("search");
+const searchLabel = document.getElementById("search-label");
 const toast = document.getElementById("toast");
 
+let renderToken = 0;
 let activeController = null;
 let currentListing = { folders: [], files: [] };
-const jsonCache = new Map();
+let currentEntry = null;
+let searchHandler = null;
 let toastTimer = null;
+let queryTimer = null;
+let pendingQueryUrl = null;
+const jsonCache = new Map();
+const textCache = new Map();
+const listingCache = new Map();
+let catalogPromise = null;
+let discoveryPromise = null;
+let claimsPromise = null;
+
+// ---------------------------------------------------------------------------------------------
+// Small helpers
+// ---------------------------------------------------------------------------------------------
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -1816,112 +2172,14 @@ function element(tag, className, text) {
 }
 
 function plural(count, singular, pluralForm) {
-  return `${count} ${count === 1 ? singular : (pluralForm || `${singular}s`)}`;
-}
-
-function normalizePrefix(value) {
-  if (!value || !value.startsWith(BASE_PREFIX)) return BASE_PREFIX;
-  return value.endsWith("/") ? value : `${value}/`;
-}
-
-function getPrefix() {
-  const params = new URLSearchParams(window.location.search);
-  return normalizePrefix(params.get("prefix") || BASE_PREFIX);
-}
-
-function getFileKey() {
-  const key = new URLSearchParams(window.location.search).get("file");
-  if (!key || !key.startsWith(BASE_PREFIX) || extension(key) !== "json") return null;
-  if (key.includes("\\") || key.includes("\0")) return null;
-  const segments = key.split("/");
-  if (segments.some((part) => part === "." || part === "..")) return null;
-  return key;
-}
-
-function viewUrl(prefix) {
-  const url = new URL(window.location.href);
-  url.hash = "";
-  url.search = "";
-  if (prefix !== BASE_PREFIX) url.searchParams.set("prefix", prefix);
-  return `${url.pathname}${url.search}`;
-}
-
-function fileViewUrl(key) {
-  const url = new URL(window.location.href);
-  url.hash = "";
-  url.search = "";
-  url.searchParams.set("file", key);
-  return `${url.pathname}${url.search}`;
-}
-
-function setPrefix(prefix) {
-  const normalized = normalizePrefix(prefix);
-  window.history.pushState({}, "", viewUrl(normalized));
-  searchInput.value = "";
-  render({ focusTitle: true });
-}
-
-function setFileKey(key) {
-  window.history.pushState({}, "", fileViewUrl(key));
-  searchInput.value = "";
-  render({ focusTitle: true });
-}
-
-function navigableLink(label, prefix, className) {
-  const link = element("a", className, label);
-  link.href = viewUrl(prefix);
-  link.addEventListener("click", (event) => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    setPrefix(prefix);
-  });
-  return link;
-}
-
-function renderBreadcrumb(prefix, currentFile) {
-  breadcrumb.replaceChildren();
-  const parts = prefix.slice(BASE_PREFIX.length).split("/").filter(Boolean);
-  const root = parts.length === 0 && !currentFile
-    ? element("span", "current", "Publication data")
-    : navigableLink("Publication data", BASE_PREFIX);
-  if (parts.length === 0 && !currentFile) root.setAttribute("aria-current", "page");
-  breadcrumb.append(root);
-
-  let accumulated = BASE_PREFIX;
-  parts.forEach((part, index) => {
-    accumulated += `${part}/`;
-    breadcrumb.append(element("span", "separator", "/"));
-    if (index === parts.length - 1 && !currentFile) {
-      const current = element("span", "current", part);
-      current.setAttribute("aria-current", "page");
-      breadcrumb.append(current);
-    } else {
-      breadcrumb.append(navigableLink(part, accumulated));
-    }
-  });
-
-  if (currentFile) {
-    breadcrumb.append(element("span", "separator", "/"));
-    const current = element("span", "current", currentFile);
-    current.setAttribute("aria-current", "page");
-    breadcrumb.append(current);
-  }
-}
-
-function parentPrefix(key) {
-  return key.slice(0, key.lastIndexOf("/") + 1);
-}
-
-function folderName(prefix) {
-  if (prefix === BASE_PREFIX) return "Project root";
-  const parts = prefix.split("/").filter(Boolean);
-  return parts[parts.length - 1] || "Project root";
+  const shown = new Intl.NumberFormat("en").format(count);
+  return `${shown} ${count === 1 ? singular : (pluralForm || `${singular}s`)}`;
 }
 
 function extension(name) {
   const base = name.split("/").pop() || name;
   const dot = base.lastIndexOf(".");
-  return dot > 0 ? base.slice(dot + 1).toLowerCase() : "";
+  return dot > 0 ? base.slice(dot + 1).toLowerCase() : (dot === 0 ? base.slice(1).toLowerCase() : "");
 }
 
 function stem(name) {
@@ -1930,51 +2188,44 @@ function stem(name) {
   return dot > 0 ? base.slice(0, dot) : base;
 }
 
-function datasetteTableName(remoteUrl) {
-  const base = remoteUrl.split("/").pop() || remoteUrl;
-  return base.split(/[.?]/)[0].trim() || "table";
+function baseName(key) {
+  return key.split("/").filter(Boolean).pop() || key;
 }
 
-function tildeEncode(value) {
-  return encodeURIComponent(value)
-    .replace(/[.!~*'()]/g, (character) => {
-      const hex = character.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0");
-      return `%${hex}`;
-    })
-    .replace(/%20/g, "+")
-    .replace(/%([0-9a-f]{2})/gi, (_, hex) => `~${hex.toUpperCase()}`);
+function parentPrefix(key) {
+  return key.slice(0, key.lastIndexOf("/") + 1);
 }
 
-function isImage(file) {
-  return IMAGE_EXTENSIONS.has(extension(file.name));
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function isData(file) {
-  return DATA_EXTENSIONS.has(extension(file.name));
+function validKey(key) {
+  if (typeof key !== "string" || !key.startsWith(PUBLICATION_PREFIX)) return false;
+  if (key.includes("\\") || key.includes("\0")) return false;
+  return !key.split("/").some((part) => part === "." || part === "..");
 }
 
-function isJson(file) {
-  return extension(file.name) === "json";
+function humanize(text) {
+  const words = String(text).replace(/[-_]+/g, " ").trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return "";
+  const shown = words.map((word) => DISPLAY_WORDS[word.toLowerCase()] || word);
+  shown[0] = shown[0].charAt(0).toUpperCase() + shown[0].slice(1);
+  return shown.join(" ");
 }
 
-function isSummaryFile(file) {
-  return file.name.split("/").pop()?.toLowerCase() === "summary.json";
-}
-
-function fileKind(file) {
-  const ext = extension(file.name);
-  if (isSummaryFile(file)) return "summary";
-  if (IMAGE_EXTENSIONS.has(ext)) return "image";
-  if (DATA_EXTENSIONS.has(ext)) return "data";
-  if (ext === "pdf") return "document";
-  if (ext === "json" || TEXT_EXTENSIONS.has(ext)) return "text";
-  return "file";
-}
-
-function typeLabel(file) {
-  const ext = extension(file.name);
-  if (!ext) return "FILE";
-  return ext.length > 7 ? ext.slice(0, 7).toUpperCase() : ext.toUpperCase();
+// Profile sets are named by convention; spell the convention out wherever a name appears.
+function describeDatasetName(name) {
+  const match = /^compound(_DL_CPCNN)?(_no_source7|_with_source7)?(_pre_harmony|_rsc_source|_rsc)?(_active_union)?$/.exec(name);
+  if (!match) return "";
+  const parts = [match[1] ? "Deep-learning (CPCNN) features" : "CellProfiler features"];
+  if (match[2] === "_no_source7") parts.push("Source 7 excluded");
+  if (match[2] === "_with_source7") parts.push("with compounds profiled only at Source 7");
+  if (match[3] === "_pre_harmony") parts.push("before Harmony batch correction");
+  if (match[3] === "_rsc") parts.push("Harmony re-run by batch");
+  if (match[3] === "_rsc_source") parts.push("Harmony re-run by source");
+  if (match[4]) parts.push("compounds active in either feature set");
+  return parts.join(", ");
 }
 
 function formatSize(bytes) {
@@ -1990,77 +2241,242 @@ function formatDate(dateString) {
   if (!dateString) return "Unknown";
   const date = new Date(dateString);
   if (Number.isNaN(date.valueOf())) return "Unknown";
-  return new Intl.DateTimeFormat("en", {
-    year: "numeric",
-    month: "short",
-    day: "numeric"
-  }).format(date);
+  return new Intl.DateTimeFormat("en", { year: "numeric", month: "short", day: "numeric" }).format(date);
 }
 
 function objectUrl(key) {
-  const encodedKey = key.split("/").map((part) => encodeURIComponent(part)).join("/");
-  return `${S3_URL}/${encodedKey}`;
+  return `${S3_URL}/${key.split("/").map((part) => encodeURIComponent(part)).join("/")}`;
 }
 
-function publicFileUrl(file) {
-  return file.url || objectUrl(file.key);
+function s3Uri(key) {
+  return `s3://${BUCKET}/${key}`;
 }
 
-function metadataTargetStem(file) {
+function isImage(file) {
+  return IMAGE_EXTENSIONS.has(extension(file.name));
+}
+
+function isData(file) {
+  return DATA_EXTENSIONS.has(extension(file.name));
+}
+
+function isJson(file) {
+  return extension(file.name) === "json";
+}
+
+function isText(file) {
+  return TEXT_EXTENSIONS.has(extension(file.name));
+}
+
+function looksLikeSummary(file) {
+  return /summary\.json$/i.test(baseName(file.name));
+}
+
+function typeLabel(file) {
   const ext = extension(file.name);
-  if (ext !== "yml" && ext !== "yaml") return null;
-  const fileStem = stem(file.name);
-  const suffix = "__metadata";
-  return fileStem.toLowerCase().endsWith(suffix)
-    ? fileStem.slice(0, -suffix.length)
-    : null;
+  if (!ext) return "FILE";
+  return ext.length > 7 ? ext.slice(0, 7).toUpperCase() : ext.toUpperCase();
 }
 
-function sameParent(fileA, fileB) {
-  return Boolean(fileA.key && fileB.key && parentPrefix(fileA.key) === parentPrefix(fileB.key));
+function canExplore(file) {
+  return isData(file) && !(Number.isFinite(file.size) && file.size > DATASETTE_MAX_BYTES);
 }
 
-function metadataForDataFile(dataFile, files = currentListing.files) {
-  if (!isData(dataFile)) return null;
-  const targetName = `${stem(dataFile.name)}__metadata`.toLowerCase();
-  return files.find((candidate) => {
-    const ext = extension(candidate.name);
-    return sameParent(dataFile, candidate)
-      && (ext === "yml" || ext === "yaml")
-      && stem(candidate.name).toLowerCase() === targetName;
-  }) || null;
+// ---------------------------------------------------------------------------------------------
+// Routing: one page, four views
+// ---------------------------------------------------------------------------------------------
+
+function pageUrl(params) {
+  const url = new URL(window.location.href);
+  url.hash = "";
+  url.search = "";
+  for (const [name, value] of Object.entries(params)) {
+    if (value) url.searchParams.set(name, value);
+  }
+  return `${url.pathname}${url.search.replace(/%2F/gi, "/")}`;
 }
 
-function dataFileForMetadata(metadataFile, files = currentListing.files) {
-  const targetStem = metadataTargetStem(metadataFile);
-  if (!targetStem) return null;
-  const matches = files.filter((candidate) => (
-    sameParent(metadataFile, candidate)
-    && isData(candidate)
-    && stem(candidate.name).toLowerCase() === targetStem.toLowerCase()
-  ));
-  return matches.find((candidate) => extension(candidate.name) === "csv") || matches[0] || null;
+function homeUrl(query) {
+  return pageUrl({ q: query });
 }
 
-function datasetteUrlFromRemote(name, remoteUrl, metadataUrl = null) {
-  const kind = extension(name);
-  const params = new URLSearchParams();
-  params.set(kind, remoteUrl);
-  if (metadataUrl) params.set("metadata", metadataUrl);
-  return `${DATASETTE_URL}?${params.toString()}#/data/${tildeEncode(datasetteTableName(remoteUrl))}`;
+function viewUrl(prefix, filter) {
+  return pageUrl({ prefix, filter });
 }
 
-function datasetteUrl(file, files = currentListing.files) {
-  const metadata = metadataForDataFile(file, files);
-  return datasetteUrlFromRemote(
-    file.name,
-    publicFileUrl(file),
-    metadata ? publicFileUrl(metadata) : null
-  );
+function fileViewUrl(key) {
+  return pageUrl({ file: key });
 }
+
+function numbersUrl(query) {
+  return pageUrl({ view: "numbers", q: query });
+}
+
+function currentRoute() {
+  const params = new URLSearchParams(window.location.search);
+  const file = params.get("file");
+  if (file && validKey(file) && !file.endsWith("/") && (extension(file) === "json" || TEXT_EXTENSIONS.has(extension(file)))) {
+    return { view: "file", key: file };
+  }
+  const prefix = params.get("prefix");
+  if (prefix && validKey(prefix)) {
+    return { view: "folder", prefix: prefix.endsWith("/") ? prefix : `${prefix}/`, filter: params.get("filter") || "" };
+  }
+  if (params.get("view") === "numbers") return { view: "numbers", query: params.get("q") || "" };
+  return { view: "home", query: params.get("q") || "" };
+}
+
+function navigate(url) {
+  flushQuery();
+  window.history.pushState({}, "", url);
+  render({ focusTitle: true });
+}
+
+function appLink(label, url, className) {
+  const link = element("a", className, label);
+  link.href = url;
+  link.addEventListener("click", (event) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    navigate(url);
+  });
+  return link;
+}
+
+function actionLink(label, href, className, ariaLabel) {
+  const link = element("a", `button ${className || ""}`.trim(), label);
+  link.href = href;
+  link.target = "_blank";
+  link.rel = "noopener";
+  if (ariaLabel) link.setAttribute("aria-label", ariaLabel);
+  return link;
+}
+
+function copyButton(label, value, message, className) {
+  const button = element("button", `button ${className || ""}`.trim(), label);
+  button.type = "button";
+  button.addEventListener("click", async () => {
+    const copied = await copyText(value);
+    showToast(copied ? message : "Copy was unavailable");
+  });
+  return button;
+}
+
+function renderBreadcrumb(trail) {
+  breadcrumb.replaceChildren();
+  trail.forEach((crumb, index) => {
+    if (index) breadcrumb.append(element("span", "separator", "/"));
+    if (index === trail.length - 1 || !crumb.url) {
+      const current = element("span", "current", crumb.label);
+      if (index === trail.length - 1) current.setAttribute("aria-current", "page");
+      breadcrumb.append(current);
+    } else {
+      breadcrumb.append(appLink(crumb.label, crumb.url));
+    }
+  });
+}
+
+function folderTrail(prefix) {
+  const trail = [{ label: "Overview", url: homeUrl() }];
+  let accumulated = PUBLICATION_PREFIX;
+  for (const part of prefix.slice(PUBLICATION_PREFIX.length).split("/").filter(Boolean)) {
+    accumulated += `${part}/`;
+    trail.push({ label: part, url: viewUrl(accumulated) });
+  }
+  return trail;
+}
+
+function setHeader({ label, title, summary, search }) {
+  locationLabel.textContent = label;
+  folderTitle.textContent = title;
+  directorySummary.textContent = summary;
+  document.title = `${title} | JUMP Cell Painting Data Browser`;
+  searchBox.hidden = !search;
+  searchInput.disabled = !search;
+  searchHandler = search ? search.onInput : null;
+  if (search) {
+    searchInput.placeholder = search.placeholder;
+    searchLabel.textContent = search.placeholder;
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Reading from the bucket
+// ---------------------------------------------------------------------------------------------
 
 function childText(parent, tagName) {
   return parent.getElementsByTagName(tagName)[0]?.textContent || "";
+}
+
+async function listPage(params, signal) {
+  const response = await fetch(`${S3_URL}?${params}`, { signal });
+  if (!response.ok) throw new Error(`Amazon S3 returned ${response.status}`);
+  const xml = new DOMParser().parseFromString(await response.text(), "text/xml");
+  if (xml.querySelector("parsererror")) throw new Error("The S3 response could not be read");
+  const serviceError = xml.getElementsByTagName("Error")[0];
+  if (serviceError) throw new Error(childText(serviceError, "Message") || "Amazon S3 could not list this folder");
+  return xml;
+}
+
+function objectRecords(xml, prefix) {
+  const records = [];
+  for (const object of xml.getElementsByTagName("Contents")) {
+    const key = childText(object, "Key");
+    const name = key.slice(prefix.length);
+    if (!name || key.endsWith("/") || key === `${PUBLICATION_PREFIX}index.html`) continue;
+    records.push({
+      name,
+      key,
+      size: Number.parseInt(childText(object, "Size"), 10),
+      date: childText(object, "LastModified")
+    });
+  }
+  return records;
+}
+
+const byName = (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" });
+
+// One level of a folder: its subfolders and its own files.
+async function listObjects(prefix, signal) {
+  const folders = new Map();
+  const files = new Map();
+  let continuationToken = null;
+  do {
+    const params = new URLSearchParams({ "list-type": "2", prefix, delimiter: "/" });
+    if (continuationToken) params.set("continuation-token", continuationToken);
+    const xml = await listPage(params, signal);
+    for (const commonPrefix of xml.getElementsByTagName("CommonPrefixes")) {
+      const folderPrefix = childText(commonPrefix, "Prefix");
+      const name = folderPrefix.slice(prefix.length);
+      if (name) folders.set(folderPrefix, { name, prefix: folderPrefix });
+    }
+    for (const record of objectRecords(xml, prefix)) files.set(record.key, record);
+    continuationToken = childText(xml, "IsTruncated") === "true" ? childText(xml, "NextContinuationToken") : null;
+  } while (continuationToken);
+  return { folders: [...folders.values()].sort(byName), files: [...files.values()].sort(byName) };
+}
+
+// Every object under a prefix, as a map from key to its record.
+function listAll(prefix) {
+  if (!listingCache.has(prefix)) {
+    const request = (async () => {
+      const objects = new Map();
+      let continuationToken = null;
+      do {
+        const params = new URLSearchParams({ "list-type": "2", prefix });
+        if (continuationToken) params.set("continuation-token", continuationToken);
+        const xml = await listPage(params);
+        for (const record of objectRecords(xml, prefix)) objects.set(record.key, record);
+        continuationToken = childText(xml, "IsTruncated") === "true" ? childText(xml, "NextContinuationToken") : null;
+      } while (continuationToken);
+      return objects;
+    })().catch((error) => {
+      listingCache.delete(prefix);
+      throw error;
+    });
+    listingCache.set(prefix, request);
+  }
+  return listingCache.get(prefix);
 }
 
 function replaceNonFiniteTokens(text) {
@@ -2151,23 +2567,19 @@ function parseJsonText(text) {
 }
 
 async function fetchTextWithLimit(response, limit) {
-  const declaredSize = Number.parseInt(response.headers.get("Content-Length") || "", 10);
-  if (Number.isFinite(declaredSize) && declaredSize > limit) {
-    const error = new Error(`This JSON file is ${formatSize(declaredSize)}, above the ${formatSize(limit)} viewer limit.`);
+  const tooLarge = (size) => {
+    const error = new Error(`This file is ${Number.isFinite(size) ? formatSize(size) : "large"}, above the ${formatSize(limit)} viewer limit.`);
     error.code = "too_large";
-    error.size = declaredSize;
-    throw error;
-  }
+    error.size = size;
+    return error;
+  };
+  const declaredSize = Number.parseInt(response.headers.get("Content-Length") || "", 10);
+  if (Number.isFinite(declaredSize) && declaredSize > limit) throw tooLarge(declaredSize);
 
   if (!response.body?.getReader) {
     const text = await response.text();
     const size = new TextEncoder().encode(text).byteLength;
-    if (size > limit) {
-      const error = new Error(`This JSON file is ${formatSize(size)}, above the ${formatSize(limit)} viewer limit.`);
-      error.code = "too_large";
-      error.size = size;
-      throw error;
-    }
+    if (size > limit) throw tooLarge(size);
     return { text, size };
   }
 
@@ -2181,10 +2593,7 @@ async function fetchTextWithLimit(response, limit) {
     size += value.byteLength;
     if (size > limit) {
       await reader.cancel();
-      const error = new Error(`This JSON file is above the ${formatSize(limit)} viewer limit.`);
-      error.code = "too_large";
-      error.size = size;
-      throw error;
+      throw tooLarge(Number.NaN);
     }
     text += decoder.decode(value, { stream: true });
   }
@@ -2192,248 +2601,62 @@ async function fetchTextWithLimit(response, limit) {
   return { text, size };
 }
 
-async function fetchJsonKey(key) {
+async function fetchTextKey(key, limit) {
   const url = objectUrl(key);
   const response = await fetch(url);
-  if (!response.ok) throw new Error(`Amazon S3 returned ${response.status}`);
-  const loaded = await fetchTextWithLimit(response, JSON_MAX_BYTES);
-  const parsed = parseJsonText(loaded.text);
-  return {
-    ...parsed,
-    rawText: loaded.text,
-    size: loaded.size,
-    date: response.headers.get("Last-Modified") || "",
-    key,
-    url
-  };
+  if (!response.ok) {
+    const error = new Error(response.status === 404 || response.status === 403
+      ? "This file is not in the public bucket."
+      : `Amazon S3 returned ${response.status}`);
+    error.code = "unavailable";
+    throw error;
+  }
+  const loaded = await fetchTextWithLimit(response, limit);
+  return { rawText: loaded.text, size: loaded.size, date: response.headers.get("Last-Modified") || "", key, url };
+}
+
+function cached(cache, key, load) {
+  if (!cache.has(key)) {
+    const request = load().catch((error) => {
+      cache.delete(key);
+      throw error;
+    });
+    cache.set(key, request);
+  }
+  return cache.get(key);
 }
 
 function loadJsonKey(key) {
-  if (!jsonCache.has(key)) {
-    const request = fetchJsonKey(key).catch((error) => {
-      jsonCache.delete(key);
-      throw error;
-    });
-    jsonCache.set(key, request);
-  }
-  return jsonCache.get(key);
-}
-
-async function listObjects(prefix, signal) {
-  const folders = new Map();
-  const files = new Map();
-  let continuationToken = null;
-
-  do {
-    const params = new URLSearchParams({
-      "list-type": "2",
-      "prefix": prefix,
-      "delimiter": "/"
-    });
-    if (continuationToken) params.set("continuation-token", continuationToken);
-
-    const response = await fetch(`${S3_URL}?${params}`, { signal });
-    if (!response.ok) throw new Error(`Amazon S3 returned ${response.status}`);
-    const xmlText = await response.text();
-    const xml = new DOMParser().parseFromString(xmlText, "text/xml");
-    if (xml.querySelector("parsererror")) throw new Error("The S3 response could not be read");
-
-    const serviceError = xml.getElementsByTagName("Error")[0];
-    if (serviceError) throw new Error(childText(serviceError, "Message") || "Amazon S3 could not list this folder");
-
-    for (const commonPrefix of xml.getElementsByTagName("CommonPrefixes")) {
-      const folderPrefix = childText(commonPrefix, "Prefix");
-      const name = folderPrefix.slice(prefix.length);
-      if (name) folders.set(folderPrefix, { name, prefix: folderPrefix });
-    }
-
-    for (const object of xml.getElementsByTagName("Contents")) {
-      const key = childText(object, "Key");
-      const name = key.slice(prefix.length);
-      const isBrowserFile = prefix === BASE_PREFIX && name === "index.html";
-      if (!name || isBrowserFile) continue;
-      files.set(key, {
-        name,
-        key,
-        size: Number.parseInt(childText(object, "Size"), 10),
-        date: childText(object, "LastModified")
-      });
-    }
-
-    const isTruncated = childText(xml, "IsTruncated") === "true";
-    continuationToken = isTruncated ? childText(xml, "NextContinuationToken") : null;
-  } while (continuationToken);
-
-  const byName = (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" });
-  return {
-    folders: [...folders.values()].sort(byName),
-    files: [...files.values()].sort(byName)
-  };
-}
-
-function showLoading() {
-  const state = element("div", "state");
-  state.setAttribute("role", "status");
-  const inner = element("div", "state-inner");
-  const dots = element("div", "loading-dots");
-  dots.setAttribute("aria-hidden", "true");
-  dots.append(element("span"), element("span"), element("span"));
-  inner.append(dots, element("p", "", "Loading public files..."));
-  state.append(inner);
-  content.replaceChildren(state);
-}
-
-function showError(error) {
-  const state = element("div", "state");
-  const inner = element("div", "state-inner");
-  inner.append(
-    element("h3", "", "This folder could not be loaded"),
-    element("p", "", error.message || "Please try again in a moment.")
-  );
-  const retry = element("button", "button button-primary", "Try again");
-  retry.type = "button";
-  retry.addEventListener("click", render);
-  inner.append(retry);
-  state.append(inner);
-  content.replaceChildren(state);
-}
-
-function section(title, countText) {
-  const wrapper = element("section", "section");
-  const heading = element("div", "section-heading");
-  heading.append(element("h3", "", title), element("span", "", countText));
-  wrapper.append(heading);
-  return wrapper;
-}
-
-function renderFolders(folders) {
-  const wrapper = section("Folders", plural(folders.length, "folder"));
-  const grid = element("div", "folder-grid");
-  folders.forEach((folder) => {
-    const card = navigableLink("", folder.prefix, "folder-card");
-    const icon = element("span", "folder-icon");
-    icon.setAttribute("aria-hidden", "true");
-    const copy = element("span", "folder-copy");
-    copy.append(
-      element("span", "folder-name", folder.name.replace(/\/$/, "")),
-      element("span", "folder-action", "Browse folder")
-    );
-    card.append(icon, copy);
-    grid.append(card);
+  return cached(jsonCache, key, async () => {
+    const source = await fetchTextKey(key, JSON_MAX_BYTES);
+    return { ...source, ...parseJsonText(source.rawText) };
   });
-  wrapper.append(grid);
-  return wrapper;
 }
 
-function relatedPdf(imageFile, allFiles) {
-  const imageStem = stem(imageFile.name).toLowerCase();
-  return allFiles.find((file) => extension(file.name) === "pdf" && stem(file.name).toLowerCase() === imageStem);
+function loadTextKey(key, limit = TEXT_MAX_BYTES) {
+  return cached(textCache, `${limit}:${key}`, () => fetchTextKey(key, limit));
 }
 
-function openImageAsset(name, url, meta) {
-  dialogTitle.textContent = name;
-  dialogMeta.textContent = meta || "Public image";
-  dialogImage.src = url;
-  dialogImage.alt = `Preview of ${name}`;
-  dialogOriginal.href = url;
-  imageDialog.showModal();
-}
-
-function openImage(file) {
-  openImageAsset(
-    file.name,
-    objectUrl(file.key),
-    `${formatSize(file.size)} | Updated ${formatDate(file.date)}`
-  );
-}
-
-function renderImages(images, allFiles) {
-  const wrapper = section("Image previews", plural(images.length, "image"));
-  const grid = element("div", "image-grid");
-
-  images.forEach((file) => {
-    const url = objectUrl(file.key);
-    const card = element("article", "image-card");
-    const preview = element("button", "image-preview");
-    preview.type = "button";
-    preview.setAttribute("aria-label", `Preview ${file.name}`);
-    preview.addEventListener("click", () => openImage(file));
-
-    const image = element("img");
-    image.src = url;
-    image.alt = `Preview of ${file.name}`;
-    image.loading = "lazy";
-    image.decoding = "async";
-    const fallback = element("span", "image-fallback", "Preview unavailable. Open the original file to view it.");
-    fallback.hidden = true;
-    image.addEventListener("error", () => {
-      image.hidden = true;
-      fallback.hidden = false;
-    });
-    preview.append(image, fallback);
-
-    const info = element("div", "image-info");
-    const name = element("a", "image-name", file.name);
-    name.href = url;
-    name.target = "_blank";
-    name.rel = "noopener";
-
-    const meta = element("div", "image-meta");
-    meta.append(element("span", "", formatSize(file.size)));
-    const links = element("span", "image-links");
-    const original = element("a", "mini-link", typeLabel(file));
-    original.href = url;
-    original.target = "_blank";
-    original.rel = "noopener";
-    links.append(original);
-
-    const pdf = relatedPdf(file, allFiles);
-    if (pdf) {
-      const pdfLink = element("a", "mini-link", "PDF");
-      pdfLink.href = objectUrl(pdf.key);
-      pdfLink.target = "_blank";
-      pdfLink.rel = "noopener";
-      links.append(pdfLink);
+async function mapLimit(items, limit, task) {
+  const results = new Array(items.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const index = next;
+      next += 1;
+      results[index] = await task(items[index], index);
     }
-
-    meta.append(links);
-    info.append(name, meta);
-    card.append(preview, info);
-    grid.append(card);
   });
-
-  wrapper.append(grid);
-  return wrapper;
+  await Promise.all(workers);
+  return results;
 }
 
-function actionLink(label, href, className, ariaLabel) {
-  const link = element("a", `button ${className || ""}`.trim(), label);
-  link.href = href;
-  link.target = "_blank";
-  link.rel = "noopener";
-  if (ariaLabel) link.setAttribute("aria-label", ariaLabel);
-  return link;
-}
-
-function internalFileLink(label, file, className) {
-  const link = element("a", className, label);
-  link.href = fileViewUrl(file.key);
-  link.addEventListener("click", (event) => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    setFileKey(file.key);
-  });
-  return link;
-}
-
-function isRecord(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
+// ---------------------------------------------------------------------------------------------
+// The results model: every analysis with its title, description and files
+// ---------------------------------------------------------------------------------------------
 
 function isNonFiniteValue(value) {
-  return isRecord(value)
-    && Object.keys(value).length === 1
-    && typeof value[NONFINITE_KEY] === "string";
+  return isRecord(value) && Object.keys(value).length === 1 && typeof value[NONFINITE_KEY] === "string";
 }
 
 function isSummaryEnvelope(value) {
@@ -2453,8 +2676,7 @@ function countLeaves(value, limit = 100000) {
   while (stack.length && count < limit) {
     const current = stack.pop();
     if (isContainer(current)) {
-      const values = Array.isArray(current) ? current : Object.values(current);
-      stack.push(...values);
+      stack.push(...(Array.isArray(current) ? current : Object.values(current)));
     } else {
       count += 1;
     }
@@ -2462,10 +2684,395 @@ function countLeaves(value, limit = 100000) {
   return count;
 }
 
+function fileRecord(key, kind, caption, missing = false) {
+  const name = baseName(key);
+  const ext = extension(name);
+  let shownKind = kind;
+  if (IMAGE_EXTENSIONS.has(ext) || ext === "pdf") shownKind = "figure";
+  if (DATA_EXTENSIONS.has(ext) || ext === "tsv") shownKind = "table";
+  return { key, name, ext, kind: shownKind || "data", caption: String(caption || stem(name).replace(/_/g, " ")), missing };
+}
+
+function finishModel(model) {
+  model.byPrefix = new Map();
+  model.bySummary = new Map();
+  for (const entry of model.entries) {
+    if (entry.isFolder) model.byPrefix.set(entry.prefix, entry);
+    if (entry.summaryKey) model.bySummary.set(entry.summaryKey, entry);
+    entry.haystack = [
+      entry.title, entry.qualifier, entry.description, entry.id,
+      ...entry.files.flatMap((file) => [file.name, file.caption]),
+      ...entry.highlights.map((highlight) => highlight.label)
+    ].join("\n").toLowerCase();
+  }
+  return model;
+}
+
+// A catalog.json written by the workflow: authored titles and sections, verified file paths.
+function catalogModel(catalog, root) {
+  const text = (value) => (typeof value === "string" ? value : "");
+  const entries = [];
+  for (const raw of catalog.entries) {
+    if (!isRecord(raw) || !text(raw.id) || !text(raw.title) || !Array.isArray(raw.files)) continue;
+    const prefix = `${root}${text(raw.path)}`;
+    const summaryKey = text(raw.summary) ? `${root}${raw.summary}` : null;
+    if (!validKey(prefix) || (summaryKey && !validKey(summaryKey))) continue;
+    const files = raw.files
+      .filter((file) => isRecord(file) && text(file.path) && validKey(`${root}${file.path}`))
+      .map((file) => fileRecord(`${root}${file.path}`, text(file.kind), text(file.caption)));
+    entries.push({
+      id: raw.id,
+      section: text(raw.section),
+      title: raw.title,
+      qualifier: "",
+      description: text(raw.description),
+      prefix,
+      isFolder: Boolean(summaryKey) || text(raw.path) === `${raw.id}/`,
+      summaryKey,
+      rule: text(raw.rule),
+      script: text(raw.script),
+      numbers: Number.isFinite(raw.numbers) ? raw.numbers : 0,
+      highlights: (Array.isArray(raw.highlights) ? raw.highlights : [])
+        .filter((item) => isRecord(item) && text(item.label) && item.value !== undefined && !isContainer(item.value))
+        .map((item) => ({ label: item.label, value: item.value, key: text(item.key) })),
+      files
+    });
+  }
+  const used = new Set(entries.map((entry) => entry.section));
+  const source = isRecord(catalog.source) ? catalog.source : {};
+  return finishModel({
+    mode: "catalog",
+    root,
+    repository: /^https:\/\//.test(text(source.repository)) ? source.repository : REPOSITORY_URL,
+    revision: /^[0-9a-f]{40}$/.test(text(source.revision)) ? source.revision : "",
+    sections: catalog.sections
+      .filter((section) => isRecord(section) && used.has(section.id))
+      .map((section) => ({ id: section.id, title: text(section.title), description: text(section.description) })),
+    entries
+  });
+}
+
+// Ask the bucket whether a catalog exists before fetching it, so a tree without one is not an error.
+async function catalogExists(root) {
+  const key = `${root}catalog.json`;
+  const xml = await listPage(new URLSearchParams({ "list-type": "2", prefix: key, "max-keys": "1" }));
+  return [...xml.getElementsByTagName("Contents")].some((object) => childText(object, "Key") === key);
+}
+
+function loadCatalog() {
+  if (!catalogPromise) {
+    catalogPromise = (async () => {
+      let failed = false;
+      for (const root of RESULTS_PREFIXES) {
+        try {
+          if (!(await catalogExists(root))) continue;
+          const source = await loadJsonKey(`${root}catalog.json`);
+          const catalog = source.data;
+          if (isRecord(catalog) && catalog.schema_version === 1 && Array.isArray(catalog.entries) && Array.isArray(catalog.sections)) {
+            return catalogModel(catalog, root);
+          }
+        } catch (error) {
+          failed = true;  // unreachable or unreadable; the next root may still have one
+        }
+      }
+      // "No catalog" is remembered for the page; a failed request is asked again next time.
+      if (failed) catalogPromise = null;
+      return null;
+    })();
+  }
+  return catalogPromise;
+}
+
+// The folder that holds data/, for a key anywhere under a processed/ tree.
+function dataRootForKey(key) {
+  const index = key.indexOf("/processed/");
+  return index >= 0 ? key.slice(0, index + 1) : DATASTORE_PREFIX;
+}
+
+function relativeToProcessed(key) {
+  const index = key.indexOf("/processed/");
+  return index >= 0 ? key.slice(index + "/processed/".length) : key.slice(PUBLICATION_PREFIX.length);
+}
+
+// Envelopes name their files in three ways: relative to the checkout (data/...), relative to the
+// envelope's own folder, or, in older results, by absolute path on the machine that wrote them.
+function resolveDeclaredPath(pathValue, summaryKey) {
+  if (typeof pathValue !== "string" || !pathValue.trim()) return null;
+  const path = pathValue.trim();
+  if (path.includes("\\") || path.includes("\0") || path.startsWith("//")) return null;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return null;
+  const root = dataRootForKey(summaryKey);
+  let key = null;
+  if (path.startsWith(PUBLICATION_PREFIX)) {
+    key = path;
+  } else if (path.startsWith("data/")) {
+    key = `${root}${path.slice("data/".length)}`;
+  } else if (path.startsWith("/")) {
+    const marker = path.lastIndexOf("/data/processed/");
+    if (marker >= 0) key = `${root}${path.slice(marker + "/data/".length)}`;
+  } else {
+    key = `${parentPrefix(summaryKey)}${path.replace(/^\.\//, "")}`;
+  }
+  return key && validKey(key) ? key : null;
+}
+
+function titleFromPath(summaryKey, data) {
+  const segments = relativeToProcessed(parentPrefix(summaryKey)).split("/").filter(Boolean);
+  const inFigures = segments[0] === "figures" && segments.length > 1;
+  const base = inFigures ? segments[1].replace(/^figure_/, "") : (segments[0] || baseName(parentPrefix(summaryKey)));
+  const rest = segments.slice(inFigures ? 2 : 1);
+  const task = data.numbers?.task;
+  return {
+    title: typeof task === "string" && task.length <= 120 ? task : humanize(base),
+    qualifier: rest.join(" / "),
+    section: inFigures ? "figures" : "analyses"
+  };
+}
+
+// Headline values for results without a catalog: the first numbers an analysis reports at the top
+// level, in its own order, leaving out parameters. Nothing nested is promoted.
+function plainHeadlines(numbers) {
+  const headlines = [];
+  for (const [key, value] of Object.entries(numbers)) {
+    if (typeof value !== "number" || !Number.isFinite(value) || PARAMETER_KEY.test(key)) continue;
+    headlines.push({ label: humanizeKey(key), value, key });
+    if (headlines.length === 6) break;
+  }
+  return headlines;
+}
+
+// Describe one envelope from the envelope alone. `objects` is a listing used to flag declared
+// files that are not in the bucket; pass null when no listing is available.
+function entryFromEnvelope(summaryKey, data, objects) {
+  const naming = titleFromPath(summaryKey, data);
+  const files = [];
+  const seen = new Set();
+  for (const record of data.files) {
+    const item = typeof record === "string" ? { path: record } : (isRecord(record) ? record : {});
+    const key = resolveDeclaredPath(item.path, summaryKey);
+    if (key === summaryKey || (key && seen.has(key))) continue;
+    if (key) seen.add(key);
+    files.push(key
+      ? fileRecord(key, item.kind, item.caption, objects ? !objects.has(key) : false)
+      : { ...fileRecord(String(item.path || "Unknown output"), item.kind, item.caption, true), key: null });
+  }
+  return {
+    id: relativeToProcessed(parentPrefix(summaryKey)).replace(/\/$/, ""),
+    section: naming.section,
+    title: naming.title,
+    qualifier: naming.qualifier,
+    description: data.description,
+    prefix: parentPrefix(summaryKey),
+    isFolder: true,
+    summaryKey,
+    rule: "",
+    script: "",
+    numbers: countLeaves(data.numbers),
+    highlights: plainHeadlines(data.numbers),
+    files
+  };
+}
+
+// Without a catalog, read every summary file under the results tree and list what they describe.
+function discoverResults(onProgress) {
+  if (!discoveryPromise) {
+    discoveryPromise = (async () => {
+      const root = RESULTS_PREFIXES[RESULTS_PREFIXES.length - 1];
+      const objects = await listAll(root);
+      const candidates = [...objects.values()].filter((file) => looksLikeSummary(file) && file.size <= JSON_MAX_BYTES);
+      let done = 0;
+      const loaded = await mapLimit(candidates, 8, async (file) => {
+        try {
+          const source = await loadJsonKey(file.key);
+          return isSummaryEnvelope(source.data) ? entryFromEnvelope(file.key, source.data, objects) : null;
+        } catch (error) {
+          return null;
+        } finally {
+          done += 1;
+          if (onProgress) onProgress(done, candidates.length);
+        }
+      });
+      const entries = loaded.filter(Boolean).sort((a, b) => (
+        `${a.title} ${a.qualifier}`.localeCompare(`${b.title} ${b.qualifier}`, undefined, { numeric: true, sensitivity: "base" })
+      ));
+      let latest = "";
+      for (const file of objects.values()) if (file.date > latest) latest = file.date;
+      const sections = [
+        { id: "figures", title: "Paper figures", description: "Figure packages: the rendered panels, their legends and the tables each panel is drawn from." },
+        { id: "analyses", title: "Analyses", description: "Every analysis that published a summary, listed by its folder name." }
+      ].filter((section) => entries.some((entry) => entry.section === section.id));
+      return finishModel({ mode: "discovered", root, repository: REPOSITORY_URL, revision: "", sections, entries, updated: latest });
+    })().catch((error) => {
+      discoveryPromise = null;
+      throw error;
+    });
+  }
+  return discoveryPromise;
+}
+
+async function loadResults(onProgress) {
+  return (await loadCatalog()) || discoverResults(onProgress);
+}
+
+// The analysis that a folder holds, if any. Inside the cataloged tree the catalog is the authority;
+// anywhere else, such as an older results tree, a summary file in the folder describes it.
+async function entryForFolder(prefix, listing) {
+  const catalog = await loadCatalog();
+  if (catalog && prefix.startsWith(catalog.root)) return catalog.byPrefix.get(prefix) || null;
+  for (const file of listing.files.filter((candidate) => looksLikeSummary(candidate) && candidate.size <= JSON_MAX_BYTES)) {
+    try {
+      const source = await loadJsonKey(file.key);
+      if (isSummaryEnvelope(source.data)) {
+        let objects = null;
+        try {
+          objects = await listAll(prefix);
+        } catch (error) {
+          objects = null;
+        }
+        return entryFromEnvelope(file.key, source.data, objects);
+      }
+    } catch (error) {
+      // Not readable as a summary; the file is still listed below.
+    }
+  }
+  return null;
+}
+
+async function entryForSummary(summaryKey, data) {
+  const catalog = await loadCatalog();
+  if (catalog) {
+    const entry = catalog.bySummary.get(summaryKey);
+    if (entry) return entry;
+  }
+  let objects = null;
+  try {
+    objects = await listAll(parentPrefix(summaryKey));
+  } catch (error) {
+    objects = null;
+  }
+  return entryFromEnvelope(summaryKey, data, objects);
+}
+
+function sourceUrl(model, path) {
+  return `${model.repository}/blob/${model.revision || "main"}/${path}`;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Datasette Lite links
+// ---------------------------------------------------------------------------------------------
+
+function datasetteTableName(remoteUrl) {
+  const base = remoteUrl.split("/").pop() || remoteUrl;
+  return base.split(/[.?]/)[0].trim() || "table";
+}
+
+function tildeEncode(value) {
+  return encodeURIComponent(value)
+    .replace(/[.!~*'()]/g, (character) => {
+      const hex = character.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0");
+      return `%${hex}`;
+    })
+    .replace(/%20/g, "+")
+    .replace(/%([0-9a-f]{2})/gi, (_, hex) => `~${hex.toUpperCase()}`);
+}
+
+function metadataTargetStem(file) {
+  const ext = extension(file.name);
+  if (ext !== "yml" && ext !== "yaml") return null;
+  const fileStem = stem(file.name);
+  const suffix = "__metadata";
+  return fileStem.toLowerCase().endsWith(suffix) ? fileStem.slice(0, -suffix.length) : null;
+}
+
+function sameParent(fileA, fileB) {
+  return Boolean(fileA.key && fileB.key && parentPrefix(fileA.key) === parentPrefix(fileB.key));
+}
+
+function metadataForDataFile(dataFile, files) {
+  if (!isData(dataFile)) return null;
+  const targetName = `${stem(dataFile.name)}__metadata`.toLowerCase();
+  return files.find((candidate) => {
+    const ext = extension(candidate.name);
+    return sameParent(dataFile, candidate)
+      && (ext === "yml" || ext === "yaml")
+      && stem(candidate.name).toLowerCase() === targetName;
+  }) || null;
+}
+
+function dataFileForMetadata(metadataFile, files) {
+  const targetStem = metadataTargetStem(metadataFile);
+  if (!targetStem) return null;
+  const matches = files.filter((candidate) => (
+    sameParent(metadataFile, candidate)
+    && isData(candidate)
+    && stem(candidate.name).toLowerCase() === targetStem.toLowerCase()
+  ));
+  return matches.find((candidate) => extension(candidate.name) === "csv") || matches[0] || null;
+}
+
+function datasetteUrl(file, files) {
+  const remoteUrl = objectUrl(file.key);
+  const metadata = metadataForDataFile(file, files);
+  const params = new URLSearchParams();
+  params.set(extension(file.name), remoteUrl);
+  if (metadata) params.set("metadata", objectUrl(metadata.key));
+  return `${DATASETTE_URL}?${params.toString()}#/data/${tildeEncode(datasetteTableName(remoteUrl))}`;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Shared pieces of the page
+// ---------------------------------------------------------------------------------------------
+
+function loadingState(message) {
+  const state = element("div", "state");
+  state.setAttribute("role", "status");
+  const inner = element("div", "state-inner");
+  const dots = element("div", "loading-dots");
+  dots.setAttribute("aria-hidden", "true");
+  dots.append(element("span"), element("span"), element("span"));
+  const text = element("p", "", message);
+  inner.append(dots, text);
+  state.append(inner);
+  state.setMessage = (value) => { text.textContent = value; };
+  return state;
+}
+
+function messageState(title, message, retry) {
+  const state = element("div", "state");
+  const inner = element("div", "state-inner");
+  inner.append(element("h3", "", title), element("p", "", message));
+  if (retry) {
+    const button = element("button", "button button-primary", "Try again");
+    button.type = "button";
+    button.addEventListener("click", () => render());
+    inner.append(button);
+  }
+  state.append(inner);
+  return state;
+}
+
+function section(title, countText, id) {
+  const wrapper = element("section", "section");
+  if (id) wrapper.id = id;
+  const heading = element("div", "section-heading");
+  heading.append(element("h3", "", title), element("span", "", countText));
+  wrapper.append(heading);
+  return wrapper;
+}
+
+function openImageAsset(name, url, meta) {
+  dialogTitle.textContent = name;
+  dialogMeta.textContent = meta || "Public image";
+  dialogImage.src = url;
+  dialogImage.alt = `Preview of ${name}`;
+  dialogOriginal.href = url;
+  imageDialog.showModal();
+}
+
 function humanizeKey(key) {
   const raw = String(key);
   if (/^\d+$/.test(raw)) return `Item ${Number(raw) + 1}`;
-  let text = raw
+  const text = raw
     .replace(/^n_/, "")
     .replace(/_/g, " ")
     .replace(/\bpct\b/gi, "percent")
@@ -2477,20 +3084,139 @@ function humanizeKey(key) {
 
 function formatJsonNumber(value, key = "") {
   if (!Number.isFinite(value)) return String(value);
-  const lowerKey = key.toLowerCase();
   if (Number.isInteger(value)) return new Intl.NumberFormat("en").format(value);
   const absolute = Math.abs(value);
-  let formatted;
-  if (absolute > 0 && absolute < 0.0001) {
-    formatted = value.toExponential(3);
-  } else {
-    formatted = new Intl.NumberFormat("en", {
-      maximumSignificantDigits: 5,
-      useGrouping: true
-    }).format(value);
-  }
-  return /(?:percent|pct)$/.test(lowerKey) ? `${formatted}%` : formatted;
+  const formatted = absolute > 0 && absolute < 0.0001
+    ? value.toExponential(3)
+    : new Intl.NumberFormat("en", { maximumSignificantDigits: 5, useGrouping: true }).format(value);
+  return /(?:percent|pct)$/.test(key.toLowerCase()) ? `${formatted}%` : formatted;
 }
+
+function formatValue(value, key = "") {
+  if (typeof value === "number") return formatJsonNumber(value, key);
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (value === null) return "null";
+  return String(value);
+}
+
+function metricGrid(highlights) {
+  if (!highlights.length) return null;
+  const grid = element("div", "summary-metrics");
+  for (const highlight of highlights) {
+    const card = element("div", "summary-metric");
+    const value = element("strong", "summary-metric-value", formatValue(highlight.value, highlight.key));
+    value.title = String(highlight.value);
+    const label = element("span", "summary-metric-label", highlight.label);
+    label.title = highlight.key ? `${highlight.label} (${highlight.key})` : highlight.label;
+    card.append(value, label);
+    grid.append(card);
+  }
+  return grid;
+}
+
+function entryCounts(entry) {
+  const figures = new Set(entry.files.filter((file) => file.kind === "figure").map((file) => file.key?.replace(/\.[^./]+$/, ""))).size;
+  const tables = entry.files.filter((file) => file.kind === "table").length;
+  const parts = [];
+  if (figures) parts.push(plural(figures, "figure"));
+  if (tables) parts.push(plural(tables, "table"));
+  if (entry.numbers) parts.push(plural(entry.numbers, "reported value"));
+  return parts;
+}
+
+function entryUrl(entry) {
+  if (entry.isFolder) return viewUrl(entry.prefix);
+  return viewUrl(entry.prefix, entry.files[0]?.name);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Markdown and plain text (legends, READMEs, run notes)
+// ---------------------------------------------------------------------------------------------
+
+function inlineMarkdown(target, text) {
+  const pattern = /(`[^`]+`)|(\*\*[^*]+\*\*)|(\[[^\]]+\]\((https?:\/\/[^)\s]+)\))/g;
+  let position = 0;
+  for (const match of text.matchAll(pattern)) {
+    if (match.index > position) target.append(text.slice(position, match.index));
+    if (match[1]) {
+      target.append(element("code", "", match[1].slice(1, -1)));
+    } else if (match[2]) {
+      target.append(element("strong", "", match[2].slice(2, -2)));
+    } else {
+      const link = element("a", "", match[3].slice(1, match[3].indexOf("](")));
+      link.href = match[4];
+      link.target = "_blank";
+      link.rel = "noopener";
+      target.append(link);
+    }
+    position = match.index + match[0].length;
+  }
+  if (position < text.length) target.append(text.slice(position));
+}
+
+function renderMarkdown(text) {
+  const container = element("div", "prose");
+  const lines = text.replace(/\r\n?/g, "\n").split("\n");
+  let index = 0;
+  const isBlockStart = (line) => /^(#{1,6} |```|\s*[-*] |\s*\d+\. |\|)/.test(line);
+  while (index < lines.length) {
+    const line = lines[index];
+    if (!line.trim()) {
+      index += 1;
+    } else if (line.startsWith("```")) {
+      const code = [];
+      index += 1;
+      while (index < lines.length && !lines[index].startsWith("```")) code.push(lines[index++]);
+      index += 1;
+      container.append(element("pre", "", code.join("\n")));
+    } else if (/^#{1,6} /.test(line)) {
+      const level = Math.min(line.match(/^#+/)[0].length + 2, 6);
+      const heading = element(`h${level}`);
+      inlineMarkdown(heading, line.replace(/^#+\s*/, ""));
+      container.append(heading);
+      index += 1;
+    } else if (line.startsWith("|")) {
+      const rows = [];
+      while (index < lines.length && lines[index].startsWith("|")) rows.push(lines[index++]);
+      const cells = (row) => row.replace(/^\||\|\s*$/g, "").split("|").map((cell) => cell.trim());
+      const table = element("table");
+      const body = element("tbody");
+      rows.filter((row) => !/^\|[\s:|-]+\|?\s*$/.test(row)).forEach((row, rowIndex) => {
+        const tableRow = element("tr");
+        for (const cell of cells(row)) {
+          const node = element(rowIndex === 0 ? "th" : "td");
+          inlineMarkdown(node, cell);
+          tableRow.append(node);
+        }
+        body.append(tableRow);
+      });
+      table.append(body);
+      const scroller = element("div", "prose-table");
+      scroller.append(table);
+      container.append(scroller);
+    } else if (/^\s*([-*]|\d+\.) /.test(line)) {
+      const ordered = /^\s*\d+\. /.test(line);
+      const list = element(ordered ? "ol" : "ul");
+      while (index < lines.length && /^\s*([-*]|\d+\.) /.test(lines[index])) {
+        const item = element("li");
+        inlineMarkdown(item, lines[index++].replace(/^\s*([-*]|\d+\.) /, ""));
+        list.append(item);
+      }
+      container.append(list);
+    } else {
+      const paragraph = [];
+      while (index < lines.length && lines[index].trim() && !isBlockStart(lines[index])) paragraph.push(lines[index++].trim());
+      const node = element("p");
+      inlineMarkdown(node, paragraph.join(" "));
+      container.append(node);
+    }
+  }
+  return container;
+}
+
+// ---------------------------------------------------------------------------------------------
+// JSON tree
+// ---------------------------------------------------------------------------------------------
 
 function jsonKeyBlock(key, isIndex) {
   const block = element("span", "json-leaf-key");
@@ -2502,10 +3228,7 @@ function jsonKeyBlock(key, isIndex) {
 }
 
 function jsonValueNode(value, key) {
-  if (isNonFiniteValue(value)) {
-    const node = element("span", "json-value nonfinite", `${value[NONFINITE_KEY]} (non-standard JSON)`);
-    return node;
-  }
+  if (isNonFiniteValue(value)) return element("span", "json-value nonfinite", `${value[NONFINITE_KEY]} (non-standard JSON)`);
   if (value === null) return element("span", "json-value null", "null");
   if (typeof value === "number") {
     const node = element("span", "json-value number", formatJsonNumber(value, key));
@@ -2574,11 +3297,7 @@ function renderJsonGroup(key, value, depth, isIndex = false) {
     element("span", "json-friendly-key", isIndex ? `Item ${Number(key) + 1}` : humanizeKey(key)),
     element("code", "json-raw-key", isIndex ? `[${key}]` : String(key))
   );
-  summary.append(
-    caret,
-    heading,
-    element("span", "json-group-count", plural(count, Array.isArray(value) ? "item" : "field"))
-  );
+  summary.append(caret, heading, element("span", "json-group-count", plural(count, Array.isArray(value) ? "item" : "field")));
   details.append(summary);
 
   let populated = false;
@@ -2620,379 +3339,567 @@ function renderJsonTree(value) {
   return tree;
 }
 
-function collectMetricCandidates(value, path = [], depth = 0, output = []) {
-  if (!isRecord(value) || depth > 4 || isNonFiniteValue(value)) return output;
-  for (const [key, item] of Object.entries(value)) {
-    const nextPath = [...path, key];
-    if (typeof item === "number" || typeof item === "boolean") {
-      let score = 100 - depth * 18;
-      if (/^(?:n_|count|total)|(?:compounds|pairs|count|total|rate|percent|pct|correlation|score)$/i.test(key)) score += 28;
-      if (/(?:p_value|seed|threshold|permutation)/i.test(key)) score -= 24;
-      if (typeof item === "boolean") score -= 15;
-      output.push({ key, value: item, path: nextPath, score, order: output.length });
-    } else if (isRecord(item)) {
-      collectMetricCandidates(item, nextPath, depth + 1, output);
-    }
-  }
-  return output;
-}
+// ---------------------------------------------------------------------------------------------
+// Declared outputs of an analysis
+// ---------------------------------------------------------------------------------------------
 
-function headlineMetrics(numbers) {
-  return collectMetricCandidates(numbers)
-    .sort((a, b) => b.score - a.score || a.order - b.order)
-    .slice(0, 6);
-}
-
-function metricLabel(metric) {
-  const generic = /^(?:count|percent|pct|value|min|max|mean|median)$/i.test(metric.key);
-  if (generic && metric.path.length > 1) {
-    return `${humanizeKey(metric.path.at(-2))} ${humanizeKey(metric.key).toLowerCase()}`;
-  }
-  return humanizeKey(metric.key);
-}
-
-function summaryTitle(data, file) {
-  const task = data.numbers?.task;
-  if (typeof task === "string" && task.length <= 120) return task;
-  return `${humanizeKey(folderName(parentPrefix(file.key)))} analysis`;
-}
-
-function renderMetricGrid(numbers) {
-  const metrics = headlineMetrics(numbers);
-  if (!metrics.length) return null;
-  const grid = element("div", "summary-metrics");
-  metrics.forEach((metric) => {
-    const card = element("div", "summary-metric");
-    const value = element(
-      "strong",
-      "summary-metric-value",
-      typeof metric.value === "boolean"
-        ? (metric.value ? "Yes" : "No")
-        : formatJsonNumber(metric.value, metric.key)
-    );
-    value.title = String(metric.value);
-    card.append(value, element("span", "summary-metric-label", metricLabel(metric)));
-    grid.append(card);
-  });
-  return grid;
-}
-
-function renderSummaryCard(card, data, file, source) {
-  const header = element("div", "summary-card-header");
-  const copy = element("div");
-  copy.append(
-    element("p", "summary-kicker", "Analysis-owned result"),
-    element("h4", "summary-card-title", summaryTitle(data, file)),
-    element("p", "summary-description", data.description)
-  );
-  const actions = element("div", "summary-card-actions");
-  actions.append(
-    internalFileLink("Read full summary", file, "button button-summary"),
-    actionLink("Raw JSON", source.url, "", `Open raw ${file.name}`)
-  );
-  header.append(copy, actions);
-
-  const meta = element("div", "summary-meta-row");
-  meta.append(
-    element("span", "summary-meta-pill", plural(countLeaves(data.numbers), "reported value")),
-    element("span", "summary-meta-pill", plural(Object.keys(data.numbers).length, "top-level section")),
-    element("span", "summary-meta-pill", plural(data.files.length, "declared output")),
-    element("span", "summary-meta-pill", "Displayed without recomputation")
-  );
-  card.replaceChildren(header, meta);
-  const metrics = renderMetricGrid(data.numbers);
-  if (metrics) card.append(metrics);
-}
-
-function renderSummaryPreview(file) {
-  const wrapper = section("Analysis summary", "summary.json");
-  const card = element("div", "summary-card");
-  const state = element("div", "summary-card-state");
-  const dots = element("div", "loading-dots");
-  dots.setAttribute("aria-hidden", "true");
-  dots.append(element("span"), element("span"), element("span"));
-  state.append(dots, element("span", "", "Reading the analysis-owned summary..."));
-  card.append(state);
-  wrapper.append(card);
-
-  loadJsonKey(file.key).then((source) => {
-    if (!card.isConnected) return;
-    if (isSummaryEnvelope(source.data)) {
-      renderSummaryCard(card, source.data, file, source);
-    } else {
-      const fallback = element("div", "summary-card-state");
-      fallback.append(internalFileLink("View JSON document", file, "button button-summary"));
-      card.replaceChildren(fallback);
-    }
-  }).catch((error) => {
-    if (!card.isConnected) return;
-    card.replaceChildren(element("div", "summary-card-state", `Summary preview unavailable: ${error.message}`));
-  });
-  return wrapper;
-}
-
-function datastorePrefixForKey(key) {
-  const marker = "jump_production_datastore/";
-  const index = key.indexOf(marker);
-  return index >= 0 ? key.slice(0, index + marker.length) : DATASTORE_PREFIX;
-}
-
-function validBucketKey(key) {
-  if (!key.startsWith(BASE_PREFIX) || key.includes("\\") || key.includes("\0")) return false;
-  return !key.split("/").some((part) => part === "." || part === "..");
-}
-
-function resolveManifestPath(pathValue, summaryKey) {
-  if (typeof pathValue !== "string" || !pathValue.trim()) return null;
-  const path = pathValue.trim();
-  if (path.includes("\\") || path.includes("\0") || path.startsWith("//")) return null;
-  if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return null;
-
-  const root = datastorePrefixForKey(summaryKey);
-  let key = null;
-  if (path.startsWith(BASE_PREFIX)) {
-    key = path;
-  } else if (path.startsWith("data/")) {
-    key = `${root}${path.slice("data/".length)}`;
-  } else {
-    const localMarker = "/jump_production/data/";
-    const markerIndex = path.indexOf(localMarker);
-    if (markerIndex >= 0) {
-      key = `${root}${path.slice(markerIndex + localMarker.length)}`;
-    } else if (!path.startsWith("/")) {
-      key = `${parentPrefix(summaryKey)}${path.replace(/^\.\//, "")}`;
-    }
-  }
-  if (!key || !validBucketKey(key)) return null;
-
-  const listed = currentListing.files.find((file) => file.key === key);
-  return {
-    key,
-    url: objectUrl(key),
-    size: listed?.size,
-    date: listed?.date
-  };
-}
-
-function manifestRecord(record, summaryKey) {
-  const item = typeof record === "string" ? { path: record } : (isRecord(record) ? record : {});
-  const path = typeof item.path === "string" ? item.path : "";
-  const name = path.split("/").pop() || path || "Unknown output";
-  const resolved = resolveManifestPath(path, summaryKey);
-  const ext = extension(name);
-  let kind = typeof item.kind === "string" ? item.kind : "data";
-  if (IMAGE_EXTENSIONS.has(ext) || ext === "pdf") kind = "figure";
-  if (DATA_EXTENSIONS.has(ext) || ext === "tsv") kind = "table";
-  const defaultCaption = stem(name).replace(/_/g, " ");
-  const caption = String(item.caption || defaultCaption).replace(/\*\*/g, "").replace(/`/g, "");
-  return { ...resolved, path, name, ext, kind, caption };
-}
-
-function groupManifestItems(items) {
-  const groups = new Map();
-  for (const item of items) {
-    const withoutExtension = (item.key || item.path).replace(/\.[^./]+$/, "").toLowerCase();
-    const groupKey = `${withoutExtension}|${item.caption.toLowerCase()}`;
-    if (!groups.has(groupKey)) groups.set(groupKey, []);
-    groups.get(groupKey).push(item);
-  }
-  return [...groups.values()];
-}
-
-function manifestActionButton(item, caption, allItems) {
-  if (!item.url) return null;
-  if (IMAGE_EXTENSIONS.has(item.ext)) {
+function declaredAction(file, caption, siblings) {
+  if (!file.key || file.missing) return null;
+  const url = objectUrl(file.key);
+  if (IMAGE_EXTENSIONS.has(file.ext)) {
     const preview = element("button", "button", "Preview");
     preview.type = "button";
-    preview.addEventListener("click", () => openImageAsset(caption, item.url, `Declared ${item.kind}`));
+    preview.addEventListener("click", () => openImageAsset(caption, url, `Declared ${file.kind}`));
     return preview;
   }
-  if (DATA_EXTENSIONS.has(item.ext)) {
-    return actionLink(item.ext.toUpperCase(), datasetteUrl(item, allItems), "button-data", `Explore ${caption} ${item.ext} data`);
+  if (DATA_EXTENSIONS.has(file.ext)) {
+    return actionLink(file.ext.toUpperCase(), datasetteUrl(file, siblings), "button-data", `Explore ${caption} ${file.ext} data in Datasette Lite`);
   }
-  const annotatedData = dataFileForMetadata(item, allItems);
-  if (annotatedData) {
-    return actionLink(
-      "Datasette",
-      datasetteUrl(annotatedData, allItems),
-      "button-data",
-      `Explore ${annotatedData.name} with these annotations`
-    );
+  if (file.ext === "json" || TEXT_EXTENSIONS.has(file.ext)) {
+    return appLink(file.ext === "json" ? "JSON" : "Read", fileViewUrl(file.key), "button button-summary");
   }
-  if (item.ext === "json" && item.key) {
-    return internalFileLink("JSON", { name: item.name, key: item.key }, "button button-summary");
-  }
-  return actionLink(item.ext === "pdf" ? "PDF" : (item.ext.toUpperCase() || "Open"), item.url, "", `Open ${caption}`);
+  return actionLink(file.ext === "pdf" ? "PDF" : (file.ext.toUpperCase() || "Open"), url, "", `Open ${caption}`);
 }
 
-function renderManifestList(records, summaryKey) {
+// One row per declared output; the same output in several formats (PNG and PDF, CSV and Parquet)
+// is one row with an action per format.
+function renderDeclaredFiles(entry) {
   const list = element("div", "manifest-list");
-  const allItems = records.map((record) => manifestRecord(record, summaryKey));
-  for (const group of groupManifestItems(allItems)) {
+  const groups = new Map();
+  for (const file of entry.files) {
+    const groupKey = (file.key || file.name).replace(/\.[^./]+$/, "").toLowerCase();
+    if (!groups.has(groupKey)) groups.set(groupKey, []);
+    groups.get(groupKey).push(file);
+  }
+  const base = entry.summaryKey ? parentPrefix(entry.summaryKey) : entry.prefix;
+  for (const group of groups.values()) {
     const first = group[0];
+    const authored = group.find((file) => file.caption.toLowerCase() !== stem(file.name).replace(/_/g, " ").toLowerCase());
+    const caption = (authored || first).caption;
     const card = element("div", "manifest-item");
-    const badge = element("span", `manifest-kind ${first.kind}`, first.kind.slice(0, 7));
     const copy = element("div", "manifest-copy");
-    const variants = group.map((item) => item.ext ? item.ext.toUpperCase() : "FILE");
+    const variants = group.map((file) => (file.ext ? file.ext.toUpperCase() : "FILE"));
+    const location = !first.key ? first.name : (first.key.startsWith(base) ? first.key.slice(base.length) : relativeToProcessed(first.key));
     copy.append(
-      element("span", "manifest-caption", first.caption),
-      element(
-        "span",
-        "manifest-path",
-        group.length > 1 ? `${group.length} declared variants | ${variants.join(", ")}` : first.path
-      )
+      element("span", "manifest-caption", caption),
+      element("span", "manifest-path", group.length > 1 ? `${location.replace(/\.[^./]+$/, "")} | ${variants.join(", ")}` : location)
     );
     const actions = element("div", "manifest-actions");
-    const seen = new Set();
-    for (const item of group) {
-      const actionType = IMAGE_EXTENSIONS.has(item.ext) ? "preview" : `${item.ext}|${item.url}`;
-      if (seen.has(actionType)) continue;
-      seen.add(actionType);
-      const action = manifestActionButton(item, first.caption, allItems);
+    for (const file of group) {
+      const action = declaredAction(file, caption, entry.files);
       if (action) actions.append(action);
     }
-    if (!actions.childElementCount) actions.append(element("span", "file-detail", "Not available on S3"));
-    card.append(badge, copy, actions);
+    if (!actions.childElementCount) actions.append(element("span", "file-detail missing-note", "Not in the public bucket"));
+    card.append(element("span", `manifest-kind ${first.kind}`, first.kind.slice(0, 7)), copy, actions);
     list.append(card);
   }
   return list;
 }
 
-function jsonSection(title, countText, body) {
-  const sectionNode = element("section", "json-content-section");
-  const heading = element("div", "json-content-heading");
-  heading.append(element("h3", "", title), element("span", "", countText));
-  sectionNode.append(heading, body);
-  return sectionNode;
+// ---------------------------------------------------------------------------------------------
+// Overview and search
+// ---------------------------------------------------------------------------------------------
+
+function quickLink(title, detail, url, external) {
+  const card = external ? element("a", "folder-card") : appLink("", url, "folder-card");
+  if (external) {
+    card.href = url;
+    card.target = "_blank";
+    card.rel = "noopener";
+  }
+  const icon = element("span", "folder-icon");
+  icon.setAttribute("aria-hidden", "true");
+  const copy = element("span", "folder-copy");
+  copy.append(element("span", "folder-name", title), element("span", "folder-action", detail));
+  card.append(icon, copy);
+  return card;
 }
 
-function rawJsonDetails(rawText) {
-  const details = element("details", "raw-json");
-  details.append(element("summary", "", "Raw JSON"));
-  const pre = element("pre", "", rawText);
-  details.append(pre);
-  return details;
+function entryCard(entry) {
+  const card = appLink("", entryUrl(entry), "entry-card");
+  card.append(element("span", "entry-title", entry.title));
+  if (entry.qualifier) card.append(element("span", "entry-qualifier", entry.qualifier));
+  card.append(element("span", "entry-description", entry.description));
+  const counts = entryCounts(entry);
+  if (counts.length) card.append(element("span", "entry-meta", counts.join(" | ")));
+  return card;
 }
 
-function backToFolderLink(key) {
-  return navigableLink("Back to folder", parentPrefix(key), "button");
+function queryTokens(query) {
+  return query.toLowerCase().split(/\s+/).filter(Boolean);
 }
 
-function documentActions(source) {
-  const actions = element("div", "json-document-actions");
-  const copy = element("button", "button button-summary", "Copy JSON");
-  copy.type = "button";
-  copy.addEventListener("click", async () => {
-    const copied = await copyText(source.rawText);
-    showToast(copied ? "JSON copied to clipboard" : "Copy was unavailable");
+function matchesAll(haystack, tokens) {
+  return tokens.every((token) => haystack.includes(token));
+}
+
+function loadClaims(model) {
+  if (!claimsPromise) {
+    claimsPromise = (async () => {
+      const source = await loadJsonKey(`${model.root}dataset_reference/dataset_reference.json`);
+      if (!Array.isArray(source.data)) throw new Error("The reported-numbers table could not be read");
+      return source.data
+        .filter((row) => isRecord(row) && typeof row.claim === "string" && typeof row.source === "string")
+        .map((row) => {
+          const summaryKey = row.source.startsWith("data/processed/")
+            ? `${model.root}${row.source.slice("data/processed/".length)}`
+            : null;
+          const entry = summaryKey ? model.bySummary.get(summaryKey) : null;
+          const analysis = entry ? [entry.title, entry.qualifier].filter(Boolean).join(": ") : row.source;
+          const shown = typeof row.value === "string" ? row.value : formatValue(row.value, row.claim);
+          return {
+            claim: row.claim,
+            value: row.value,
+            shown,
+            summaryKey: summaryKey && validKey(summaryKey) ? summaryKey : null,
+            analysis,
+            haystack: `${row.claim}\n${shown}\n${String(row.value)}\n${analysis}`.toLowerCase()
+          };
+        });
+    })().catch((error) => {
+      claimsPromise = null;
+      throw error;
+    });
+  }
+  return claimsPromise;
+}
+
+function claimRows(claims, limit) {
+  const list = element("div", "claim-list");
+  list.setAttribute("role", "table");
+  const head = element("div", "claim-head");
+  head.setAttribute("role", "row");
+  for (const label of ["Value", "Reported as", "Analysis"]) {
+    const cell = element("span", "", label);
+    cell.setAttribute("role", "columnheader");
+    head.append(cell);
+  }
+  list.append(head);
+  let shown = 0;
+  const appendBatch = () => {
+    const end = Math.min(shown + limit, claims.length);
+    for (; shown < end; shown += 1) {
+      const claim = claims[shown];
+      const row = element("div", "claim-row");
+      row.setAttribute("role", "row");
+      const value = element("span", "claim-value", claim.shown.length > 90 ? `${claim.shown.slice(0, 90)}...` : claim.shown);
+      value.title = String(claim.value);
+      const key = element("code", "claim-key", claim.claim);
+      const analysis = claim.summaryKey
+        ? appLink(claim.analysis, fileViewUrl(claim.summaryKey), "claim-analysis")
+        : element("span", "claim-analysis", claim.analysis);
+      for (const cell of [value, key, analysis]) cell.setAttribute("role", "cell");
+      row.append(value, key, analysis);
+      list.append(row);
+    }
+    const previous = list.querySelector(":scope > .json-more");
+    if (previous) previous.remove();
+    if (shown < claims.length) {
+      const more = element("button", "button json-more", `Show ${Math.min(limit, claims.length - shown)} more`);
+      more.type = "button";
+      more.addEventListener("click", appendBatch);
+      list.append(more);
+    }
+  };
+  appendBatch();
+  return list;
+}
+
+function fileResults(matches) {
+  const list = element("div", "manifest-list");
+  for (const { entry, file } of matches) {
+    const card = element("div", "manifest-item");
+    const copy = element("div", "manifest-copy");
+    copy.append(
+      element("span", "manifest-caption", file.name),
+      element("span", "manifest-path", [entry.title, entry.qualifier].filter(Boolean).join(": "))
+    );
+    const actions = element("div", "manifest-actions");
+    const action = declaredAction(file, file.caption, entry.files);
+    if (action) actions.append(action);
+    actions.append(appLink("Folder", viewUrl(parentPrefix(file.key), file.name), "button"));
+    card.append(element("span", `manifest-kind ${file.kind}`, file.kind.slice(0, 7)), copy, actions);
+    list.append(card);
+  }
+  return list;
+}
+
+function overviewSummary(model, shown) {
+  const parts = [shown];
+  if (model.mode === "catalog" && model.revision) parts.push(`results from source revision ${model.revision.slice(0, 7)}`);
+  if (model.mode === "discovered" && model.updated) parts.push(`files last updated ${formatDate(model.updated)}`);
+  return parts.join(" | ");
+}
+
+function renderOverviewBody(model, query, token) {
+  const tokens = queryTokens(query);
+  const fragment = document.createDocumentFragment();
+
+  if (!tokens.length) {
+    directorySummary.textContent = overviewSummary(model, `${plural(model.entries.length, "result set")} in ${plural(model.sections.length, "section")}`);
+    const start = section("Start here", "Where to go first");
+    const grid = element("div", "folder-grid");
+    grid.append(
+      quickLink("Profiles", "Well-level profiles as Parquet tables", viewUrl(PROFILES_PREFIX)),
+      quickLink("Reported numbers", "Search every value the analyses report", numbersUrl()),
+      quickLink("All files", "Browse the public folders", viewUrl(PUBLICATION_PREFIX)),
+      quickLink("Reproduce the results", "Guide in the source repository", `${model.repository}/blob/${model.revision || "main"}/docs/reproduce.md`, true),
+      quickLink("Read the paper", "Preprint describing the dataset", PAPER_URL, true)
+    );
+    start.append(grid);
+    fragment.append(start);
+    for (const group of model.sections) {
+      const entries = model.entries.filter((entry) => entry.section === group.id);
+      const block = section(group.title, plural(entries.length, "result set"), `section-${group.id}`);
+      block.classList.add("entry-section");
+      if (group.description) block.append(element("p", "section-description", group.description));
+      const cards = element("div", "entry-grid");
+      entries.forEach((entry) => cards.append(entryCard(entry)));
+      block.append(cards);
+      fragment.append(block);
+    }
+    content.replaceChildren(fragment);
+    return;
+  }
+
+  const entries = model.entries.filter((entry) => matchesAll(entry.haystack, tokens));
+  const rank = (entry) => (matchesAll(`${entry.title} ${entry.qualifier}`.toLowerCase(), tokens) ? 0 : 1);
+  entries.sort((a, b) => rank(a) - rank(b));
+  const files = [];
+  for (const entry of model.entries) {
+    for (const file of entry.files) {
+      if (file.key && !file.missing && matchesAll(`${file.name}\n${file.caption}`.toLowerCase(), tokens)) files.push({ entry, file });
+    }
+  }
+  directorySummary.textContent = `${plural(entries.length, "result set")} and ${plural(files.length, "file")} matching "${query}"`;
+
+  if (entries.length) {
+    const block = section("Analyses and result sets", plural(entries.length, "match", "matches"));
+    const cards = element("div", "entry-grid");
+    entries.forEach((entry) => cards.append(entryCard(entry)));
+    block.append(cards);
+    fragment.append(block);
+  }
+  if (files.length) {
+    const block = section("Files", files.length > 30 ? `first 30 of ${plural(files.length, "match", "matches")}` : plural(files.length, "match", "matches"));
+    block.append(fileResults(files.slice(0, 30)));
+    fragment.append(block);
+  }
+  const numbers = section("Reported numbers", "Searching...");
+  const numbersBody = element("div");
+  numbers.append(numbersBody);
+  fragment.append(numbers);
+  if (!entries.length && !files.length) {
+    fragment.prepend(messageState("No analysis or file matches", "Try a shorter or different search. Matching reported numbers, if any, are listed below."));
+  }
+  content.replaceChildren(fragment);
+
+  loadClaims(model).then((claims) => {
+    if (token !== renderToken || !numbers.isConnected) return;
+    const matches = claims.filter((claim) => matchesAll(claim.haystack, tokens));
+    numbers.querySelector(".section-heading span").textContent = matches.length > 20
+      ? `first 20 of ${plural(matches.length, "match", "matches")}`
+      : plural(matches.length, "match", "matches");
+    if (!matches.length) {
+      numbers.remove();
+      return;
+    }
+    numbersBody.append(claimRows(matches.slice(0, 20), 20));
+    if (matches.length > 20) {
+      const all = appLink(`Open all ${new Intl.NumberFormat("en").format(matches.length)} matches`, numbersUrl(query), "button json-more");
+      numbersBody.append(all);
+    }
+  }).catch(() => {
+    if (numbers.isConnected) numbers.remove();
   });
-  actions.append(
-    backToFolderLink(source.key),
-    copy,
-    actionLink("Open raw", source.url, "", "Open raw JSON")
-  );
-  return actions;
 }
 
-function warningNode(warnings) {
-  if (!warnings?.length) return null;
-  const warning = warnings.find((item) => item.kind === "nonfinite");
-  if (!warning) return null;
-  const node = element("p", "json-warning");
-  const label = element("strong", "", "Non-standard numeric values: ");
-  node.append(
-    label,
-    document.createTextNode(
-      `${warning.count} ${warning.values.join("/")} ${warning.count === 1 ? "token was" : "tokens were"} preserved as visibly marked unavailable values. The raw file is unchanged.`
-    )
-  );
-  return node;
+function flushQuery() {
+  window.clearTimeout(queryTimer);
+  if (pendingQueryUrl) window.history.replaceState({}, "", pendingQueryUrl);
+  pendingQueryUrl = null;
 }
 
-function renderSummaryDocument(source, file) {
-  const data = source.data;
-  const documentNode = element("article", "json-document");
-  const hero = element("header", "json-document-hero");
-  hero.append(
-    element("p", "json-document-label", "Analysis-owned summary"),
-    element("h3", "json-document-title", summaryTitle(data, file)),
-    element("p", "json-document-description", data.description)
-  );
-  const stats = element("div", "json-document-stats");
-  stats.append(
-    element("span", "", plural(countLeaves(data.numbers), "reported value")),
-    element("span", "", plural(Object.keys(data.numbers).length, "top-level section")),
-    element("span", "", plural(data.files.length, "declared output")),
-    element("span", "", formatSize(source.size)),
-    element("span", "", "Displayed without recomputation")
-  );
-  hero.append(stats, documentActions(source));
-  const warning = warningNode(source.warnings);
-  if (warning) hero.append(warning);
-  const metrics = renderMetricGrid(data.numbers);
-  if (metrics) hero.append(metrics);
-  documentNode.append(hero);
+function updateQuery(buildUrl, value) {
+  window.clearTimeout(queryTimer);
+  pendingQueryUrl = buildUrl(value.trim());
+  queryTimer = window.setTimeout(flushQuery, 250);
+}
 
-  documentNode.append(jsonSection(
-    "Reported numbers",
-    "Values emitted by the producing analysis",
-    renderJsonTree(data.numbers)
-  ));
+async function renderOverview(route, token) {
+  renderBreadcrumb([{ label: "Overview" }]);
+  content.classList.remove("json-mode");
+  setHeader({ label: "Published results", title: "Overview", summary: "Loading results...", search: null });
+  const loading = loadingState("Loading the results catalog...");
+  content.replaceChildren(loading);
 
-  if (data.files.length) {
-    documentNode.append(jsonSection(
-      "Declared outputs",
-      plural(data.files.length, "manifest record"),
-      renderManifestList(data.files, source.key)
-    ));
-  } else {
-    const empty = element("div", "json-tree");
-    empty.append(element("p", "json-truncated", "This is a numbers-only analysis; it declares no separate output files."));
-    documentNode.append(jsonSection("Declared outputs", "No files declared", empty));
+  let model;
+  try {
+    model = await loadResults((done, total) => {
+      if (token === renderToken) loading.setMessage(`Reading analysis summaries: ${done} of ${total}`);
+    });
+  } catch (error) {
+    if (token !== renderToken) return;
+    directorySummary.textContent = "Results unavailable";
+    content.replaceChildren(messageState("The results could not be listed", error.message || "Please try again in a moment.", true));
+    return;
   }
+  if (token !== renderToken) return;
 
-  const extraEntries = Object.entries(data).filter(([key]) => !["description", "numbers", "files"].includes(key));
-  if (extraEntries.length) {
-    documentNode.append(jsonSection(
-      "Additional metadata",
-      plural(extraEntries.length, "top-level field"),
-      renderJsonTree(Object.fromEntries(extraEntries))
-    ));
+  searchInput.value = route.query;
+  setHeader({
+    label: "Published results",
+    title: "Overview",
+    summary: "",
+    search: {
+      placeholder: "Search analyses, files and numbers",
+      onInput: () => {
+        updateQuery(homeUrl, searchInput.value);
+        renderOverviewBody(model, searchInput.value.trim(), renderToken);
+      }
+    }
+  });
+  renderOverviewBody(model, route.query, token);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Reported numbers
+// ---------------------------------------------------------------------------------------------
+
+async function renderNumbers(route, token) {
+  renderBreadcrumb([{ label: "Overview", url: homeUrl() }, { label: "Reported numbers" }]);
+  content.classList.remove("json-mode");
+  setHeader({ label: "Published results", title: "Reported numbers", summary: "Loading reported numbers...", search: null });
+  content.replaceChildren(loadingState("Loading reported numbers..."));
+
+  let model;
+  let claims;
+  try {
+    model = await loadResults();
+    claims = await loadClaims(model);
+  } catch (error) {
+    if (token !== renderToken) return;
+    directorySummary.textContent = "Reported numbers unavailable";
+    content.replaceChildren(messageState("The reported numbers could not be loaded", error.message || "Please try again in a moment.", true));
+    return;
   }
-  documentNode.append(rawJsonDetails(source.rawText));
-  return documentNode;
+  if (token !== renderToken) return;
+
+  const show = () => {
+    const query = searchInput.value.trim();
+    const tokens = queryTokens(query);
+    const matches = tokens.length ? claims.filter((claim) => matchesAll(claim.haystack, tokens)) : claims;
+    const sources = new Set(claims.map((claim) => claim.summaryKey || claim.analysis)).size;
+    directorySummary.textContent = tokens.length
+      ? `${plural(matches.length, "value")} matching "${query}"`
+      : `${plural(claims.length, "value")} from ${plural(sources, "analysis", "analyses")}, as written by each analysis`;
+    if (!matches.length) {
+      content.replaceChildren(messageState("No reported number matches", "Search by value, by the name an analysis gives it, or by analysis title."));
+      return;
+    }
+    const block = section("Values", "Each row links to the summary that reports it");
+    block.append(claimRows(matches, 100));
+    content.replaceChildren(block);
+  };
+
+  searchInput.value = route.query;
+  setHeader({
+    label: "Published results",
+    title: "Reported numbers",
+    summary: "",
+    search: {
+      placeholder: "Search values, names and analyses",
+      onInput: () => {
+        updateQuery(numbersUrl, searchInput.value);
+        show();
+      }
+    }
+  });
+  show();
 }
 
-function renderGenericJsonDocument(source, file) {
-  const data = source.data;
-  const documentNode = element("article", "json-document");
-  const hero = element("header", "json-document-hero generic");
-  const type = Array.isArray(data) ? "array" : (data === null ? "null" : typeof data === "object" ? "object" : typeof data);
-  hero.append(
-    element("p", "json-document-label", "JSON document"),
-    element("h3", "json-document-title", file.name),
-    element("p", "json-document-description", "A structured, browsable view of this public JSON file. Keys and original value types are preserved; the raw source remains available for exact inspection.")
-  );
-  const stats = element("div", "json-document-stats");
-  stats.append(
-    element("span", "", `Top-level ${type}`),
-    element("span", "", plural(countLeaves(data), "leaf value")),
-    element("span", "", formatSize(source.size))
-  );
-  hero.append(stats, documentActions(source));
-  const warning = warningNode(source.warnings);
-  if (warning) hero.append(warning);
-  documentNode.append(hero);
-  documentNode.append(jsonSection("Contents", "Collapsible JSON tree", renderJsonTree(data)));
-  documentNode.append(rawJsonDetails(source.rawText));
-  return documentNode;
+// ---------------------------------------------------------------------------------------------
+// Folder view
+// ---------------------------------------------------------------------------------------------
+
+function summaryCard(entry, model, compact) {
+  const card = element("div", "summary-card");
+  const header = element("div", "summary-card-header");
+  const copy = element("div");
+  copy.append(element("p", "summary-kicker", entry.summaryKey ? "Analysis-owned result" : "Result set"));
+  if (!compact) copy.append(element("h4", "summary-card-title", entry.title));
+  copy.append(element("p", "summary-description", entry.description));
+  header.append(copy);
+  const actions = element("div", "summary-card-actions");
+  if (entry.summaryKey) {
+    actions.append(
+      appLink("Read full summary", fileViewUrl(entry.summaryKey), "button button-summary"),
+      actionLink("Raw JSON", objectUrl(entry.summaryKey), "", `Open raw ${baseName(entry.summaryKey)}`)
+    );
+  }
+  if (model && entry.script) actions.append(actionLink("Analysis source", sourceUrl(model, entry.script), "", `Open ${entry.script} in the source repository`));
+  if (actions.childElementCount) header.append(actions);
+
+  const meta = element("div", "summary-meta-row");
+  if (entry.numbers) meta.append(element("span", "summary-meta-pill", plural(entry.numbers, "reported value")));
+  if (entry.files.length) meta.append(element("span", "summary-meta-pill", plural(entry.files.length, "declared output")));
+  const missing = entry.files.filter((file) => file.missing).length;
+  if (missing) meta.append(element("span", "summary-meta-pill missing-note", `${plural(missing, "declared output")} not in the public bucket`));
+  if (entry.rule) meta.append(element("span", "summary-meta-pill", `Workflow rule ${entry.rule}`));
+  if (entry.summaryKey) meta.append(element("span", "summary-meta-pill", "Displayed without recomputation"));
+  card.append(header, meta);
+  const metrics = metricGrid(entry.highlights);
+  if (metrics) card.append(metrics);
+  return card;
 }
 
-function renderFiles(files) {
+function noteBlock(file, title) {
+  const wrapper = section(title, file.name);
+  const body = element("div", "note-card");
+  body.append(element("p", "json-truncated", "Loading..."));
+  wrapper.append(body);
+  loadTextKey(file.key, NOTE_MAX_BYTES).then((source) => {
+    if (body.isConnected) body.replaceChildren(renderMarkdown(source.rawText));
+  }).catch(() => {
+    if (wrapper.isConnected) wrapper.remove();
+  });
+  return wrapper;
+}
+
+function folderDetail(folder, model) {
+  const name = folder.name.replace(/\/$/, "");
+  if (model) {
+    const entry = model.byPrefix.get(folder.prefix);
+    if (entry) return entry.title;
+    const inside = model.entries.filter((candidate) => candidate.prefix.startsWith(folder.prefix)).length;
+    if (inside) return `${plural(inside, "result set")} inside`;
+  }
+  return FOLDER_NOTES[folder.prefix] || describeDatasetName(name) || "Browse folder";
+}
+
+function renderFolders(folders, model) {
+  const wrapper = section("Folders", plural(folders.length, "folder"));
+  const grid = element("div", "folder-grid");
+  for (const folder of folders) {
+    const card = appLink("", viewUrl(folder.prefix), "folder-card");
+    const icon = element("span", "folder-icon");
+    icon.setAttribute("aria-hidden", "true");
+    const copy = element("span", "folder-copy");
+    const detail = folderDetail(folder, model);
+    const action = element("span", "folder-action", detail);
+    action.title = detail;
+    copy.append(element("span", "folder-name", folder.name.replace(/\/$/, "")), action);
+    card.append(icon, copy);
+    grid.append(card);
+  }
+  wrapper.append(grid);
+  return wrapper;
+}
+
+function captionFor(file, entry) {
+  const declared = entry?.files.find((candidate) => candidate.key === file.key);
+  if (!declared) return "";
+  return declared.caption.toLowerCase() === stem(file.name).replace(/_/g, " ").toLowerCase() ? "" : declared.caption;
+}
+
+// Figures the analysis declares in subfolders, which the folder's own listing does not show.
+function nestedImages(prefix, listed, entry) {
+  if (!entry) return [];
+  const present = new Set(listed.map((file) => file.key));
+  return entry.files
+    .filter((file) => file.key && !file.missing && IMAGE_EXTENSIONS.has(file.ext)
+      && file.key.startsWith(prefix) && !present.has(file.key))
+    .map((file) => ({ name: file.key.slice(prefix.length), key: file.key, size: Number.NaN, date: "" }));
+}
+
+function renderImages(images, allFiles, entry) {
+  const wrapper = section("Image previews", plural(images.length, "image"));
+  const grid = element("div", "image-grid");
+  for (const file of images) {
+    const url = objectUrl(file.key);
+    const caption = captionFor(file, entry);
+    const sized = Number.isFinite(file.size);
+    const meta = sized ? `${formatSize(file.size)} | Updated ${formatDate(file.date)}` : "Declared figure";
+    const card = element("article", "image-card");
+    const preview = element("button", "image-preview");
+    preview.type = "button";
+    preview.setAttribute("aria-label", `Preview ${file.name}`);
+    preview.addEventListener("click", () => openImageAsset(caption || file.name, url, meta));
+
+    const image = element("img");
+    image.src = url;
+    image.alt = caption || `Preview of ${file.name}`;
+    image.loading = "lazy";
+    image.decoding = "async";
+    const fallback = element("span", "image-fallback", "Preview unavailable. Open the original file to view it.");
+    fallback.hidden = true;
+    image.addEventListener("error", () => {
+      image.hidden = true;
+      fallback.hidden = false;
+    });
+    preview.append(image, fallback);
+
+    const info = element("div", "image-info");
+    const name = element("a", "image-name", file.name);
+    name.title = file.name;
+    name.href = url;
+    name.target = "_blank";
+    name.rel = "noopener";
+    info.append(name);
+    if (caption) info.append(element("p", "image-caption", caption));
+
+    const details = element("div", "image-meta");
+    details.append(element("span", "", sized ? formatSize(file.size) : "In a subfolder"));
+    const links = element("span", "image-links");
+    const original = element("a", "mini-link", typeLabel(file));
+    original.href = url;
+    original.target = "_blank";
+    original.rel = "noopener";
+    links.append(original);
+    const imageStem = stem(file.name).toLowerCase();
+    const pdf = allFiles.find((candidate) => extension(candidate.name) === "pdf" && stem(candidate.name).toLowerCase() === imageStem);
+    if (pdf) {
+      const pdfLink = element("a", "mini-link", "PDF");
+      pdfLink.href = objectUrl(pdf.key);
+      pdfLink.target = "_blank";
+      pdfLink.rel = "noopener";
+      links.append(pdfLink);
+    }
+    details.append(links);
+    info.append(details);
+    card.append(preview, info);
+    grid.append(card);
+  }
+  wrapper.append(grid);
+  return wrapper;
+}
+
+function fileKind(file) {
+  const ext = extension(file.name);
+  if (currentEntry?.summaryKey === file.key) return "summary";
+  if (IMAGE_EXTENSIONS.has(ext)) return "image";
+  if (DATA_EXTENSIONS.has(ext)) return "data";
+  return "file";
+}
+
+function fileDetail(file, annotatedData, metadata) {
+  if (currentEntry?.summaryKey === file.key) return "Analysis summary";
+  if (isJson(file)) return "Browsable JSON";
+  if (annotatedData) return `Datasette annotations for ${annotatedData.name}`;
+  const dataset = describeDatasetName(stem(file.name));
+  if (isData(file)) {
+    if (!canExplore(file)) return [dataset, "Too large to open in the browser; download it or read it from S3"].filter(Boolean).join(". ");
+    const opening = file.size > DATASETTE_SLOW_BYTES
+      ? "Opens in Datasette Lite; a table this size can take a minute"
+      : (metadata ? "Opens in Datasette Lite with annotations" : "Opens in Datasette Lite");
+    return [dataset, opening].filter(Boolean).join(". ");
+  }
+  return [dataset, FILE_NOTES[extension(file.name)] || "File"].filter(Boolean).join(". ");
+}
+
+function renderFiles(files, allFiles) {
   const dataCount = files.filter(isData).length;
-  const countText = dataCount
-    ? `${plural(files.length, "file")} | ${plural(dataCount, "data table")}`
-    : plural(files.length, "file");
+  const countText = dataCount ? `${plural(files.length, "file")} | ${plural(dataCount, "data table")}` : plural(files.length, "file");
   const wrapper = section("All files", countText);
   const list = element("div", "file-list");
   list.setAttribute("role", "table");
@@ -3008,12 +3915,15 @@ function renderFiles(files) {
   head.append(...headings);
   list.append(head);
 
-  files.forEach((file) => {
+  for (const file of files) {
     const url = objectUrl(file.key);
-    const metadata = metadataForDataFile(file);
-    const annotatedData = dataFileForMetadata(file);
-    const datasetteTarget = isData(file) ? file : annotatedData;
-    const datasetteHref = datasetteTarget ? datasetteUrl(datasetteTarget) : null;
+    const metadata = metadataForDataFile(file, allFiles);
+    const annotatedData = dataFileForMetadata(file, allFiles);
+    const datasetteTarget = canExplore(file) ? file : (annotatedData && canExplore(annotatedData) ? annotatedData : null);
+    const datasetteHref = datasetteTarget ? datasetteUrl(datasetteTarget, allFiles) : null;
+    const readable = isJson(file) || (isText(file) && !annotatedData);
+    const large = Number.isFinite(file.size) && file.size >= LARGE_FILE_BYTES;
+
     const row = element("div", "file-row");
     row.setAttribute("role", "row");
     const identity = element("div", "file-identity");
@@ -3021,57 +3931,38 @@ function renderFiles(files) {
     const badge = element("span", `type-badge ${fileKind(file)}`, typeLabel(file));
     badge.setAttribute("aria-hidden", "true");
     const nameWrap = element("div", "file-name-wrap");
-    const name = element("a", "file-name", file.name);
-    name.href = isJson(file) ? fileViewUrl(file.key) : (datasetteHref || url);
-    if (isJson(file)) {
-      name.addEventListener("click", (event) => {
-        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        event.preventDefault();
-        setFileKey(file.key);
-      });
+    let name;
+    if (readable) {
+      name = appLink(file.name, fileViewUrl(file.key), "file-name");
     } else {
+      name = element("a", "file-name", file.name);
+      name.href = datasetteHref || url;
       name.target = "_blank";
       name.rel = "noopener";
     }
-    nameWrap.append(name, element(
-      "span",
-      "file-detail",
-      isSummaryFile(file)
-        ? "Analysis summary"
-        : (isJson(file)
-          ? "Browsable JSON"
-          : (annotatedData
-            ? `Datasette annotations for ${annotatedData.name}`
-            : (isData(file)
-              ? (metadata ? "Opens in Datasette Lite with annotations" : "Opens in Datasette Lite")
-              : fileKind(file))))
-    ));
+    const detail = element("span", "file-detail", fileDetail(file, annotatedData, metadata));
+    detail.title = detail.textContent;
+    nameWrap.append(name, detail);
     identity.append(badge, nameWrap);
 
     const actions = element("div", "file-actions");
     actions.setAttribute("role", "cell");
-    if (isJson(file)) {
-      actions.append(internalFileLink(
-        isSummaryFile(file) ? "View summary" : "View JSON",
-        file,
-        "button button-summary"
-      ));
+    if (readable) {
+      const label = currentEntry?.summaryKey === file.key ? "View summary" : (isJson(file) ? "View JSON" : "Read");
+      actions.append(appLink(label, fileViewUrl(file.key), "button button-summary"));
     } else if (isImage(file)) {
       const preview = element("button", "button", "Preview");
       preview.type = "button";
-      preview.addEventListener("click", () => openImage(file));
+      preview.addEventListener("click", () => openImageAsset(file.name, url, `${formatSize(file.size)} | Updated ${formatDate(file.date)}`));
       actions.append(preview);
     }
-    actions.append(actionLink(
-      isJson(file)
-        ? "Open raw"
-        : (isData(file)
-          ? "Open file"
-          : (annotatedData ? "Open YAML" : (extension(file.name) === "pdf" ? "View PDF" : "Open"))),
-      url,
-      "",
-      `Open ${file.name}`
-    ));
+    let openLabel = "Open";
+    if (readable) openLabel = "Open raw";
+    else if (large) openLabel = "Download";
+    else if (isData(file)) openLabel = "Open file";
+    else if (annotatedData) openLabel = "Open YAML";
+    else if (extension(file.name) === "pdf") openLabel = "View PDF";
+    actions.append(actionLink(openLabel, url, "", `${openLabel} ${file.name}`));
     if (datasetteHref) {
       actions.append(actionLink(
         annotatedData ? "View table" : "Explore data",
@@ -3081,6 +3972,8 @@ function renderFiles(files) {
           ? `Explore ${annotatedData.name} with annotations in Datasette Lite`
           : `Explore ${file.name} in Datasette Lite${metadata ? " with annotations" : ""}`
       ));
+    } else if (large) {
+      actions.append(copyButton("Copy S3 path", s3Uri(file.key), "S3 path copied to clipboard"));
     }
 
     const size = element("span", "file-size", formatSize(file.size));
@@ -3089,150 +3982,313 @@ function renderFiles(files) {
     date.setAttribute("role", "cell");
     row.append(identity, size, date, actions);
     list.append(row);
-  });
+  }
 
   wrapper.append(list);
   return wrapper;
 }
 
-function renderEmpty(title, message) {
-  const state = element("div", "state");
-  const inner = element("div", "state-inner");
-  inner.append(element("h3", "", title), element("p", "", message));
-  state.append(inner);
-  return state;
-}
-
-function updateSummary(folders, files, query) {
-  const images = files.filter(isImage).length;
-  const data = files.filter(isData).length;
-  const parts = [plural(folders.length, "folder"), plural(files.length, "file")];
-  if (images) parts.push(plural(images, "image"));
-  if (data) parts.push(plural(data, "data table"));
-  directorySummary.textContent = query
-    ? `${parts.join(" | ")} matching "${query}"`
-    : parts.join(" | ");
-}
-
-function renderDirectory() {
+function renderFolderBody(prefix, model) {
   const query = searchInput.value.trim().toLowerCase();
   const folders = currentListing.folders.filter((folder) => folder.name.toLowerCase().includes(query));
   const files = currentListing.files.filter((file) => file.name.toLowerCase().includes(query));
   const images = files.filter(isImage);
-  updateSummary(folders, files, query);
+  const nested = query ? [] : nestedImages(prefix, currentListing.files, currentEntry);
+  const data = files.filter(isData).length;
+  const parts = [plural(folders.length, "folder"), plural(files.length, "file")];
+  if (images.length) parts.push(plural(images.length, "image"));
+  if (data) parts.push(plural(data, "data table"));
+  directorySummary.textContent = query ? `${parts.join(" | ")} matching "${query}"` : parts.join(" | ");
 
-  if (folders.length === 0 && files.length === 0) {
-    content.replaceChildren(renderEmpty(
+  const fragment = document.createDocumentFragment();
+  if (currentEntry && !query) {
+    const block = currentEntry.summaryKey
+      ? section("Analysis summary", baseName(currentEntry.summaryKey))
+      : section("About these results", "Described in the results catalog");
+    block.append(summaryCard(currentEntry, model, true));
+    fragment.append(block);
+  }
+  if (!folders.length && !files.length) {
+    fragment.append(messageState(
       query ? "No matching files" : "This folder is empty",
       query ? "Try a shorter or different search." : "There are no public objects at this path."
     ));
+    content.replaceChildren(fragment);
     return;
   }
-
-  const fragment = document.createDocumentFragment();
-  if (folders.length) fragment.append(renderFolders(folders));
-  const summaryFile = files.find(isSummaryFile);
-  if (summaryFile) fragment.append(renderSummaryPreview(summaryFile));
-  if (images.length) fragment.append(renderImages(images, currentListing.files));
-  if (files.length) fragment.append(renderFiles(files));
+  if (!query) {
+    const legend = currentListing.files.find((file) => file.name.toLowerCase() === "legend.md" && file.size <= NOTE_MAX_BYTES);
+    const readme = currentListing.files.find((file) => file.name.toLowerCase() === "readme.md" && file.size <= NOTE_MAX_BYTES);
+    if (readme) fragment.append(noteBlock(readme, "About this folder"));
+    if (legend) fragment.append(noteBlock(legend, "Figure legends"));
+  }
+  if (folders.length) fragment.append(renderFolders(folders, model));
+  if (images.length + nested.length) fragment.append(renderImages([...images, ...nested], currentListing.files, currentEntry));
+  if (files.length) fragment.append(renderFiles(files, currentListing.files));
   content.replaceChildren(fragment);
 }
 
-function jsonFileForKey(key) {
-  return {
-    key,
-    name: key.split("/").pop() || "document.json",
-    size: Number.NaN,
-    date: ""
-  };
+async function renderFolder(route, token) {
+  const prefix = route.prefix;
+  const name = prefix === PUBLICATION_PREFIX ? "Publication data" : baseName(prefix);
+  activeController = new AbortController();
+  currentListing = { folders: [], files: [] };
+  currentEntry = null;
+  content.classList.remove("json-mode");
+  renderBreadcrumb(folderTrail(prefix));
+  setHeader({ label: "Current folder", title: name, summary: "Loading folder...", search: null });
+  content.replaceChildren(loadingState("Loading public files..."));
+
+  let model = null;
+  try {
+    const [listing, catalog] = await Promise.all([listObjects(prefix, activeController.signal), loadCatalog()]);
+    if (token !== renderToken) return;
+    currentListing = listing;
+    model = catalog;
+    currentEntry = await entryForFolder(prefix, listing);
+  } catch (error) {
+    if (error.name === "AbortError" || token !== renderToken) return;
+    directorySummary.textContent = "Folder unavailable";
+    content.replaceChildren(messageState("This folder could not be loaded", error.message || "Please try again in a moment.", true));
+    return;
+  }
+  if (token !== renderToken) return;
+
+  searchInput.value = route.filter;
+  setHeader({
+    label: !currentEntry ? "Current folder" : (!currentEntry.summaryKey ? "Result set" : (currentEntry.section === "figures" ? "Paper figure" : "Analysis")),
+    title: currentEntry ? currentEntry.title : name,
+    summary: "",
+    search: {
+      placeholder: "Filter this folder",
+      onInput: () => {
+        updateQuery((value) => viewUrl(prefix, value), searchInput.value);
+        renderFolderBody(prefix, model);
+      }
+    }
+  });
+  renderFolderBody(prefix, model);
 }
 
-function renderJsonFailure(key, error) {
-  const sourceUrl = objectUrl(key);
+// ---------------------------------------------------------------------------------------------
+// Document view: JSON and text files
+// ---------------------------------------------------------------------------------------------
+
+function jsonSection(title, countText, body) {
+  const sectionNode = element("section", "json-content-section");
+  const heading = element("div", "json-content-heading");
+  heading.append(element("h3", "", title), element("span", "", countText));
+  sectionNode.append(heading, body);
+  return sectionNode;
+}
+
+function rawDetails(label, rawText) {
+  const details = element("details", "raw-json");
+  details.append(element("summary", "", label), element("pre", "", rawText));
+  return details;
+}
+
+function documentActions(source, noun) {
+  const actions = element("div", "json-document-actions");
+  actions.append(
+    appLink("Back to folder", viewUrl(parentPrefix(source.key)), "button"),
+    copyButton(`Copy ${noun}`, source.rawText, `${noun} copied to clipboard`, "button-summary"),
+    actionLink("Open raw", source.url, "", `Open raw ${noun}`)
+  );
+  return actions;
+}
+
+function warningNode(warnings) {
+  const warning = warnings?.find((item) => item.kind === "nonfinite");
+  if (!warning) return null;
+  const node = element("p", "json-warning");
+  node.append(
+    element("strong", "", "Non-standard numeric values: "),
+    document.createTextNode(
+      `${warning.count} ${warning.values.join("/")} ${warning.count === 1 ? "token was" : "tokens were"} preserved as visibly marked unavailable values. The raw file is unchanged.`
+    )
+  );
+  return node;
+}
+
+function renderSummaryDocument(source, entry, model) {
+  const data = source.data;
+  const documentNode = element("article", "json-document");
+  const hero = element("header", "json-document-hero");
+  hero.append(
+    element("p", "json-document-label", "Analysis-owned summary"),
+    element("h3", "json-document-title", entry.title)
+  );
+  if (entry.qualifier) hero.append(element("p", "json-document-qualifier", entry.qualifier));
+  hero.append(element("p", "json-document-description", data.description));
+  const stats = element("div", "json-document-stats");
+  stats.append(
+    element("span", "", plural(countLeaves(data.numbers), "reported value")),
+    element("span", "", plural(entry.files.length, "declared output")),
+    element("span", "", formatSize(source.size))
+  );
+  if (entry.rule) stats.append(element("span", "", `Workflow rule ${entry.rule}`));
+  stats.append(element("span", "", "Displayed without recomputation"));
+  const actions = documentActions(source, "JSON");
+  if (model && entry.script) actions.append(actionLink("Analysis source", sourceUrl(model, entry.script), "", `Open ${entry.script} in the source repository`));
+  hero.append(stats, actions);
+  const warning = warningNode(source.warnings);
+  if (warning) hero.append(warning);
+  const metrics = metricGrid(entry.highlights);
+  if (metrics) hero.append(metrics);
+  documentNode.append(hero);
+
+  documentNode.append(jsonSection("Reported numbers", "Values emitted by the producing analysis", renderJsonTree(data.numbers)));
+
+  if (entry.files.length) {
+    const missing = entry.files.filter((file) => file.missing).length;
+    documentNode.append(jsonSection(
+      "Declared outputs",
+      missing ? `${plural(entry.files.length, "file")} | ${missing} not in the public bucket` : plural(entry.files.length, "file"),
+      renderDeclaredFiles(entry)
+    ));
+  } else {
+    const empty = element("div", "json-tree");
+    empty.append(element("p", "json-truncated", "This is a numbers-only analysis; it declares no separate output files."));
+    documentNode.append(jsonSection("Declared outputs", "No files declared", empty));
+  }
+
+  const extraEntries = Object.entries(data).filter(([key]) => !["description", "numbers", "files"].includes(key));
+  if (extraEntries.length) {
+    documentNode.append(jsonSection(
+      "Additional metadata",
+      plural(extraEntries.length, "top-level field"),
+      renderJsonTree(Object.fromEntries(extraEntries))
+    ));
+  }
+  documentNode.append(rawDetails("Raw JSON", source.rawText));
+  return documentNode;
+}
+
+function renderGenericJsonDocument(source, name) {
+  const data = source.data;
+  const documentNode = element("article", "json-document");
+  const hero = element("header", "json-document-hero generic");
+  const type = Array.isArray(data) ? "array" : (data === null ? "null" : typeof data);
+  hero.append(
+    element("p", "json-document-label", "JSON document"),
+    element("h3", "json-document-title", name),
+    element("p", "json-document-description", "A structured, browsable view of this public JSON file. Keys and original value types are preserved; the raw source remains available for exact inspection.")
+  );
+  const stats = element("div", "json-document-stats");
+  stats.append(
+    element("span", "", `Top-level ${type}`),
+    element("span", "", plural(countLeaves(data), "leaf value")),
+    element("span", "", formatSize(source.size))
+  );
+  hero.append(stats, documentActions(source, "JSON"));
+  const warning = warningNode(source.warnings);
+  if (warning) hero.append(warning);
+  documentNode.append(hero);
+  documentNode.append(jsonSection("Contents", "Collapsible JSON tree", renderJsonTree(data)));
+  documentNode.append(rawDetails("Raw JSON", source.rawText));
+  return documentNode;
+}
+
+function renderTextDocument(source, name) {
+  const documentNode = element("article", "json-document");
+  const hero = element("header", "json-document-hero generic");
+  const ext = extension(name);
+  hero.append(
+    element("p", "json-document-label", FILE_NOTES[ext] || "Text file"),
+    element("h3", "json-document-title", name)
+  );
+  const stats = element("div", "json-document-stats");
+  stats.append(element("span", "", formatSize(source.size)), element("span", "", plural(source.rawText.split("\n").length, "line")));
+  hero.append(stats, documentActions(source, "text"));
+  documentNode.append(hero);
+  if (ext === "md") {
+    const body = element("div", "note-card document-note");
+    body.append(renderMarkdown(source.rawText));
+    documentNode.append(jsonSection("Contents", "Rendered Markdown", body), rawDetails("Raw text", source.rawText));
+  } else {
+    const body = element("div", "raw-json text-document");
+    body.append(element("pre", "", source.rawText));
+    documentNode.append(jsonSection("Contents", "As published", body));
+  }
+  return documentNode;
+}
+
+function renderDocumentFailure(key, error) {
   const documentNode = element("article", "json-document");
   const notice = element("div", "json-notice");
   notice.setAttribute("role", "alert");
   const inner = element("div", "json-notice-inner");
-  inner.append(
-    element("h3", "", error.code === "too_large" ? "This JSON is too large for the in-page viewer" : "This JSON could not be parsed"),
-    element("p", "", error.message)
-  );
+  const title = error.code === "too_large"
+    ? "This file is too large for the in-page viewer"
+    : (error.code === "invalid_json" ? "This JSON could not be parsed" : "This file could not be opened");
+  inner.append(element("h3", "", title), element("p", "", error.message));
   const actions = element("div", "json-document-actions");
-  actions.append(
-    backToFolderLink(key),
-    actionLink("Open raw JSON", sourceUrl, "button-summary", "Open raw JSON")
-  );
+  actions.append(appLink("Back to folder", viewUrl(parentPrefix(key)), "button"));
+  if (error.code !== "unavailable") actions.append(actionLink("Open raw file", objectUrl(key), "button-summary", "Open raw file"));
   inner.append(actions);
   notice.append(inner);
   documentNode.append(notice);
-  if (error.rawText) documentNode.append(rawJsonDetails(error.rawText));
+  if (error.rawText) documentNode.append(rawDetails("Raw text", error.rawText));
   return documentNode;
 }
 
-async function renderJsonFile(key, focusTitle) {
-  const file = jsonFileForKey(key);
-  const parent = parentPrefix(key);
+async function renderDocument(route, token) {
+  const key = route.key;
+  const name = baseName(key);
   currentListing = { folders: [], files: [] };
-  searchInput.disabled = true;
-  searchBox.hidden = true;
+  currentEntry = null;
   content.classList.add("json-mode");
-  renderBreadcrumb(parent, file.name);
-  folderTitle.textContent = file.name;
-  directorySummary.textContent = "Loading JSON document...";
-  document.title = `${file.name} | JUMP Cell Painting Data Browser`;
-  showLoading();
+  renderBreadcrumb([...folderTrail(parentPrefix(key)), { label: name }]);
+  setHeader({ label: "Document", title: name, summary: "Loading document...", search: null });
+  content.replaceChildren(loadingState("Loading document..."));
 
   try {
+    if (extension(name) !== "json") {
+      const source = await loadTextKey(key);
+      if (token !== renderToken) return;
+      directorySummary.textContent = `${FILE_NOTES[extension(name)] || "Text file"} | ${formatSize(source.size)}`;
+      content.replaceChildren(renderTextDocument(source, name));
+      return;
+    }
     const source = await loadJsonKey(key);
-    if (getFileKey() !== key) return;
-    const kind = isSummaryEnvelope(source.data) ? "Analysis summary" : "JSON document";
-    directorySummary.textContent = `${kind} | ${formatSize(source.size)}`;
-    content.replaceChildren(
-      isSummaryEnvelope(source.data)
-        ? renderSummaryDocument(source, file)
-        : renderGenericJsonDocument(source, file)
-    );
+    if (token !== renderToken) return;
+    if (!isSummaryEnvelope(source.data)) {
+      directorySummary.textContent = `JSON document | ${formatSize(source.size)}`;
+      content.replaceChildren(renderGenericJsonDocument(source, name));
+      return;
+    }
+    const [entry, model] = await Promise.all([entryForSummary(key, source.data), loadCatalog()]);
+    if (token !== renderToken) return;
+    directorySummary.textContent = `Analysis summary | ${formatSize(source.size)}`;
+    content.replaceChildren(renderSummaryDocument(source, entry, model));
   } catch (error) {
-    if (getFileKey() !== key) return;
-    directorySummary.textContent = "JSON viewer unavailable";
-    content.replaceChildren(renderJsonFailure(key, error));
+    if (token !== renderToken) return;
+    directorySummary.textContent = "Document unavailable";
+    content.replaceChildren(renderDocumentFailure(key, error));
   }
-  if (focusTitle) folderTitle.focus({ preventScroll: true });
 }
+
+// ---------------------------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------------------------
 
 async function render({ focusTitle = false } = {}) {
   if (activeController) activeController.abort();
-  const fileKey = getFileKey();
-  if (fileKey) {
-    activeController = null;
-    await renderJsonFile(fileKey, focusTitle);
-    return;
-  }
-
-  activeController = new AbortController();
-  const prefix = getPrefix();
-  const title = folderName(prefix);
-  currentListing = { folders: [], files: [] };
-  searchInput.disabled = true;
-  searchBox.hidden = false;
-  content.classList.remove("json-mode");
-  renderBreadcrumb(prefix);
-  folderTitle.textContent = title;
-  directorySummary.textContent = "Loading folder...";
-  document.title = `${title} | JUMP Cell Painting Data Browser`;
-  showLoading();
-
-  try {
-    currentListing = await listObjects(prefix, activeController.signal);
-    searchInput.disabled = false;
-    renderDirectory();
-    if (focusTitle) folderTitle.focus({ preventScroll: true });
-  } catch (error) {
-    if (error.name !== "AbortError") {
-      searchInput.disabled = false;
-      directorySummary.textContent = "Folder unavailable";
-      showError(error);
-    }
+  activeController = null;
+  window.clearTimeout(queryTimer);
+  pendingQueryUrl = null;
+  renderToken += 1;
+  const token = renderToken;
+  const route = currentRoute();
+  searchInput.value = "";
+  if (route.view === "file") await renderDocument(route, token);
+  else if (route.view === "folder") await renderFolder(route, token);
+  else if (route.view === "numbers") await renderNumbers(route, token);
+  else await renderOverview(route, token);
+  if (focusTitle && token === renderToken) {
+    folderTitle.focus({ preventScroll: true });
+    window.scrollTo({ top: Math.min(window.scrollY, document.querySelector(".breadcrumb-wrap").offsetTop - 12) });
   }
 }
 
@@ -3265,13 +4321,13 @@ async function copyText(value) {
   }
 }
 
-async function copyCurrentView() {
+searchInput.addEventListener("input", () => {
+  if (searchHandler) searchHandler();
+});
+copyViewButton.addEventListener("click", async () => {
   const copied = await copyText(window.location.href);
   showToast(copied ? "Link copied to clipboard" : "Copy was unavailable");
-}
-
-searchInput.addEventListener("input", renderDirectory);
-copyViewButton.addEventListener("click", copyCurrentView);
+});
 dialogClose.addEventListener("click", () => imageDialog.close());
 imageDialog.addEventListener("click", (event) => {
   if (event.target === imageDialog) imageDialog.close();
@@ -3280,10 +4336,7 @@ imageDialog.addEventListener("close", () => {
   dialogImage.removeAttribute("src");
   dialogImage.alt = "";
 });
-window.addEventListener("popstate", () => {
-  searchInput.value = "";
-  render({ focusTitle: true });
-});
+window.addEventListener("popstate", () => render({ focusTitle: true }));
 window.addEventListener("keydown", (event) => {
   const isTyping = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || "");
   if (event.key === "/" && !isTyping && !imageDialog.open && !searchInput.disabled && !searchBox.hidden) {
@@ -3292,11 +4345,11 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-homeLink.href = viewUrl(BASE_PREFIX);
+homeLink.href = homeUrl();
 homeLink.addEventListener("click", (event) => {
   if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   event.preventDefault();
-  setPrefix(BASE_PREFIX);
+  navigate(homeUrl());
 });
 
 render();

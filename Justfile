@@ -371,6 +371,11 @@ validate-figures:
 test *ARGS:
     @pixi run -e test pytest {{ARGS}}
 
+# Drive index.html in a real browser over fixture output trees (needs Chrome or Chromium).
+# Playwright stays out of the pinned environments; JUMP_BROWSER_LIVE=1 also reads the public bucket.
+test-browser *ARGS:
+    @PYTHONPATH=src uv run --no-project --with playwright --with pytest --with pyyaml --with loguru --with python-dotenv pytest tests/test_data_browser.py {{ARGS}}
+
 # Run snakemake linting (filters out conda/container warnings since we use pixi)
 snakelint:
     #!/usr/bin/env bash

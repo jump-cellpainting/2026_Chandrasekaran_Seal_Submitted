@@ -139,7 +139,7 @@ entries:
     highlights:
       - { key: analyzed_compounds, label: Compounds analyzed }
       - { key: phenotypically_active_compounds, label: Phenotypically active compounds }
-      - { key: active_rate_percent, label: Active rate (percent) }
+      - { key: active_rate_percent, label: Active rate }
   - path: data/processed/copairs_results.duckdb
     section: activity
     title: Activity and consistency results database
