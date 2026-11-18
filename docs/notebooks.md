@@ -26,3 +26,15 @@ direnv exec . pixi run -e cheminformatics python notebooks/0.16-ss-compound-coll
 The full reproduction workflow caps BLAS/OpenMP threads to avoid oversubscription during scaffold cross-validation.
 Use `OMP_NUM_THREADS=1` when running those analyses independently.
 If uv reports too many open files, run `ulimit -n 65536` before invoking it.
+
+## Positive-control reproducibility heatmap
+
+Build and validate the optional positive-control heatmap from the canonical copairs and augmented metadata databases:
+
+```bash
+direnv exec . just build-figure figure_positive_control_reproducibility
+direnv exec . just validate-figure figure_positive_control_reproducibility
+```
+
+The figure directory contains the PNG, vector PDF, plotted values, caption, and summary.
+Build this figure in a separate output tree when comparing an exact reproduction against the pinned baseline.
