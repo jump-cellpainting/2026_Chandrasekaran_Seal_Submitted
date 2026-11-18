@@ -563,7 +563,7 @@ def test_without_a_catalog_results_are_discovered_from_summary_files(uncataloged
     page = uncataloged.open()
 
     assert cataloged_summary(uncataloged) == "5 result sets in 2 sections"
-    assert texts(page, ".section-heading h3") == ["Start here", "Paper figures", "Analyses"]
+    assert texts(page, ".section-heading h3") == ["Start here", "Paper figure assets", "Analyses"]
     assert texts(page, "#section-figures .entry-title") == ["Collection"]
     # Titles come from the analysis folder (or the analysis's own task), never the dataset folder.
     assert texts(page, "#section-analyses .entry-title") == [
