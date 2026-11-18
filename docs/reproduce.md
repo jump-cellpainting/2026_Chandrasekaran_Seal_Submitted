@@ -264,7 +264,7 @@ The results catalog, `data/processed/catalog.json`, postdates the snapshot; it i
 For Hydra, only `runtime.cwd` and the checkout-root prefixes of `runtime.output_dir` and file-schema `runtime.config_sources` are normalized.
 Relative suffixes, configuration choices and every other field must match the authenticated baseline configuration exactly.
 The original files and their absolute paths remain intact as run provenance.
-The projection retires only three editorial audit outputs and ten non-scientific claim rows, replaces six provenance metadata values/keys, pins two rewritten artifact hashes, and names the results catalog as its one added output.
+The projection retires only three editorial audit outputs and ten non-scientific claim rows, replaces seven provenance metadata values/keys, pins four rewritten artifact hashes, and names the results catalog as its one added output.
 Every retained scientific value, output path and tolerance remains checked.
 See [the release contract](release.md) for the migration and validation limits.
 Missing, extra or duplicate claims fail.
