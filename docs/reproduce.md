@@ -259,11 +259,12 @@ Uncached `reproduce: ok` confirms workflow completion and figure validation only
 The latest fresh uncached run at `6684371` took 3 hours 35 minutes 54 seconds; earlier uncached runs took 6 to 7 hours.
 
 The current immutable snapshot is [cached-l40s-20261115-04d51ad](https://cellpainting-gallery.s3.amazonaws.com/cpg0016-jump/source_all/workspace/publication_data/2025_Chandrasekaran/jump_production_snapshots/cached-l40s-20261115-04d51ad/README.md). Its root manifest SHA256 is pinned in the Justfile.
-The verifier downloads only authenticated comparison inputs, applies the explicit source-release projection in `configs/scientific_baseline.json`, requires the complete 2,002-file processed roster, checks 998 exact artifact hashes and 146 Hydra configurations, and compares the full 1,571-row dataset-reference claim roster.
+The verifier downloads only authenticated comparison inputs, applies the explicit source-release projection in `configs/scientific_baseline.json`, requires the complete processed roster (the 2,002 retained snapshot paths plus the results catalog), checks 998 exact artifact hashes and 146 Hydra configurations, and compares the full 1,571-row dataset-reference claim roster.
+The results catalog, `data/processed/catalog.json`, postdates the snapshot; it is required, checked against the output tree it describes and compared with no baseline bytes.
 For Hydra, only `runtime.cwd` and the checkout-root prefixes of `runtime.output_dir` and file-schema `runtime.config_sources` are normalized.
 Relative suffixes, configuration choices and every other field must match the authenticated baseline configuration exactly.
 The original files and their absolute paths remain intact as run provenance.
-The projection retires only three editorial audit outputs and ten non-scientific claim rows, replaces six provenance metadata values/keys, and pins two rewritten artifact hashes.
+The projection retires only three editorial audit outputs and ten non-scientific claim rows, replaces six provenance metadata values/keys, pins two rewritten artifact hashes, and names the results catalog as its one added output.
 Every retained scientific value, output path and tolerance remains checked.
 See [the release contract](release.md) for the migration and validation limits.
 Missing, extra or duplicate claims fail.
