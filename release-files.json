@@ -80,7 +80,7 @@
     "docs/reproduce.md": "af642d69583ab9d686d296958f5950b54958834d1e5691cdf022e7235e0e35aa",
     "flake.lock": "fbcc9d84724fd9fdb22636f7e4689775f67bc16102dae29c6ac6738f50afb892",
     "flake.nix": "078d5028a1368cd0214918ba2e3b29eb7907063f856260c6cd3ea54cfdbfc267",
-    "index.html": "1e84bec3cff5a2ab1ab720d1419456e7a071e899521e8f59bb984c6955f4e19f",
+    "index.html": "12e749a23ac1053643e6a7048e5f0be61f03dbc39f937aa878ab1c95344b7f7e",
     "manifests/profile_index.json": "2ae9ec79e1dc8352885407adbfeea0746e16e252be3cdfa965b33fc941a589f0",
     "notebooks/0.01-ss-cosine-vs-abs-cosine.py": "c198407ae2402e91e3a891729522f151b16cef137b2155a194c489bc96448a2d",
     "notebooks/0.02-ss-stratification-effect.py": "de9be2f6a7e1df34b149fb15d8f0989b58a12c0fd7cd880c6a2e124a048aa1e3",
