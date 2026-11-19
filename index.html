@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Search, preview, and explore the published results of the JUMP Cell Painting chemical dataset.">
+<meta name="description" content="Explore analyses, figures and result tables supporting the JUMP Cell Painting chemical dataset publication by Chandrasekaran, Seal et al.">
 <meta name="color-scheme" content="light">
-<title>JUMP Cell Painting Data Browser</title>
+<title>JUMP Cell Painting Publication Results</title>
 <style>
 :root {
   --ink: #14271f;
@@ -2011,16 +2011,17 @@ a.claim-analysis:hover {
       <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
       <span class="identity-copy">
         <strong>JUMP Cell Painting</strong>
-        <span>Publication data browser</span>
+        <span>Publication results browser</span>
       </span>
     </a>
-    <a class="source-link" href="https://github.com/jump-cellpainting/2026_Chandrasekaran_Seal_Submitted" target="_blank" rel="noopener">View project on GitHub</a>
+    <a class="source-link" href="https://github.com/jump-cellpainting/2026_Chandrasekaran_Seal_Submitted" target="_blank" rel="noopener">Publication repository on GitHub</a>
   </header>
 
   <section class="hero" aria-labelledby="page-title">
-    <p class="eyebrow">Open research data</p>
-    <h1 id="page-title">Explore the data behind the map.</h1>
-    <p class="hero-copy">Browse the public JUMP Cell Painting chemical dataset, preview figures in place, and open tabular results in a full data explorer without installing anything.</p>
+    <p class="eyebrow">Chandrasekaran, Seal et al.</p>
+    <h1 id="page-title">Explore the publication's results.</h1>
+    <p class="hero-copy">Browse the analyses, figures and result tables supporting the JUMP Cell Painting chemical dataset publication.</p>
+    <p class="hero-copy"><a href="https://github.com/jump-cellpainting/2026_Chandrasekaran_Seal_Submitted" target="_blank" rel="noopener">Publication repository</a> | <a href="https://github.com/jump-cellpainting/datasets" target="_blank" rel="noopener">JUMP data</a></p>
     <div class="feature-list" aria-label="Browser capabilities">
       <span>Search analyses, files and reported numbers</span>
       <span>Figures, legends and summaries preview inline</span>
@@ -2417,7 +2418,7 @@ function setHeader({ label, title, summary, search }) {
   locationLabel.textContent = label;
   folderTitle.textContent = title;
   directorySummary.textContent = summary;
-  document.title = `${title} | JUMP Cell Painting Data Browser`;
+  document.title = `${title} | JUMP Cell Painting Publication Results`;
   searchBox.hidden = !search;
   searchInput.disabled = !search;
   searchHandler = search ? search.onInput : null;
