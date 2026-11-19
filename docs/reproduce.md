@@ -253,7 +253,8 @@ Do not change tolerances, replace the baseline or disable the null cache to hide
 
 What is known:
 
-- **L40S** (the tested `g6e.8xlarge`, `g6e.12xlarge` and `g6e.16xlarge`): both outcomes pass.
+- **L40S**: both outcomes pass on a fresh `g6e.8xlarge`.
+  The snapshot was computed on a `g6e.16xlarge`, and `g6e.12xlarge` is the launcher's other tested type.
 - **A100 80 GB**: an independent collaborator reported completing every pipeline job and validating all six figure sets through the Slurm route with 32 CPUs and 400 GB RAM, in about 53 minutes including setup.
   The report describes differences in Harmony-corrected activity calls and GPU embeddings, and exact agreement for uncorrected CP and DL copairs outputs and for the batch-effect and MitoTox summaries.
   Those results have not been rechecked from that run's outputs.
@@ -302,7 +303,8 @@ Those files remain in the required roster.
 
 ### Differences from the published datastore
 
-The pipeline uses exact GPU nearest neighbors, seeded random UMAP initialization and a seeded MitoTox permutation generator, which make L40S runs repeat exactly.
+The pipeline uses exact GPU nearest neighbors, seeded random UMAP initialization and a seeded MitoTox permutation generator.
+In repeated fixed-input experiments these gave identical graphs, embeddings and chemical viewport membership.
 These are method changes from the run behind the published datastore, not tolerances around its numbers: exact neighbors change iLISI and kBET values, and the initialization changes layouts and UMAP stability claims.
 CP still mixes better than DL and all kBET acceptance values remain low.
 A reproduction therefore matches the snapshot's `CLAIMS.csv`, which is the authority for reproduced values, and not every number in the datastore, which stays unchanged.
@@ -325,7 +327,7 @@ Set the variable on the GPU machine: the launcher does not forward it from the l
 | --- | --- |
 | Fresh `g6e.8xlarge` (one L40S), `started` to `STAGE done` | About 38 minutes |
 | Fresh `g6e.12xlarge` (four L40S) | About 29 minutes |
-| Without the null cache, one L40S | About 3.6 hours |
+| Without the null cache | About 3.6 hours in the latest run, 6 to 7 hours in earlier ones |
 
 Fresh means no installed environment, null cache or outputs.
 The times exclude account setup, quota approval, capacity waits and pulling results.
