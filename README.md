@@ -30,24 +30,31 @@ The [publication data browser](https://cellpainting-gallery.s3.amazonaws.com/cpg
 Start from the overview of analyses, or search across analyses, files and the numbers they report.
 Preview images and legends, read summaries, and explore CSV and Parquet tables directly in your browser.
 No installation or AWS account is needed to browse.
-[How the browser finds and presents results](docs/data-browser.md) describes the catalog behind it.
 
 ## Reproduce the analysis
 
 Follow the [reproduction guide](docs/reproduce.md) to run the pipeline on AWS and compare its outputs with the pinned public baseline.
 It covers prerequisites, instance setup, execution, verification, and cleanup.
-Running the full workflow requires your own AWS account and incurs compute and storage costs.
-
-For an existing development environment, see the [setup and pipeline guide](docs/development.md).
+A run takes about 40 minutes on one NVIDIA L40S GPU, requires your own AWS account and incurs compute and storage costs.
+The guide also covers an existing GPU machine and a Slurm cluster without root access.
 The workflow uses Snakemake with pinned environments and public input data.
 
 ## Find your way around
 
-| Resource | Contents |
+| Code | Contents |
 | --- | --- |
 | [`notebooks/`](notebooks/) | Analyses and figure generation |
 | [`src/jump_production/`](src/jump_production/) | Profile processing, metadata, and query utilities |
 | [`configs/`](configs/) and [`rules/`](rules/) | Analysis settings and Snakemake workflows |
-| [Dataset reference](docs/paper/dataset_reference.md) | How reported numbers and analysis summaries are collected |
+
+| Documentation | Contents |
+| --- | --- |
+| [Development](docs/development.md) | Environment setup, pipeline targets, notebooks and GPU rules |
+| [Analysis contracts](docs/analysis.md) | Data sources, databases, summary envelopes and determinism |
+| [copairs configuration](docs/copairs/CONFIG.md) | How activity and consistency runs are configured |
+| [Dataset reference](docs/paper/dataset_reference.md) | How reported numbers are collected |
+| [Data browser](docs/data-browser.md) | How the results page finds and presents results, and the layout it relies on |
+| [Figure checklist](docs/paper/figure_review_checklist.md) | Rules for building and reviewing figures |
+| [Release contract](docs/release.md) | The baseline projection and the reviewed source allowlist |
 
 For questions or reproducibility problems, [open an issue](https://github.com/jump-cellpainting/2026_Chandrasekaran_Seal_Submitted/issues).

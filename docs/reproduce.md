@@ -1,25 +1,29 @@
 # Reproduce on AWS
 
-This guide is for a new user or agent with their own AWS account.
-The recommended route uses a Mac or Linux computer to launch a Linux GPU instance; the pipeline runs on that instance.
-Your local computer does not need a GPU, Nix, pixi, direnv, Kata, or any Broad credentials.
-The bootstrap installs Nix on the instance, and the repository's pinned environment supplies the pipeline tools and Python environments.
-Inputs, the null cache, and the comparison snapshot are public downloads; S3 write access is unnecessary.
-If AWS is unavailable, use the [Slurm route](#optional-slurm-without-nix-or-root) below.
-Workflow completion and agreement with the L40S baseline are separate outcomes; report both on other GPU hardware.
+This guide takes a new user or agent with their own AWS account from a fresh checkout to complete results and a verified outcome.
+A Mac or Linux computer launches one Linux GPU instance, and the pipeline runs on that instance.
+The local computer needs no GPU, Nix, pixi or direnv: the instance installs Nix, and the repository's pinned environment supplies the rest.
+Inputs, the null cache and the comparison baseline are public downloads, so no S3 write access or other credentials are needed.
+Without AWS, use the [Slurm route](#optional-slurm-without-nix-or-root).
+
+A run has two separate outcomes.
+The workflow completes when every pipeline job and every figure validation succeeds.
+The results agree with the baseline when they also match a pinned snapshot that was computed on an NVIDIA L40S.
+On the L40S instance used below, expect both.
+On [other GPU hardware](#outcomes-on-other-gpu-hardware) the workflow can complete while some results differ, so report the two outcomes separately.
 
 ## 1. Prepare the computer that launches AWS
 
-Use a terminal on macOS or Linux with Bash, Git, curl, OpenSSH (`ssh`, `ssh-keygen`), rsync, and AWS CLI v2.
-On macOS, install the Command Line Tools with `xcode-select --install` if Git is missing; the other shell utilities are normally present.
-On Ubuntu/Debian, install the shell tools with:
+Use a terminal on macOS or Linux with Bash, Git, curl, OpenSSH (`ssh`, `ssh-keygen`), rsync and AWS CLI v2.
+On macOS, `xcode-select --install` provides Git if it is missing.
+On Ubuntu or Debian, install the shell tools with:
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y git curl openssh-client rsync ca-certificates
 ```
 
-Install AWS CLI v2 using [AWS's macOS or Linux installer](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). Check the required commands before launching:
+Install AWS CLI v2 with [AWS's macOS or Linux installer](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), then check the required commands:
 
 ```bash
 for tool in bash git curl ssh ssh-keygen rsync aws; do
@@ -29,14 +33,13 @@ aws --version
 mkdir -p ~/.ssh
 ```
 
-Stop and install any missing command.
-The computer needs outbound HTTPS for AWS and downloads, outbound SSH (port 22) to the instance, and several GB free for pulled outputs and logs.
-The processed baseline is about 1.6 GB; raw inputs and the 25 GB null cache stay on the instance.
+Install any missing command before continuing.
+The computer needs outbound HTTPS, outbound SSH (port 22) to the instance, and several GB free: the pulled results are about 1.6 GB.
 
 ## 2. Prepare your AWS account
 
-If you do not have an account, follow [AWS's account and CLI prerequisites](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-prereqs.html). This workflow creates billable GPU compute and disk resources in your account.
-Configure your own named CLI profile using [AWS's authentication guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-authentication.html). For a console-based login, AWS CLI 2.32.0 or later supports the following example; use your own profile name if one is already configured:
+The run creates billable GPU compute and disk in your account.
+If you have no account or CLI profile yet, follow AWS's [account and CLI prerequisites](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-prereqs.html) and [authentication guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-authentication.html). Set the profile and region and confirm the account; use your own profile name if one is already configured, and skip `aws login` when its session is valid:
 
 ```bash
 export AWS_PROFILE=jump-reproduction
@@ -45,35 +48,34 @@ aws login --profile "$AWS_PROFILE" --region "$AWS_REGION"
 aws sts get-caller-identity
 ```
 
-`aws login` opens a browser; use `--remote` on a computer without one.
-Your IAM identity needs the login permission described in [AWS's login instructions](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sign-in.html). If your organization uses IAM Identity Center, use its SSO profile and `aws sso login --profile "$AWS_PROFILE"` instead.
-Confirm that `get-caller-identity` names the account you intend to use.
-An expired session must be renewed before running launcher commands.
-Temporary environment credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN`) also work; give them enough lifetime for each command, because an already-running AWS waiter retains its original environment and termination can take several minutes (about six in a verified run).
+`aws login` needs AWS CLI 2.32.0 or later and the permission described in [AWS's login instructions](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sign-in.html); it opens a browser, so add `--remote` on a computer without one.
+With IAM Identity Center, use `aws sso login --profile "$AWS_PROFILE"` instead.
+Check that `get-caller-identity` names the account you intend to use, and renew an expired session before running launcher commands.
+Temporary environment credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN`) also work if they outlive each command; a command that is already waiting keeps its original credentials, and termination alone can wait about six minutes.
 
-Before launching, ensure that account has:
+The account needs:
 
-- EC2 permission to inspect images, instances, subnets, key pairs and security groups; launch and tag instances; import/delete key pairs; create/delete security groups and authorize their SSH ingress; and terminate instances (their attached disks are deleted automatically).
-  Recovery commands also need permission to start instances and modify their instance type.
+- EC2 permission to inspect images, instances, subnets, key pairs and security groups; launch and tag instances; import and delete key pairs; create and delete security groups and authorize their SSH ingress; and terminate instances.
+  The recovery commands in step 5 also need permission to start instances and modify their instance type.
 - At least 32 available vCPUs in the **Running On-Demand G and VT instances** quota in `us-west-2`, for the single-L40S `g6e.8xlarge` used below.
   New accounts may have zero; [request a quota increase](https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-instance-quotas.html) before launching.
-  Quota approval and available GPU capacity are separate requirements.
-- A [default VPC and default public subnets](https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html) in `us-west-2`, with public IP assignment and internet access.
-  The launcher uses these existing subnets and creates an SSH security group restricted to your current public IP.
-  It does not create a VPC or adapt to a private-only network.
+  Quota and available GPU capacity are separate requirements.
+- A [default VPC with default public subnets](https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html) in `us-west-2`, with public IP assignment and internet access.
+  The launcher uses these subnets; it does not create a VPC or adapt to a private-only network.
 
-If these prerequisites are unavailable, resolve them with the account administrator before proceeding.
-Do not switch to an untested GPU or region to bypass them: the baseline uses L40S hardware and a region-specific image.
+If any of these is missing, resolve it with the account administrator before proceeding.
+Do not switch to an untested GPU or region to get around it: the baseline uses L40S hardware and the image is specific to the region.
 
 ## 3. Clone and launch
 
-All commands in this AWS path run directly in the local terminal, without a Nix shell or `direnv`.
-Keep the same `AWS_PROFILE`, `AWS_REGION`, and `NAME` for the whole lifecycle, including cleanup; save their values if you change terminals.
-Use a new name for each new run so it cannot select someone else's instance.
+Run every command of this AWS route directly in the local terminal, without a Nix shell or `direnv`.
+The launcher finds your instance by `NAME`.
+Keep the same `AWS_PROFILE`, `AWS_REGION`, `NAME`, `AMI` and `TYPES` exported in every shell that runs it, until cleanup is finished; save their values if you change terminals.
+Use a new `NAME` for each run so that it cannot select another instance.
 
-The public repository can be cloned without GitHub credentials.
-The example selects `main`; to reproduce a particular published revision later, replace `main` with that revision's full commit ID.
-Record the ID printed by `git rev-parse HEAD` with your run results.
+The public repository clones without GitHub credentials.
+The example selects `main`; to reproduce a particular revision, such as the one this copy of the guide belongs to, set `RELEASE_REF` to its full commit ID instead.
+Record the ID that `git rev-parse HEAD` prints with your results.
 
 ```bash
 export REPOSITORY_URL=https://github.com/jump-cellpainting/2026_Chandrasekaran_Seal_Submitted.git
@@ -94,47 +96,47 @@ scripts/ec2.sh up
 scripts/ec2.sh push
 ```
 
-`up` creates one L40S instance with 32 CPUs, 248 GB RAM and a 250 GB disk, plus a dedicated key pair and security group.
-The tested Ubuntu image includes NVIDIA driver `595.112.07`; keep this AMI pin for baseline comparisons.
-These checkout commands select the release revision and create a local branch for the launcher's Git bundle.
-`push` transfers the current committed branch as a Git bundle, so the instance needs no GitHub credentials.
-Uncommitted local edits are not transferred.
-The script normally tries larger types too; `TYPES=g6e.8xlarge` keeps this example within the 32-vCPU quota.
-If this type has no capacity, retry later or deliberately choose another tested L40S type after checking its quota: g6e.12xlarge needs 48 vCPUs, g6e.16xlarge needs 64.
-Running `scripts/ec2.sh up` again with the same name reuses the key pair and security group it already created, so a retry needs no cleanup first.
-If you give up on a launch that created a key or security group, use the cleanup command in step 5 for that same name.
-SSH readiness retries for five minutes (`SSH_WAIT_SECONDS=300`, plus the final connection attempt); on timeout, check the reported SSH error, your key, and whether your current public IP is still allowed by the security group.
-The instance remains running after this timeout: fix access and continue with `scripts/ec2.sh push`, or use `scripts/ec2.sh down --yes` to clean up; rerunning `up` will report "already exists", and compute charges continue until the instance stops, with disk charges continuing until cleanup.
+`up` creates one L40S instance with 32 CPUs, 248 GB RAM and a 250 GB disk, plus its own key pair and a security group that admits SSH only from your current public IP.
+`push` sends the committed `reproduction` branch as a Git bundle, so the instance needs no GitHub credentials; uncommitted edits are not sent.
+Keep the `AMI` pin for baseline comparisons: that Ubuntu image carries NVIDIA driver `595.112.07`.
+`TYPES=g6e.8xlarge` keeps the launch within the 32-vCPU quota.
+
+If `up` ends with `No capacity for any listed type in any zone.`, run it again with the same name, now or later; it reuses the key pair and security group it already created.
+With enough quota you can instead set `TYPES` to another tested L40S type: `g6e.12xlarge` needs 48 vCPUs and `g6e.16xlarge` needs 64.
+
+If `up` times out waiting for SSH (five minutes by default, `SSH_WAIT_SECONDS`), the instance is still running and billed.
+Check the reported SSH error, your key and whether your public IP still matches the security group, then continue with `scripts/ec2.sh push`.
+Do not rerun `up` in that case; it reports "already exists".
+
+If you abandon a launch at any point, run the cleanup command in step 5 with the same name, because a key pair, a security group or an instance may already exist.
 
 ## 4. Run and confirm success
 
 ```bash
-date -u +%FT%TZ
 scripts/ec2.sh run
 scripts/ec2.sh status
 ```
 
-Record the time immediately before `run`.
-`run` starts a detached job and returns; it does not wait for completion.
-Repeat `status` until its last line is `reproduce: ok` or `failed exit=...`; do not run the next step while it still says `running`.
-The first run installs Nix, enters the pinned environment, installs pipeline dependencies, downloads and verifies inputs and nulls, runs the workflow, validates figures, and compares outputs with the pinned baseline.
-Nix is the remote environment manager; there is no separate local setup step for it.
-The normal cached route is the default; leave `NULL_CACHE` unset.
+`run` starts a detached job and returns at once.
+Repeat `status` every few minutes until its last line is `reproduce: ok` or `failed exit=...`; do not go on to step 5 while it says `running`.
+A run on this instance takes about 40 minutes, and the instance stops itself 30 minutes after the run ends.
+It installs Nix and the pinned environments, downloads and verifies the inputs and the null cache, runs the workflow, validates the figures and compares the outputs with the pinned baseline.
+Leave `NULL_CACHE` unset.
 
 A successful log contains both `baseline: ok` and `reproduce: ok`.
-A failed run is not a successful reproduction; inspect the log with:
+A failed run is not a successful reproduction; read the log with:
 
 ```bash
 scripts/ec2.sh ssh 'tail -80 ~/run.log'
 ```
 
-Fix the specific failure and resume only after the previous job has ended.
-The workflow resumes completed work.
-Do not relax baseline checks to turn a mismatch into success.
+Fix the specific failure and run again only after the previous job has ended; completed work is reused.
+If the log shows `STAGE pipeline ok` and `STAGE figures ok` and the baseline comparison then reports a difference, the workflow completed and the results disagree with the baseline: report exactly that.
+Never relax a baseline check to turn a mismatch into success.
 
 ## 5. Pull results, then delete your resources
 
-Once `status` reports success:
+Once `status` ends with `reproduce: ok`:
 
 ```bash
 scripts/ec2.sh pull "$RESULTS"
@@ -142,61 +144,63 @@ grep '^baseline: ok$' "$RESULTS/run.log"
 grep '^reproduce: ok$' "$RESULTS/run.log"
 ```
 
-Confirm `pull` exited successfully and inspect the saved log and `data/processed/` results before deleting the instance.
-Report the Git commit, machine type, elapsed time from the `started` timestamp to `STAGE done` in `run.log`, and whether baseline verification passed; `reproduce: ok` itself has no timestamp.
-Then clean up using the same profile, region and name:
+Check that `pull` succeeded, and look at the saved log and the results under `data/processed/`, before deleting the instance.
+Report the Git commit, the machine type, whether the workflow completed, whether baseline verification passed, and the elapsed time from the `started` line to `STAGE done` in `run.log`.
+Then clean up with the same profile, region and name:
 
 ```bash
 scripts/ec2.sh down --yes
 ```
 
-This deletes that named instance, its disk, security group and AWS key pair, and removes the local key files selected by `KEY` (default: `~/.ssh/$NAME`) and their per-run host-key file (`$KEY.known_hosts`).
-Local files go to the trash when `trash` is installed; otherwise they are deleted with `rm -f`.
-SSH connections use that per-run host-key file, so cleanup also works after the instance has stopped and lost its public IP; for runs launched with an older script, cleanup removes the current IP from the shared `known_hosts` when AWS still reports it.
+This deletes the instance, its disk, its security group and its AWS key pair.
+It also removes the local key files (`~/.ssh/$NAME`, `.pub` and `.known_hosts`, or the same under `KEY` if you set it) and the instance's address from `~/.ssh/known_hosts` if it is listed there.
+Local files go to the trash when `trash` is installed and are deleted otherwise.
 Keep the local results.
-On failure, pull any logs or outputs needed for diagnosis before the same cleanup; do not leave an abandoned run behind.
-If cleanup is interrupted, inspect what remains and finish removing only the resources belonging to your run.
 
-The instance stops itself 30 minutes after a run ends, or after 16 hours at the latest; stopping retains the billed disk and is not cleanup.
-If it has stopped before you pull, use `scripts/ec2.sh start`, then pull and delete it.
-If GPU capacity prevents restarting, `scripts/ec2.sh rescue` starts the stopped instance as a CPU machine solely to retrieve results; do not run the GPU workflow there.
+After a failed run, pull the logs and outputs needed for diagnosis, then clean up the same way; do not leave an abandoned run behind.
+If cleanup is interrupted, run it again, then confirm that no instance, disk, security group or key pair of your run remains.
+
+The instance stops itself 30 minutes after a run ends, and after 16 hours at the latest.
+A stopped instance still bills for its disk and is not cleaned up; `down --yes` deletes it in that state too.
+If it stopped before you pulled, run `scripts/ec2.sh start`, then pull and clean up.
+If no GPU capacity is available to restart it, `scripts/ec2.sh rescue` starts it as a CPU machine for retrieving results only; do not run the workflow there.
 
 ## Optional: run on an existing GPU machine
 
-This alternative requires Linux, an NVIDIA L40S with a compatible driver, at least 32 CPUs, 248 GB RAM and 250 GB disk, plus Git and Nix.
-Install Nix using [the official Linux instructions](https://nixos.org/download/), reopen the shell if required, and check `nix --version`.
-Clone the repository as above, then run:
+This needs Linux, an NVIDIA L40S with a compatible driver, at least 32 CPUs, 248 GB RAM and 250 GB disk, plus Git and Nix ([official installer](https://nixos.org/download/)). Reopen the shell after installing Nix if asked to, and check `nix --version`.
+Clone the repository as in step 3, then run from its root:
 
 ```bash
 nix --extra-experimental-features 'nix-command flakes' develop --command just reproduce
 ```
 
-The flake supplies pixi and the other pipeline tools; Kata and direnv are not required.
-To check retained results on a machine with Nix, from the repository root use:
+To check results you already have without recomputing them:
 
 ```bash
 nix --extra-experimental-features 'nix-command flakes' develop --command just verify-baseline /absolute/path/to/results
 ```
 
-The result directory must contain `data/processed/`.
+The path must contain `data/processed/`.
 
 ## Optional: Slurm without Nix or root
 
-An independent collaborator reported completing all 316 pipeline jobs and validating all six figure sets on one A100 80 GB GPU, 32 CPUs and 400 GB RAM in about 53 minutes, including setup.
-It used pixi 0.68.0 and conda-forge shell tools instead of Nix.
-This establishes workflow compatibility, not exact agreement with the L40S baseline.
-The report describes differences in Harmony-corrected activity calls and GPU embeddings, with exact agreement for uncorrected CP/DL copairs outputs and the batch-effect and MitoTox scientific summaries.
-Those results have not been independently rechecked from that run's output bundle.
-Do not change scientific tolerances, replace the baseline or disable the null cache to conceal those differences.
+This route replaces Nix with a user-level pixi and conda-forge shell tools.
+It has completed the workflow on an A100; read [outcomes on other GPU hardware](#outcomes-on-other-gpu-hardware) before interpreting its result.
 
-Use a Linux x86-64 GPU allocation with sufficient disk space (at least 250 GB), NVIDIA drivers compatible with the pinned CUDA environments, and outbound HTTPS for package and input downloads.
-The cluster must provide Bash, Git, curl, coreutils and util-linux (`flock` and `setsid`).
-Keep the checkout, environments and outputs on storage that survives the batch job.
-Allow space in the home quota for the 25 GB null cache at `~/.copairs` and package caches, in addition to the checkout's inputs and outputs.
-Check that `ulimit -Hn` permits at least 65536 open files; the workflow requires that limit.
-Use the same repository and revision selection from step 3; skip the AWS launcher commands.
+You need:
 
-Install the exact Linux pixi binary pinned in `flake.nix`, checking its SHA256 before execution:
+- A single-node Linux x86-64 GPU allocation with at least 32 CPUs, the node's full memory and NVIDIA drivers compatible with the pinned CUDA environments.
+  Request the CPUs with `--cpus-per-task`, which the commands below read.
+  The workflow sizes its memory budget from host RAM, so request the node exclusively (`--exclusive` and `--mem=0` in [Slurm's allocation options](https://slurm.schedmd.com/sbatch.html)); the A100 run had 400 GB.
+  Partition, account and GPU request syntax are site-specific.
+- Outbound HTTPS from the compute node for packages and public inputs.
+  If compute nodes cannot download, arrange a site-supported route first; an environment built without visible GPU drivers is not a validated substitute.
+- Bash, Git, curl, coreutils and util-linux (`flock` and `setsid`).
+- At least 250 GB on storage that outlives the batch job for the checkout, environments and outputs, plus home quota for the 25 GB null cache in `~/.copairs` and the package caches.
+- `ulimit -Hn` of at least 65536.
+
+Clone the repository and select the revision as in step 3, skipping the launcher commands.
+Install the pixi binary pinned in `flake.nix`, checking its SHA256 before use, and the shell tools:
 
 ```bash
 set -euo pipefail
@@ -213,7 +217,7 @@ pixi global install --environment jump-tools --channel conda-forge just rclone u
 ```
 
 These are [user-level shell tools](https://pixi.prefix.dev/latest/reference/cli/pixi/global/install/); analysis dependencies still come from the unchanged `pixi.lock`.
-Run the following inside a single-node GPU job, after selecting your site's partition/account and requesting at least 32 CPUs and sufficient RAM (400 GB was used in the A100 run):
+Run the rest inside the GPU job, from the checkout root, and not on a login node: environment builds probe CUDA, so setup belongs on the allocated GPU too.
 
 ```bash
 set -euo pipefail
@@ -227,86 +231,103 @@ nvidia-smi
 just reproduce 2>&1 | tee reproduce.log
 ```
 
-Run from the checkout root and retain Slurm's `CUDA_VISIBLE_DEVICES`; do not replace it with GPU IDs from outside the allocation.
-Resolving the physical checkout directory keeps the shell and Hydra consistent when the project path includes symlinks.
-`CORES` is explicit because `nproc --all` reports the node's CPUs, which may exceed the allocation.
-The workflow's memory budget uses host RAM, so use an exclusive node with its full memory allocation.
-See [Slurm's allocation options](https://slurm.schedmd.com/sbatch.html) for `--cpus-per-task`, `--exclusive` and `--mem=0`; partition, account and GPU request syntax are site-specific.
-Do not run the GPU workflow on a login node.
-Environment builds can probe CUDA, so perform setup on the allocated GPU too.
-If compute nodes cannot download packages or public data, arrange a site-supported network/setup route before starting; copying an environment built without visible drivers is not a validated substitute.
+Keep Slurm's `CUDA_VISIBLE_DEVICES`; do not replace it with GPU IDs from outside the allocation.
+`cd "$(pwd -P)"` resolves symlinks so that the shell and Hydra agree on the checkout path.
+`CORES` is explicit because `nproc --all` reports the whole node, which may exceed the allocation.
 
-Inspect `scratch/rerun/progress.log`, `reproduce.log` and the scheduler exit status.
-`STAGE pipeline ok` and `STAGE figures ok` establish workflow and figure validation; only a successful baseline comparison establishes agreement.
-An A100 run may finish those stages and then exit nonzero on a genuine baseline difference.
-Keep the results and report the mismatch rather than calling it `baseline: ok`.
-After a verifier-only update, use `just verify-baseline` to check retained outputs without recomputing them.
+Read the outcome from `scratch/rerun/progress.log`, `reproduce.log` and the scheduler's exit status, as described in the next section.
 
-## Timing and agreement contract
+## Outcomes on other GPU hardware
 
-Before the source-release projection, fresh-machine cached runs took 37 minutes on one L40S and 29 minutes on four L40S GPUs (g6e.12xlarge).
-The immutable baseline at scientific revision `04d51ad` passed 317 jobs and figure validation in 31 minutes 26 seconds on a single-L40S g6e.16xlarge, with Nix, RAPIDS and one verified input already warm and generated outputs absent.
-That measurement includes 3 minutes 31 seconds of setup and is not a fresh-machine benchmark.
-Account setup, quota approval, capacity waits and local result transfer are outside these timings.
-Smaller machines are untested for the fast workflow.
-A10G is not supported for baseline agreement: Harmony-corrected mAP and activity calls varied materially, including between two A10G runs.
-All 877 copairs non-log artifacts agreed byte-for-byte across five earlier cached L40S runs and the current baseline.
+`just reproduce` reports its two outcomes separately:
 
-The environment is pinned by `flake.lock` and `pixi.lock`, inputs by `configs/inputs.sha256`, and copairs null distributions by their pinned manifest.
-The workflow restores the 25 GB null cache to `~/.copairs`, checking every file; existing files of the same name are replaced.
-For an explicit uncached diagnostic on the GPU machine, `NULL_CACHE=0 nix --extra-experimental-features 'nix-command flakes' develop --command just reproduce` skips the restore and cached-baseline comparison.
-It does not erase any existing null cache, and setting `NULL_CACHE` only in the local launcher terminal does not forward it to EC2.
-Uncached `reproduce: ok` confirms workflow completion and figure validation only.
-The latest fresh uncached run at `6684371` took 3 hours 35 minutes 54 seconds; earlier uncached runs took 6 to 7 hours.
+| Outcome | Evidence | What it establishes |
+| --- | --- | --- |
+| Workflow completion | `STAGE pipeline ok` and `STAGE figures ok` in `scratch/rerun/progress.log` | Every job ran and every figure package validated |
+| Baseline agreement | `baseline: ok`, followed by `reproduce: ok` and exit status 0 | The outputs match the L40S snapshot under the checks below |
 
-The current immutable snapshot is [cached-l40s-20261115-04d51ad](https://cellpainting-gallery.s3.amazonaws.com/cpg0016-jump/source_all/workspace/publication_data/2025_Chandrasekaran/jump_production_snapshots/cached-l40s-20261115-04d51ad/README.md). Its root manifest SHA256 is pinned in the Justfile.
-The verifier downloads only authenticated comparison inputs, applies the explicit source-release projection in `configs/scientific_baseline.json`, requires the complete processed roster (the 2,002 retained snapshot paths plus the results catalog), checks 998 exact artifact hashes and 146 Hydra configurations, and compares the full 1,571-row dataset-reference claim roster.
-The results catalog, `data/processed/catalog.json`, postdates the snapshot; it is required, checked against the output tree it describes and compared with no baseline bytes.
-For Hydra, only `runtime.cwd` and the checkout-root prefixes of `runtime.output_dir` and file-schema `runtime.config_sources` are normalized.
-Relative suffixes, configuration choices and every other field must match the authenticated baseline configuration exactly.
-The original files and their absolute paths remain intact as run provenance.
-The projection retires only three editorial audit outputs and ten non-scientific claim rows, replaces seven provenance metadata values/keys, pins four rewritten artifact hashes, and names the results catalog as its one added output.
-Every retained scientific value, output path and tolerance remains checked.
-See [the release contract](release.md) for the migration and validation limits.
-Missing, extra or duplicate claims fail.
-The batch and MitoTox summary `numbers` objects are also checked, and all four curated compound tables require identical JCP2022 membership and non-distance fields.
-Only `centroid_distance` permits absolute drift up to 2e-7, bounding the measured float32 reduction variation.
-Claim and summary floating values allow relative roundoff up to 1e-12 with no absolute tolerance; integer counts remain exact.
+The baseline was computed on an L40S, and some GPU computations give different results on other hardware.
+A run on another GPU can therefore complete the workflow and then exit nonzero at the baseline comparison.
+Report that as a completed workflow with a baseline mismatch, and keep the results.
+Do not change tolerances, replace the baseline or disable the null cache to hide the difference.
 
-The only ignored timing-derived claim values are `fastest.name`, `fastest.transform_time_full_s` and each `transformations` entry's `transform_time_full_s` and `transform_time_sample_s`, under source `data/processed/fingerprint-metrics/fingerprint_metrics_summary.json` and rule `fingerprint_metrics`.
-The fastest method is selected by measured runtime, so its name can change across machines or repeated runs.
-Timing keys must remain present and all other scientific values in those records are checked.
-Snapshot `provenance.json` names every byte-check exclusion and reason, including rendering, timestamps, row order, database/container serialization and duplicate summary wrappers.
-These exclusions do not remove files from the required roster.
+What is known:
 
-The baseline intentionally adopts exact GPU neighbors and seeded random UMAP initialization, plus a local seeded MitoTox permutation generator.
-Repeated fixed-input experiments demonstrated exact graphs, embeddings and chemical viewport membership at full relevant sizes, and the final production embeddings matched those experiments.
-Exact neighbors change iLISI/kBET values and initialization changes layouts and UMAP stability claims; these are intentional method changes, not tolerances around historical numbers.
+- **L40S**: both outcomes pass on a fresh `g6e.8xlarge`.
+  The snapshot was computed on a `g6e.16xlarge`, and `g6e.12xlarge` is the launcher's other tested type.
+- **A100 80 GB**: an independent collaborator reported completing every pipeline job and validating all six figure sets through the Slurm route with 32 CPUs and 400 GB RAM, in about 53 minutes including setup.
+  The report describes differences in Harmony-corrected activity calls and GPU embeddings, and exact agreement for uncorrected CP and DL copairs outputs and for the batch-effect and MitoTox summaries.
+  Those results have not been rechecked from that run's outputs.
+- **A10G**: not supported for baseline agreement.
+  Harmony-corrected mAP and activity calls varied materially, including between two A10G runs.
+- Machines smaller than the 32-CPU, 248 GB `g6e.8xlarge` are untested.
+
+After a change that touches only the verifier, `just verify-baseline` rechecks retained outputs without recomputing them.
+
+## What is pinned and checked
+
+| Pinned | By |
+| --- | --- |
+| Environment | `flake.lock` and `pixi.lock` |
+| Inputs | `configs/inputs.sha256` |
+| copairs null distributions | A manifest whose SHA256 is in the Justfile, specific to the copairs revision in `pyproject.toml` |
+| Baseline snapshot [cached-l40s-20261115-04d51ad](https://cellpainting-gallery.s3.amazonaws.com/cpg0016-jump/source_all/workspace/publication_data/2025_Chandrasekaran/jump_production_snapshots/cached-l40s-20261115-04d51ad/README.md) | Its root manifest SHA256 in the Justfile |
+| Deliberate differences from the snapshot | `configs/scientific_baseline.json`; see [the release contract](release.md#baseline-projection) |
+
+The workflow restores the 25 GB null cache to `~/.copairs` and checks every file; existing files of the same name are replaced.
+The snapshot is immutable.
+The `04d51ad` in its name is a pre-publication revision that is not in this repository's history, which starts from a new root commit.
+
+`just verify-baseline` downloads only the comparison files, authenticates them against the pinned manifest and fails on any of these:
+
+- A missing or extra file under `data/processed/`.
+  The required roster is the 2,002 retained snapshot paths plus the results catalog.
+- A changed SHA256 among 998 exact artifacts.
+- A difference in 146 Hydra configurations.
+  Only the checkout root is normalized, in `runtime.cwd`, `runtime.output_dir` and file-schema `runtime.config_sources`; every other field must match.
+- A missing, extra, duplicate or changed row among the 1,571 dataset-reference claims.
+- A difference in the `numbers` of the batch-effect and MitoTox summaries.
+- A difference in the columns, JCP2022 membership or values of the four curated compound tables.
+- A results catalog, `data/processed/catalog.json`, that names a missing file or omits a summary envelope.
+  The catalog postdates the snapshot and is compared with no baseline bytes.
+
+| Compared values | Tolerance |
+| --- | --- |
+| Integers, strings and file hashes | Exact |
+| Floating-point claim and summary values | Relative 1e-12, no absolute tolerance |
+| `centroid_distance` in the curated tables | Absolute 2e-7, which bounds the measured float32 reduction variation |
+| `fastest.name`, `fastest.transform_time_full_s`, and `transform_time_full_s` and `transform_time_sample_s` in each `transformations` entry, all from `fingerprint-metrics/fingerprint_metrics_summary.json` | Ignored: they are measured runtimes, and the fastest method can change between runs. The claims must still be present |
+
+The snapshot's `provenance.json` names every file that is not compared by hash and why: rendering, timestamps, row order, database and container serialization, and duplicate summary wrappers.
+Those files remain in the required roster.
+
+### Differences from the published datastore
+
+The pipeline uses exact GPU nearest neighbors, seeded random UMAP initialization and a seeded MitoTox permutation generator.
+In repeated fixed-input experiments these gave identical graphs, embeddings and chemical viewport membership.
+These are method changes from the run behind the published datastore, not tolerances around its numbers: exact neighbors change iLISI and kBET values, and the initialization changes layouts and UMAP stability claims.
 CP still mixes better than DL and all kBET acceptance values remain low.
-The historical publication datastore remains separate and unchanged.
-Dataset-reference reports are generated locally and are not source-release files.
-The snapshot's `CLAIMS.csv` is the authority for current cached reproducibility; later verifier and documentation commits do not alter the scientific revision or its runtime evidence.
+A reproduction therefore matches the snapshot's `CLAIMS.csv`, which is the authority for reproduced values, and not every number in the datastore, which stays unchanged.
 
-On 2026-11-16, pre-publication source revision `7404bb75a420e11dc673a7a6ed55c2d61a86bee8` completed a fresh-machine reproduction on a single-L40S g6e.8xlarge using the pinned AMI above.
-The run took 37 minutes 26 seconds, from `started 2026-11-16T13:44:16Z` to `2026-11-16T14:21:42Z STAGE done`, including environment setup and verified input/cache downloads.
-All 316 pipeline jobs, figure validation, 2,002 output paths, 1,144 exact artifact checks, 1,571 claims, four curated tables and both scientific summary comparisons passed.
-The log contains `baseline: ok`, `reproduce: ok` and `STAGE exit=0`.
-The run began with no installed Nix/pixi environment, null cache or generated outputs, and the remote source remained clean at the tested commit.
-The public repository starts with a new signed root commit whose executable files, scientific configurations, environment pins and input pins are byte-identical to that tested revision.
-Only documentation and its allowlist hashes were adapted for publication; the pre-publication revision is a provenance identifier, not a commit to check out from this fresh repository.
+### Running without the null cache
 
-An earlier fresh run exposed unspecified well ordering before the cell-density source regression, which changed one Spearman correlation by about 4.6e-11 and failed an exact CSV hash.
-The tested commit fixes the query order by source, plate, well and compound, restoring the existing baseline bytes without changing calculations, inputs, hashes or tolerances.
-Local contract tests and projected-snapshot checks remain useful, but do not replace a fresh reproduction when executable source changes.
+`NULL_CACHE=0` makes copairs compute its null distributions instead of restoring them, as a diagnostic:
 
-On 2026-11-17, a fresh Codex session reproduced public revision `b1c8c55db404fcd6ab9112168be1248de8111dd5` on a new g6e.8xlarge with the pinned AMI and no pre-existing environment, null cache or outputs.
-It passed all 316 jobs, figure validation and the complete comparison contract in 38 minutes 7 seconds (`started 2026-11-17T03:30:58Z` to `STAGE done` at `04:09:05Z`), with `baseline: ok`, `reproduce: ok` and `STAGE exit=0`.
-Afterward, the no-root pixi/tool installation, Python validator prerequisites and physical-directory step passed isolated checks on that Linux GPU machine; this was not a new Slurm or A100 workflow run.
+```bash
+NULL_CACHE=0 nix --extra-experimental-features 'nix-command flakes' develop --command just reproduce
+```
 
-On 2026-11-18, two fresh agent sessions, each given only this guide at a pinned commit, reproduced the data-browser changes on new g6e.8xlarge instances with the pinned AMI and no pre-existing environment, null cache or outputs.
-The first, at `cffd5f85965bde26ef2dc84c8c9784bbbe644f0e`, completed all 317 jobs and figure validation and then failed baseline verification with `STAGE exit=1`.
-Two exact-checked summaries record the content hash of a summary whose declared file paths had become relative to the checkout; no scientific value differed.
-The second, at `58a5b12c442d430613aabf7d1f96b658b0da1fce`, adds the two checksum replacements and one claim replacement described in [the release contract](release.md).
-It passed all 317 jobs, figure validation, 2,003 output paths, 1,144 artifact checks, 1,571 claims, four curated tables and both scientific summary comparisons in 37 minutes 31 seconds (`started 2026-11-18T17:53:57Z` to `STAGE done` at `18:31:28Z`), with `baseline: ok`, `reproduce: ok` and `STAGE exit=0`.
-The job count is one higher than in earlier runs because the results catalog is built last.
-Both launches were first refused for lack of L40S capacity and succeeded on a retry under the same name; both instances and their disks, security groups and key pairs were deleted afterwards.
+Independently computed nulls can differ from the cached ones, so this run skips the baseline comparison, and its `reproduce: ok` confirms workflow completion and figure validation only.
+It does not erase an existing null cache.
+Set the variable on the GPU machine: the launcher does not forward it from the local terminal.
+
+### Expected time
+
+| Run | Time |
+| --- | --- |
+| Fresh `g6e.8xlarge` (one L40S), `started` to `STAGE done` | About 38 minutes |
+| Fresh `g6e.12xlarge` (four L40S) | About 29 minutes |
+| Without the null cache | About 3.6 hours in the latest run, 6 to 7 hours in earlier ones |
+
+Fresh means no installed environment, null cache or outputs.
+The times exclude account setup, quota approval, capacity waits and pulling results.

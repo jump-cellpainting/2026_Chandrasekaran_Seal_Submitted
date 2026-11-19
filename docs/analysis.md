@@ -2,72 +2,62 @@
 
 ## Data sources
 
-The pipeline integrates data from the following sources:
-
-- Drug Repurposing Hub (Broad Institute)
-- ChEMBL target annotations
-- Chemical Probes database
-- JUMP Cell Painting metadata and profiles from S3
-- **Source exclusions**: Source 7 dropped from profiles due to concentration difference.
-  Source 15 excluded from circos plots/visualizations - their imaging merged 2 canonical Cell Painting channels.
-  Source 4 (Broad, mainly ORFs) and Source 13 (CRISPR) excluded from compound-specific visualizations
+- Drug Repurposing Hub, ChEMBL target annotations, the Chemical Probes database, and JUMP Cell Painting metadata and profiles from public S3.
+- Source 7 is dropped from profiles because of a concentration difference.
+- Source 15 is excluded from circos plots and visualizations: its imaging merged two canonical Cell Painting channels.
+- Source 4 (mainly ORFs) and source 13 (CRISPR) are excluded from compound-specific visualizations.
+- Target consistency uses nine annotation sources, listed canonically in `configs/snakemake/copairs_runs.yaml`: repurposing, uniprot, chemical_probes, moa, disease_area, motive_biokg, motive_opentargets, motive_primekg and toxcast_assay.
+  BindingDB and DrugBank are not used.
 
 ## Databases
 
-Two DuckDB databases contain rich queryable data:
+Both DuckDB databases carry table and column comments; read them with `SELECT * FROM duckdb_tables()` and `SELECT * FROM duckdb_columns()`.
 
-1. **`data/interim/jump_metadata_augmented.duckdb`**: Augmented metadata database - Built by `rules/processing.smk` via `scripts/augment_metadata_db.sql` - Contains: compound annotations, target mappings (ChEMBL, Repurposing Hub, Chemical Probes, Motive, ToxCast), compound properties, cell counts, image dimensions - Use this for any metadata lookups or joining annotations to profiles - Tables and columns have descriptive comments - query `SELECT * FROM duckdb_tables()` and `SELECT * FROM duckdb_columns()` to see them
+- **`data/interim/jump_metadata_augmented.duckdb`** holds compound annotations, target mappings (ChEMBL, Repurposing Hub, Chemical Probes, Motive, ToxCast), compound properties, cell counts and image dimensions.
+  `rules/processing.smk` builds it with `scripts/augment_metadata_db.sql`.
+  Use it for metadata lookups and for joining annotations to profiles.
+- **`data/processed/copairs_results.duckdb`** holds the tables `activity_results`, `activity_scores`, `consistency_results` and `consistency_scores` for every copairs run configuration.
+  `rules/copairs.smk` builds it with `src/jump_production/processing/build_copairs_results_db.py`.
+  Query it through `jump_production.queries`, which handles the four-part key (`_dataset`, `_preprocessing`, `_filter`, `_activity_params`).
+  In raw SQL, filter on every `_*` column you need; [the copairs configuration guide](copairs/CONFIG.md) maps them to config keys, and `configs/snakemake/copairs_runs.yaml` lists the configurations that exist.
+  Consistency sweep runs have `_preprocessing` names ending in `_sweep`; select or exclude them with `LIKE '%_sweep'`.
 
-2. **`data/processed/copairs_results.duckdb`**: Aggregated copairs analysis results - Built by `rules/copairs.smk` via `src/jump_production/processing/build_copairs_results_db.py` - Contains tables: `activity_results`, `activity_scores`, `consistency_results`, `consistency_scores` - Each table includes config metadata columns (prefixed with `_`) to identify run parameters - **Query utilities**: Use `jump_production.queries` module (not raw SQL) - it handles the 4-dimensional key (`_dataset`, `_preprocessing`, `_filter`, `_activity_params`) - Tables and columns have descriptive comments - query `SELECT * FROM duckdb_tables()` and `SELECT * FROM duckdb_columns()` to see them (very helpful for understanding the schema) - **Important**: This database contains results from many different run configurations.
-   Always filter carefully using the `_*` columns (`_dataset`, `_preprocessing`, `_filter`, `_group_type`, `_distance`, `_activity_params`, etc.) to get the exact subset you need.
-   To understand which configurations exist and what they mean, first read `configs/snakemake/copairs_runs.yaml` which defines all the run combinations. - **Consistency sweep vs regular**: Use `_preprocessing` column to distinguish them - regular runs have names like `consistency_no_target2`, sweep runs have names ending in `_sweep` (e.g., `consistency_no_target2_sweep`).
-   Filter with: `_preprocessing NOT LIKE '%_sweep'` for regular runs, `_preprocessing LIKE '%_sweep'` for sweep runs
+## Conventions
 
-## Copairs configuration
+- Compare mAP with `mean_normalized_average_precision`, not raw mAP, and decide significance with `corrected_p_value`, not the raw p-value.
+- Load profiles with `jump_production.io.load_profiles(dataset, level="well"|"perturbation")`.
+- The AnnData `obs` column is `JCP2022`; DuckDB tables use the `Metadata_` prefix and h5ad files do not.
+- `median_cell_count` is in the `compound_metadata` DuckDB view for every compound but not in `adata.obs`; fetch it with SQL.
+- For the activity of a small compound set, filter in DuckDB with `Metadata_JCP2022 = ANY(?)`; `query_activity_results()` returns all compounds.
+- Harmony profiles from the Cell Painting Gallery recipe are the default and use canonical names such as `compound_no_source7.parquet`.
+  In-repository Harmony outputs carry the `_rsc` suffix and their pre-Harmony inputs the `_pre_harmony` suffix.
+  `configs/batch_correction.yaml` sets the in-repository Harmony parameters, which run in the `rapids` environment.
 
-See `docs/copairs/CONFIG.md` for comprehensive documentation on config keys, datasets, DuckDB column mappings, and performance tuning.
-The run matrix is defined in `configs/snakemake/copairs_runs.yaml`.
+## Summary envelopes
 
-## Annotation sources
+Every analysis writes one summary envelope, a JSON object `{description, numbers, files}`, and its Snakemake rule declares that file as an output.
 
-- 9 target consistency sources (canonical list in `copairs_runs.yaml`): repurposing, uniprot, chemical_probes, moa, disease_area, motive_biokg, motive_opentargets, motive_primekg, toxcast_assay
-- BindingDB and DrugBank are NOT in the current pipeline (removed in earlier refactor)
+- Write it with `write_summary` and `index_files` from `jump_production.summaries`.
+  Notebooks that must run in a sandbox, such as 0.12, write the same dictionary inline.
+- A path in `files` is relative to the checkout (`data/processed/...`) or, in a publication package, to the envelope's own directory.
+  `write_summary` rewrites absolute paths inside the checkout, so an envelope never names the machine that wrote it.
+  Readers should use the catalog's resolved paths instead of interpreting the two forms.
+- Cast numpy scalars to `int` or `float` in `numbers`; the writer would otherwise store them as strings.
+- State reported populations explicitly, for example the full released collection versus the analyzed subset.
+  The canonical analyzed key is in `configs/snakemake/analysis.yaml`.
 
-## Profiles, summaries, and reproducibility
+Two indexes are built from the envelopes.
+The [dataset-reference report](paper/dataset_reference.md) collates the numbers of the summaries named in `rule dataset_reference_manifest`.
+The [results catalog](data-browser.md#adding-an-analysis) lists every analysis for the data browser, and every summary must be registered there.
 
-- **summary.json envelope convention**: every analysis notebook emits one summary envelope `{description, numbers, files}` via `from jump_production.summaries import write_summary, index_files`; each Snakemake rule must declare its `summary.json` as an output, and paper-report membership is the `summaries` input of `rule dataset_reference_manifest`.
-  The generated manifest is the only membership definition for the paper report, locally and on S3.
-  A path in `files` is relative either to the checkout (`data/processed/...`) or, in a publication package, to the summary's own directory; `write_summary` rewrites absolute paths inside the checkout, so an envelope never names the machine that wrote it.
-- **Results catalog**: `rule results_catalog` writes `data/processed/catalog.json`, the index the [data browser](data-browser.md) reads.
-  `configs/results_catalog.yaml` registers every summary with a title and section; add a new analysis there, or `just verify-baseline` fails on the uncataloged envelope.
-  Cast numpy scalars to int/float in `numbers` (the writer uses `json.dumps(default=str)`, which would stringify them).
-  Sandbox-pure notebooks (e.g. 0.12) inline the envelope dict instead of importing `jump_production`.
+## Determinism
 
-- Batch correction: `configs/batch_correction.yaml` controls in-repo Harmony params (batch_key, n_clusters, etc.) - requires rapids env: `direnv exec . pixi run -e rapids`
+The reproduction is checked against a pinned baseline with [exact hashes and stated tolerances](reproduce.md#what-is-pinned-and-checked), so outputs must not vary between runs.
 
-- Two Harmony paths: recipe-Harmony profiles (from CellPainting Gallery, default) use canonical names (e.g., `compound_no_source7.parquet`); in-repo Harmony outputs use `_rsc` suffix (e.g., `compound_no_source7_rsc.parquet`).
-  Pre-Harmony inputs use `_pre_harmony` suffix.
-
-- For metadata queries, use `data/interim/jump_metadata_augmented.duckdb`
-
-- For copairs results queries, use `data/processed/copairs_results.duckdb`
-
-- When comparing mAP values, always use `mean_normalized_average_precision` (not raw mAP) and `corrected_p_value` (not raw p-value)
-
-- Load profiles: `jump_production.io.load_profiles(dataset, level="well"|"perturbation")`
-
-- AnnData obs column is `JCP2022` (not `Metadata_JCP2022`) - DuckDB tables use the `Metadata_` prefix, h5ad files do not
-
-- `median_cell_count` is in the `compound_metadata` DuckDB view (100% coverage) but NOT in `adata.obs` - must be fetched via SQL
-
-- Activity lookups for small compound sets: use server-side `Metadata_JCP2022 = ANY(?)` filter in DuckDB rather than `query_activity_results()` which returns all compounds
-
-- **Reproducibility**: Use the pinned cached L40S comparison and tolerances in [the reproduction guide](reproduce.md).
-  The release baseline checks exact artifacts and keyed claims; GPU, initialization and null-cache choices matter.
-
-- **DuckDB files are NOT byte-reproducible** across rebuilds even for identical content (verified v1.5.2: string-compression codecs FSST/dictionary emit run-varying bytes; integer-only or `force_compression='uncompressed'` tables ARE byte-stable).
-  Our DBs have compressed string columns (IDs, SMILES, names), so file hashes always differ - compare table content via `EXCEPT` + row counts, never sha256.
-  Copairs mAP CSVs separately mix deterministic mAP columns with stochastic permutation p-values in one file - compare those by column value, not file hash.
-
-- **Determinism gotcha**: any `STRING_AGG`/`GROUP_CONCAT` and any DataFrame written to CSV needs an explicit `ORDER BY` / `sort_values` tiebreaker, or row/string order varies run-to-run (scan order, or `PYTHONHASHSEED` over dict/set iteration) - identical values, non-reproducible bytes.
-  Fixed two such cases 2026-06-19 (a05d7e9 compound_metadata view, c015876 2.43 enrichment).
+- Give every `STRING_AGG` or `GROUP_CONCAT`, and every DataFrame written to CSV, an explicit `ORDER BY` or `sort_values` tiebreaker.
+  Without one, scan order or `PYTHONHASHSEED` changes the row or string order: identical values, different bytes.
+- DuckDB files are not byte-reproducible across rebuilds, because compressed string columns are serialized differently each time.
+  Compare table content with `EXCEPT` and row counts, never file hashes.
+- copairs mAP CSVs hold deterministic mAP columns beside permutation p-values that depend on the null distributions.
+  Compare runs that did not share a null cache by column, not by file hash.
+- GPU model, UMAP initialization and the null cache all change results; see [outcomes on other GPU hardware](reproduce.md#outcomes-on-other-gpu-hardware).
