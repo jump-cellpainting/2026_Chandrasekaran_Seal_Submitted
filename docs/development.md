@@ -1,110 +1,132 @@
-# Development and GPU execution
+# Development
 
-Use the sections relevant to the requested setup, pipeline, or GPU change.
-Commands below run inside `direnv exec .`; include that prefix in non-interactive shells.
+This page is for working in an existing development environment.
+To reproduce the results from nothing, follow [the reproduction guide](reproduce.md) instead.
 
-## Environment setup
+## Environment
 
 ```bash
-# 1. Authorize the committed environment (one time)
-direnv allow
-
-# 2. Run project commands inside the flake environment
+direnv allow                       # authorize the committed .envrc (`use flake .`), once
 direnv exec . pixi install
-
-# 3. Download input data from team S3 (works without AWS credentials)
-direnv exec . just get-inputs
-
-# Optional upstream refresh (not the pinned reproduction inputs)
-direnv exec . just get-from-sources
+direnv exec . just get-inputs      # public inputs, no credentials
+direnv exec . just verify-inputs
 ```
 
-**`direnv allow` authorizes `.envrc`; it does not activate the environment for later commands in a non-interactive shell.** Interactive users with the direnv shell hook can authorize the committed `.envrc` (just `use flake .`) once and then use the commands below normally.
-Agents, SSH commands, escalated commands, and other non-interactive processes must run project commands through:
+`direnv allow` authorizes the environment; it does not activate it for later commands in a non-interactive shell.
+Agents, SSH commands and scripts must prefix every project command with `direnv exec .`, including `just`, `pixi`, `uv`, Snakemake, Python and marimo.
+Interactive shells with the direnv hook can omit the prefix.
+Commands that do not depend on the environment, such as `git`, `rg` and `jq`, never need it.
 
-```bash
-direnv exec . <command>
-```
-
-This applies to `just`, `pixi`, `uv`, Snakemake, Python, marimo, CUDA, and GPU commands.
-It is not needed for environment-independent inspection commands such as `git`, `rg`, `jq`, and `ls`.
-
-The flake devShell supplies the pinned `pixi` and sets `LD_LIBRARY_PATH` to include `/run/opengl-driver/lib`.
-Without those driver libraries, CUDA can fail during installation or at runtime.
-Misleading symptoms include `cudaErrorInsufficientDriver`, `driverGetVersion() == 0`, an inability to enumerate GPUs, or an incorrect `CMAKE_CUDA_ARCHITECTURES=native` result even when `nvidia-smi` works.
-Verify flake activation before changing CUDA packages or diagnosing the host driver:
+The flake supplies the pinned `pixi` and adds the NVIDIA driver libraries (`/run/opengl-driver/lib`) to `LD_LIBRARY_PATH`.
+Without them CUDA fails in ways that do not name the cause, even when `nvidia-smi` works: `cudaErrorInsufficientDriver`, `driverGetVersion() == 0`, no enumerable GPUs, or a `rapids-singlecell` build that resolves `CMAKE_CUDA_ARCHITECTURES=native` to an architecture too old for `atomicAdd(double*, double)`.
+Check activation before changing CUDA packages or blaming the host driver:
 
 ```bash
 direnv exec . pixi run -e rapids python -c \
   'import cupy as cp; print(cp.cuda.runtime.driverGetVersion(), cp.cuda.runtime.getDeviceCount())'
 ```
 
-Without the driver libraries, `rapids-singlecell` (always built from sdist - `pixi.lock` pins the tarball) can resolve `CMAKE_CUDA_ARCHITECTURES=native` to an architecture too old for `atomicAdd(double*, double)`.
-The error names CUDA rather than direnv, so check activation first.
+## Inputs and caches
 
-## Dependencies
+- `just get-inputs` synchronizes `data/external/` and `data/raw/profiles/` with the public bucket over anonymous S3 access, and `just verify-inputs` checks them against `configs/inputs.sha256`.
+  It is a sync: local files missing from the remote are deleted, up to `RCLONE_MAX_DELETE`.
+  Generated profile families (`*_rsc*`, `*_with_source7*`, `*_active_union`) are excluded so that outputs are not overwritten.
+  Do not add `--s3-env-auth` to anonymous downloads: a missing credential can produce an empty listing.
+- `just get-null-cache` restores the pinned copairs null distributions into `~/.copairs` and checks every file against the pinned manifest.
+  It replaces files of the same name and leaves the others.
+  The cache suits only the copairs revision in `pyproject.toml`; see [running without the null cache](reproduce.md#running-without-the-null-cache) for the alternative.
+- `just get-from-sources` refreshes inputs from their upstream sources, which can differ from the pinned reproduction inputs.
 
-- Add Python packages to `[project] dependencies` in `pyproject.toml`, not `[tool.pixi.dependencies]` (which is for conda packages)
-- **`copairs-runner` git dep**: Uses monorepo subdirectory - must pin to a commit hash, not a branch name.
-  Branch refs cause uv re-solve failures (no `pyproject.toml` at monorepo root).
-  Update hash manually when upgrading.
+The published datastore, the null cache and the baseline snapshot are read-only inputs, and this repository has no upload command.
+Keep trial renders and logs under `scratch/`, outside `data/`.
 
 ## Pipeline targets
 
-See `just --list` for all commands.
-Key workflows:
+`just --list` shows every command.
 
 ```bash
-just run          # Core pipeline (db + copairs)
-just run-all      # Full pipeline (copairs + all analysis)
-just explore      # Exploration notebooks (phase 0 - not included in run-all)
-just srijit       # Full -seal- analysis aggregate; run-all includes selected paper-report dependencies only
-just dry          # Preview what will run
-just dataset-reference       # Build the paper's dataset-reference report
-just dataset-reference dry   # Preview the report's Snakemake dependencies
-just dataset-reference view  # View the report as a marimo notebook
+just run                     # core pipeline: databases and copairs
+just run-all                 # copairs and the analyses in `all`
+just explore                 # exploration notebooks, not part of run-all
+just srijit                  # the -seal- analyses; run-all includes only those the paper report needs
+just catalog                 # the results catalog and everything it lists
+just dry                     # preview what would run
+just dataset-reference       # build the dataset-reference report (`dry` previews, `view` opens it)
+just reproduce               # complete rebuild, figure validation and the baseline check
+just unlock                  # release a stale Snakemake lock; confirm no workflow is running first
 ```
+
+A complete rebuild is the targets `all`, `batch_and_source7`, `explore`, `srijit` and `results_catalog`.
+The catalog lists analyses from the other four, so it is a target of its own and not part of `all`.
+
+## Notebooks
+
+Build results with Snakemake before opening their notebooks.
+`marimo run` shows a notebook with its cells executed and `marimo edit` modifies it.
+An editor can start with stale cells, so run all cells and inspect errors before accepting changes, and do not edit a notebook file externally while a live editor has it open.
+
+```bash
+# Pure-Python notebooks with PEP 723 dependencies
+direnv exec . uv run --with marimo marimo run --sandbox notebooks/dataset_reference.py --host 127.0.0.1
+
+# GPU notebooks that import CuPy or RAPIDS: the pinned RAPIDS environment, without --sandbox
+direnv exec . pixi run -e rapids python -m marimo run notebooks/2.01-ss-umap-visualization.py --host 127.0.0.1
+
+# Scripts that need RDKit
+direnv exec . pixi run -e cheminformatics python notebooks/0.16-ss-compound-collection-facts.py
+```
+
+`just reproduce` caps BLAS and OpenMP threads to avoid oversubscription during scaffold cross-validation; set `OMP_NUM_THREADS=1` when running those analyses on their own.
+If uv reports too many open files, run `ulimit -n 65536` first.
+
+### Positive-control reproducibility heatmap
+
+This figure is opt-in and not part of the default run:
+
+```bash
+direnv exec . just build-figure figure_positive_control_reproducibility
+direnv exec . just validate-figure figure_positive_control_reproducibility
+direnv exec . just catalog
+```
+
+It is built from the copairs and augmented metadata databases, and its directory holds the PNG, vector PDF, plotted values, caption and summary.
+`just catalog` adds it to `data/processed/catalog.json` as an optional entry.
+Its files are not in the baseline roster, so build it in a separate output tree when you compare a reproduction with the baseline.
 
 ## Code checks
 
 ```bash
-# Run linter (ruff)
 pixi run ruff check src/jump_production
-
-# Run formatter
 pixi run ruff format src/jump_production
-
-# Run tests (pytest lives in the `test` pixi env, so a bare `pixi run pytest` won't find it)
-just test
+just test            # pytest lives in the `test` environment; a bare `pixi run pytest` does not find it
+just test-browser    # the data browser, in Chrome or Chromium
+just check-release   # the reviewed source allowlist
 ```
 
-## GPU scheduling
+## Dependencies
 
-- CPU count: `config.py` exports `JUMP_CPUS` via `os.sched_getaffinity(0)` (respects Slurm/cgroups)
-- GPU detection: `from jump_production.gpu import has_gpu; HAS_GPU = has_gpu()` - probes CUDA driver via cupy, cached after first call
-- Pattern for new scripts: `from jump_production.gpu import has_gpu; HAS_GPU = has_gpu()` - no `use_gpu` parameters or `--no-gpu` flags
-- **Important**: `has_gpu()` only checks cupy/CUDA.
-  Scripts needing `rapids_singlecell` must also gate on that import (see `profiles_to_anndata.py`, `umap.py`)
+- Add Python packages to `[project] dependencies` in `pyproject.toml`; `[tool.pixi.dependencies]` is for conda packages.
+- `copairs-runner` comes from a monorepo subdirectory and must be pinned to a commit hash.
+  A branch name makes uv fail to re-solve, because the monorepo root has no `pyproject.toml`.
 
-**How GPU jobs are scheduled - two halves, both required:**
-- **How many:** a GPU rule declares `resources: gpu=1`.
-  Snakemake treats an *undeclared* resource as **unlimited**, so the cap only exists if you pass `--resources gpu=N`.
-  The Justfile does this for you, taking N from `scripts/gpu_lease.sh --count`.
-- **Which card:** Snakemake never assigns a device id, so every job would default to device 0 and could exhaust its memory while the rest idle.
-  Every GPU rule therefore wraps its command in `scripts/gpu_lease.sh`, which `flock`s one lock file per leasable GPU and exports `CUDA_VISIBLE_DEVICES` for that job.
-  Concurrent jobs land on distinct cards, and a card is never double-booked even under a bare `snakemake` with no `--resources` cap (excess jobs just wait).
-- The count and the cards come from the *same* script, so the cap can never exceed the cards actually available.
-  (Don't reintroduce an `nvidia-smi` count in the Justfile - `nvidia-smi` ignores `CUDA_VISIBLE_DEVICES`, so the cap would silently disagree with it.)
-- **Confining a run:** `GPUS=1 just run-all`, or `CUDA_VISIBLE_DEVICES=0,1 just run-all` (both the cap and the lease honour it).
-  `CUDA_VISIBLE_DEVICES=""` means CPU-only, per the CUDA convention: the lease runs the job unpinned and `has_gpu()` sends it down the CPU path.
-  **`GPUS=0` is not the CPU-only knob** - it sets `--resources gpu=0`, which Snakemake reads as "never satisfiable", so every `gpu=1` rule fails to schedule.
-  Use `CUDA_VISIBLE_DEVICES=""`.
-- **Scope:** the lease's locks are per-user, so it arbitrates between *your own* jobs - which is all it is meant to do.
-  Two people running the pipeline on one box can still pick the same card and OOM each other.
-  (`JUMP_GPU_LOCKDIR` does not buy you cross-user coordination: the lock files are opened for writing, so one user cannot lock another's file.
-  Supporting that needs a code change, not an env var.)
-- **Adding a GPU rule:** you must do *both* - declare `resources: gpu=1` **and** prefix the shell command with `scripts/gpu_lease.sh`.
-  A rule that merely uses `pixi run -e rapids`/`-e deepchem` without declaring the resource escapes the cap entirely (this was the `profiles_to_anndata` bug).
-  `tests/test_gpu_rules.py` enforces the pairing - it fails if a GPU rule has only one half.
-  It keys off the **lease**, not the env name, so a GPU rule running in some other env (e.g.
-  `srijit_2_36` under cheminformatics) is still covered.
+## GPU rules
+
+Scripts detect the GPU themselves with `from jump_production.gpu import has_gpu`; do not add `use_gpu` parameters or `--no-gpu` flags.
+`has_gpu()` checks only CuPy and CUDA, so scripts that need `rapids_singlecell` also gate on that import, as `profiles_to_anndata.py` and `umap.py` do.
+`config.py` exports `JUMP_CPUS` from the CPUs available to the process, which respects Slurm and cgroups.
+
+A GPU rule needs two things, and `tests/test_gpu_rules.py` fails if a rule has only one:
+
+- **`resources: gpu=1`** limits how many GPU jobs run at once.
+  Snakemake treats an undeclared resource as unlimited, so the limit exists only because the Justfile passes `--resources gpu=N`, with N from `scripts/gpu_lease.sh --count`.
+- **`scripts/gpu_lease.sh` as the command prefix** chooses the card.
+  Snakemake never assigns a device, so without the lease every job would use device 0.
+  The lease locks one file per GPU and exports `CUDA_VISIBLE_DEVICES` for the job, so concurrent jobs land on distinct cards and extra jobs wait.
+
+The count and the cards come from the same script, so the limit cannot exceed the cards available.
+Do not count GPUs with `nvidia-smi` in the Justfile: it ignores `CUDA_VISIBLE_DEVICES`.
+
+- **Confine a run** with `GPUS=1 just run-all` or `CUDA_VISIBLE_DEVICES=0,1 just run-all`.
+- **Run on CPU** with `CUDA_VISIBLE_DEVICES=""`.
+  `GPUS=0` does not do this: Snakemake reads `--resources gpu=0` as never satisfiable, and every GPU rule fails to schedule.
+- **The locks are per user.** The lease arbitrates between your own jobs; two people on one machine can still pick the same card, and `JUMP_GPU_LOCKDIR` does not change that.
