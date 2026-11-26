@@ -9,6 +9,21 @@ direnv exec . just paper-figures       # build every figure that has a layout
 direnv exec . just test-paper-figures  # test the assembler
 ```
 
+## After a reproduction on AWS
+
+The target can follow `just reproduce` on the rented machine of the [reproduction guide](../reproduce.md).
+The machine powers off 30 minutes after the reproduction ends, so cancel that first; the 16-hour limit stays armed.
+
+```bash
+scripts/ec2.sh ssh 'sudo shutdown -c; cd ~/jump_production && . ~/.nix-profile/etc/profile.d/nix.sh &&
+    nix --extra-experimental-features "nix-command flakes" develop --command just paper-figures'
+scripts/ec2.sh pull "$RESULTS"
+```
+
+`pull` brings back `data/paper_figures/` when the machine has it.
+On one L40S the 23 jobs took under a minute after a completed reproduction, left `data/processed/` untouched, and `just verify-baseline` passed afterwards.
+Like `reproduce`, the target treats the MitoTox download as up to date although its script is newer than the downloaded file in a fresh clone.
+
 ## What it builds
 
 Each figure is one layout file, `configs/paper_figures/<figure_id>.yaml`.
@@ -50,7 +65,9 @@ An assembled figure reports its count of static panels as `numbers.static_panels
 
 The UMAP panels are clipped from the captioned figure PDFs under `data/processed/`, with a clip box that excludes the caption.
 They therefore show the embedding of the run they are built from.
-UMAP coordinates differ between GPU models, so these panels match the published ones only when the pipeline ran on the reference hardware.
+UMAP coordinates differ between GPU models, so these panels match those of the baseline snapshot only when the pipeline ran on the reference hardware.
+On an L40S they are identical to the snapshot's.
+They are not the layouts of the preprint figures, which predate the pipeline's exact neighbors and seeded initialization; see [differences from the published datastore](../reproduce.md#differences-from-the-published-datastore).
 
 A clipped vector panel still contains the clipped-away content inside the PDF, invisible on the page but found by text extraction.
 Flatten an assembled PDF before sending it to a journal.
