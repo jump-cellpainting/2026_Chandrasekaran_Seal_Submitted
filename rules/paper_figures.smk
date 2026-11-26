@@ -15,6 +15,9 @@
 import glob
 
 import yaml
+from snakemake.exceptions import WorkflowError
+
+from jump_production.workflow import matches_output
 
 PAPER_FIGURES = "data/paper_figures"
 PAPER_LAYOUTS = {
@@ -38,6 +41,32 @@ def paper_panels(folder, summary=True):
     prefix = f"{PAPER_FIGURES}/panels/{folder}/"
     used = sorted({src for path in PAPER_LAYOUTS.values() for src in paper_sources(path) if src.startswith(prefix)})
     return used + ([f"{prefix}summary.json"] if summary else [])
+
+
+def paper_inputs(wildcards):
+    """What one figure waits for: each source a rule declares, else the marker of the analysis that writes it.
+
+    Analyses declare a summary or a completion marker, not every plot. Naming an undeclared plot as
+    an input would stop the workflow in a checkout where it has not been built yet, so the figure
+    waits for the marker instead and the assembler reports a source that is still missing.
+    """
+    declared = [str(output) for rule in workflow.rules for output in rule.output]
+
+    def is_declared(path):
+        return any(matches_output(pattern, path) for pattern in declared)
+
+    inputs = []
+    for src in paper_sources(PAPER_LAYOUTS[wildcards.figure_id]):
+        if not src.startswith("data/processed/") or is_declared(src):
+            inputs.append(src)
+            continue
+        folder = Path(src).parent
+        markers = [folder / "summary.json", folder / ".complete", folder.parent / ".complete"]
+        marker = next((str(m) for m in markers if is_declared(str(m))), None)
+        if marker is None:
+            raise WorkflowError(f"{src}: no rule declares this file or a marker for its analysis")
+        inputs.append(marker)
+    return list(dict.fromkeys(inputs))
 
 
 # A caption-free render repeats a figure rule's command with a different output directory, so each
@@ -187,7 +216,7 @@ rule paper_figure:
     """Assemble one figure package from its layout. PyMuPDF comes from uv, not the pinned environments."""
     input:
         layout=lambda wildcards: PAPER_LAYOUTS[wildcards.figure_id],
-        sources=lambda wildcards: paper_sources(PAPER_LAYOUTS[wildcards.figure_id]),
+        sources=paper_inputs,
         script="notebooks/paper-figure-assembly.py",
         validator="scripts/validate_figure.sh"
     output:

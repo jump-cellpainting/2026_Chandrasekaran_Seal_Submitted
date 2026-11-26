@@ -44,11 +44,14 @@ def test_layout_sources_are_produced_or_pinned(path):
             producers = {d["rule"] for d in declarations if matches_output(d["output"], src)}
             assert len(producers) == 1, f"{src}: {sorted(producers)}"
         else:
-            # Analyses declare a summary or a completion marker, not every plot, so require a rule
-            # that writes into the same analysis folder.
+            # Analyses declare a summary or a completion marker, not every plot. An undeclared plot
+            # needs one of the markers that `paper_inputs` in rules/paper_figures.smk waits for.
             assert src.startswith("data/processed/"), src
-            analysis = "/".join(Path(src).parts[:3])
-            assert any(d["output"].startswith(analysis) for d in declarations), f"no rule writes under {analysis}"
+            folder = Path(src).parent
+            candidates = [src, f"{folder}/summary.json", f"{folder}/.complete", f"{folder.parent}/.complete"]
+            assert any(matches_output(d["output"], candidate) for d in declarations for candidate in candidates), (
+                f"no rule declares {src} or a marker for its analysis"
+            )
 
 
 @pytest.mark.parametrize("path", LAYOUTS, ids=lambda path: path.stem)

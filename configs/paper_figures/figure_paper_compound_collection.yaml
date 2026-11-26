@@ -6,11 +6,10 @@ rows:
 - - src: data/paper_figures/panels/figure_compound_collection/dataset_structure.png
     width: 4.8
     note: versioned schematic asset composited by 2.04a
-- - src: assets/paper_figures/posted/compound_collection.png
+- - src: assets/paper_figures/posted/example_micrographs.png
     width: 7.0
-    clip: [0.0, 0.414, 1.0, 0.648]
     origin: static
-    note: micrographs are not pipeline output; cropped from the posted figure
+    note: micrographs are not pipeline output; cropped from the figure in the working manuscript
 - - src: data/paper_figures/panels/figure_compound_collection/chemical_space.pdf
     width: 2.3
     title: Lipinski rule-of-five

@@ -48,7 +48,7 @@ ORIGINS = {
 PANEL_KEYS = {"src", "title", "clip", "width", "letter", "label", "mask", "origin", "note"}
 FIGURE_KEYS = {"id", "title", "width", "justify", "rows"}
 
-app = typer.Typer(add_completion=False, help=__doc__.splitlines()[0])
+app = typer.Typer(add_completion=False, pretty_exceptions_enable=False, help=__doc__.splitlines()[0])
 
 
 def load_layout(path: Path) -> dict:
