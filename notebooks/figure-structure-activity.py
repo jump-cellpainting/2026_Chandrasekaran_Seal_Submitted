@@ -867,7 +867,8 @@ def _threshold_sensitivity(pairs, caption, output_dir, dpi):
     axis.annotate(
         f"chosen\n{chosen_count:,} cliffs",
         (MORPH_LOW, chosen_count),
-        xytext=(MORPH_LOW + 0.12, chosen_count * 4),
+        # Upper left is above every curve; the old position sat on two of them.
+        xytext=(-0.82, 2.0e4),
         fontsize=FONT_SIZES_POINTS["secondary"],
         color=MEAN_LINE_COLOR,
         arrowprops=dict(arrowstyle="->", color=MEAN_LINE_COLOR, linewidth=1.5),
@@ -875,7 +876,10 @@ def _threshold_sensitivity(pairs, caption, output_dir, dpi):
     axis.set_yscale("log")
     axis.set_xlabel("Morphology cutoff (cliff = cosine < x)")
     axis.set_ylabel("Cliff pairs (cumulative, log)")
-    axis.legend(loc="upper left", fontsize=FONT_SIZES_POINTS["dense"], frameon=False)
+    axis.set_xticks([-0.5, 0.0, 0.5, 1.0])
+    # Dedicated space above the axes: every in-axes corner is crossed by a curve or the marker.
+    # Lower right is below every curve; the upper left corner, used before, is crossed by four.
+    axis.legend(loc="lower right", fontsize=FONT_SIZES_POINTS["dense"], frameon=False, labelspacing=0.25)
     figure.tight_layout()
     attach_caption(figure, caption, caption_points=5.5)
     return save_figure(figure, output_dir, "thresholds", dpi)
@@ -1135,7 +1139,7 @@ def _activity_cliff_pairs(pairs, pair_summary, sensitivity, numbers, configurati
         )
         sensitivity_axis.text(
             0.705,
-            null_expected_pct[0] - 2.3,
+            null_expected_pct[0] - 4.6,
             f"{null_expected_pct[0]:.1f}%",
             color=RANDOM_LINE_COLOR,
             fontsize=6.0,

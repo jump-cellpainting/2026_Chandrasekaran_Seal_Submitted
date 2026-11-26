@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 from pathlib import Path
 from textwrap import fill
@@ -2363,7 +2364,8 @@ def plot_target_alignment(
         # The panels are the figure. The caption is transport only: it rides along into a
         # drawing tool and is cropped off, so it never sets the width or the panel height.
         wrapped_caption = fill(
-            caption, width=int((ALIGNMENT_FIGURE_WIDTH - 0.3) * 72 / (ALIGNMENT_CAPTION_POINTS * 0.645))
+            "" if os.environ.get("JUMP_FIGURE_NO_CAPTION", "") == "1" else caption,
+            width=int((ALIGNMENT_FIGURE_WIDTH - 0.3) * 72 / (ALIGNMENT_CAPTION_POINTS * 0.645))
         )
         caption_height = len(wrapped_caption.splitlines()) * ALIGNMENT_CAPTION_POINTS * 1.18 / 72 + 0.15
         figure = plt.figure(

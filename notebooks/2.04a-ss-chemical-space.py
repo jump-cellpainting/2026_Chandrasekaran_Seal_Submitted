@@ -2106,6 +2106,10 @@ def draw_caption_band(image: Image.Image, caption: str, dpi: int) -> Image.Image
     composited pixel for pixel rather than rendered, so its caption is drawn here instead, on the
     same wrap and band-height rule, and its own pixels are left untouched.
     """
+    import os
+
+    if os.environ.get("JUMP_FIGURE_NO_CAPTION", "") == "1":
+        return image
     width_in = image.width / dpi
     caption_points = width_in * 72 / (0.75 * SCHEMATIC_CAPTION_CHARACTERS)
     wrapped, total_in, _fraction = property_figure_caption_layout(

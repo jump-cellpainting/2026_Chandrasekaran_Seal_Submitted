@@ -802,6 +802,17 @@ PROPERTY_FIGURE_TYPE = {
 }
 
 
+def captions_disabled() -> bool:
+    """True when JUMP_FIGURE_NO_CAPTION=1: renderers emit bare panels for a code compositor.
+
+    The caption string is still computed and still written to `legend.md` and `summary.json`;
+    only the in-figure transport band is skipped, so the numbers cannot differ between modes.
+    """
+    import os
+
+    return os.environ.get("JUMP_FIGURE_NO_CAPTION", "") == "1"
+
+
 def property_figure_caption_layout(
     caption: str,
     width_in: float = PROPERTY_FIGURE_WIDTH_IN,
@@ -817,6 +828,10 @@ def property_figure_caption_layout(
     canvas downward instead of taking height from the panels.
     """
     from textwrap import fill
+
+    if captions_disabled():
+        # Composition mode: no caption band, panels keep their full height.
+        return "", panel_height_in, 0.0
 
     # 0.75 em per character is close enough for the condensed sans this project renders in.
     columns = int(width_in * 72 / (0.75 * caption_points))
@@ -840,6 +855,8 @@ def attach_caption(
     figure text, and figure legend moves up by that much. Call it last, after the figure is
     complete.
     """
+    if captions_disabled():
+        return figure
     width_in, height_in = figure.get_size_inches()
     wrapped, total_in, fraction = property_figure_caption_layout(
         caption,

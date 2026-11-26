@@ -357,7 +357,8 @@ def plot_map_comparison_box(
     ax2.set_xlabel("")
     ax2.set_ylabel("Normalized mAP")
     ax2.set_ylim(-0.2, 1.05)
-    ax2.legend(loc="upper right", fontsize=9, title="")
+    # Above the axes, right-aligned: the upper right corner inside the axes holds the last source's boxes.
+    ax2.legend(loc="lower right", bbox_to_anchor=(1.0, 1.07), ncols=2, fontsize=9, title="", frameon=False)
     ax2.set_title(f"Per-Source Comparison{title_suffix}")
 
     plt.tight_layout()
