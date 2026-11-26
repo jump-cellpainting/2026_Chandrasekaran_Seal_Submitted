@@ -274,6 +274,22 @@ def test_pull_preserves_key_and_known_hosts_arguments(launcher):
     assert f'UserKnownHostsFile="{key}.known_hosts"' in ssh
 
 
+@pytest.mark.parametrize(("mode", "expected"), [("", True), ("push-fails", False)])
+def test_pull_fetches_paper_figures_only_when_the_machine_has_them(launcher, tmp_path, mode, expected):
+    run, _, temporary = launcher
+    stub = tmp_path / "bin/rsync"
+    stub.unlink(missing_ok=True)
+    stub.write_text(f"#!{sys.executable}\n" + STUB)
+    stub.chmod(0o755)
+    # The SSH stub answers the directory probe with success, or with failure in this mode.
+    result, calls = run(["pull", str(temporary / "results")], mode=mode)
+    assert result.returncode == 0, result.stderr
+    assert any(c[0] == "ssh" and "paper_figures" in c[-1] for c in calls)
+    sources = [arg for c in calls if c[0] == "rsync" for arg in c if "jump_production/./" in arg]
+    assert any(source.endswith("data/processed") for source in sources)
+    assert any(source.endswith("data/paper_figures") for source in sources) is expected
+
+
 @pytest.mark.skipif(
     sys.platform != "darwin" or not Path("/usr/bin/trash").exists(),
     reason="requires native macOS trash",

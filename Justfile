@@ -224,13 +224,15 @@ build-figures-dry:
 
 # Opt-in, not part of run-all or reproduce. PyMuPDF is fetched by uv and stays out of the pinned
 # environments. See docs/paper/figure_assembly.md.
+# The MitoTox download counts as up to date when its script is newer, as in `reproduce`: in a fresh
+# clone the script is newer than the downloaded input, and rerunning it would rebuild pipeline outputs.
 # Assemble the paper figures from pipeline panels into data/paper_figures/.
 paper-figures:
-    @{{SNAKEMAKE}} paper_figures --cores {{CORES}} {{GPU_RESOURCES}} --printshellcmds --scheduler greedy
+    @{{SNAKEMAKE}} paper_figures --cores {{CORES}} {{GPU_RESOURCES}} --printshellcmds --scheduler greedy --consider-ancient download_mitotox=script
 
 # Preview the paper-figure assembly jobs without writing outputs.
 paper-figures-dry:
-    @{{SNAKEMAKE}} paper_figures --cores {{CORES}} {{GPU_RESOURCES}} -n -p --scheduler greedy
+    @{{SNAKEMAKE}} paper_figures --cores {{CORES}} {{GPU_RESOURCES}} -n -p --scheduler greedy --consider-ancient download_mitotox=script
 
 # Build one path-safe figure target directly. Rebuilds stale dependencies; never uploads.
 build-figure figure_id:

@@ -8,7 +8,7 @@
 #   scripts/ec2.sh run             start `just reproduce` in tmux on the machine
 #   scripts/ec2.sh status          progress, load, GPU; last line: running, reproduce: ok, or failed exit=N
 #   scripts/ec2.sh ssh [CMD]       shell or one command
-#   scripts/ec2.sh pull [DIR]      rsync results and logs here (default: scratch/ec2-results)
+#   scripts/ec2.sh pull [DIR]      rsync results, logs and any assembled paper figures here (default: scratch/ec2-results)
 #   scripts/ec2.sh start           restart a stopped machine (it stops itself 30 minutes after each run and each boot)
 #   scripts/ec2.sh rescue          stopped and no GPU capacity: restart as a small CPU box
 #   scripts/ec2.sh down --yes      delete the machine, its disk, its firewall group and its key
@@ -128,7 +128,10 @@ pull)
     ssh_command=""; quote="'"
     for arg in "${SSH[@]}"; do ssh_command+="'${arg//$quote/$quote$quote}' "; done
     rsync -a -e "$ssh_command" "$(host):run.log" "$dest/"
-    rsync -a -e "$ssh_command" --relative "$(host):jump_production/./"{data/processed,logs,.snakemake/log,scratch/rerun} "$dest/" ;;
+    rsync -a -e "$ssh_command" --relative "$(host):jump_production/./"{data/processed,logs,.snakemake/log,scratch/rerun} "$dest/"
+    # The assembled paper figures exist only after the opt-in `just paper-figures`.
+    ! "${SSH[@]}" "$(host)" 'test -d jump_production/data/paper_figures' ||
+        rsync -a -e "$ssh_command" --relative "$(host):jump_production/./data/paper_figures" "$dest/" ;;
 start)  # Restart a stopped machine. Its own type may have no capacity now, so try the others too.
     id=$(field stopped InstanceId)
     for type in $(field stopped InstanceType) $TYPES; do
