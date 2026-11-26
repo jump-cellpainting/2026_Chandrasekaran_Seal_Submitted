@@ -1,0 +1,12 @@
+id: figure_paper_polypharmacology
+title: Morphology of dual-target compounds against their single-target counterparts
+width: 7.2
+rows:
+- - src: data/processed/polypharmacology/compound_no_source7/trio_categories.png
+    width: 3.6
+    clip: [0.0, 0.0, 0.409, 0.99]
+- - src: data/processed/polypharmacology/compound_no_source7/trio_categories.png
+    width: 7.0
+    clip: [0.409, 0.0, 1.0, 1.0]
+- - src: data/paper_figures/panels/tables/polypharmacology_top_delta_table.pdf
+    width: 7.0

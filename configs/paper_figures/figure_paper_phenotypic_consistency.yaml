@@ -1,0 +1,13 @@
+id: figure_paper_phenotypic_consistency
+title: Activity map, same-mechanism retrieval and ranked targets and mechanisms
+width: 7.2
+justify: true
+rows:
+- - src: data/processed/figures/figure_phenotypic_consistency/activity_context.pdf
+    width: 3.6
+    clip: [0.0, 0.03, 1.0, 0.3]
+    note: top third of the captioned figure; the clip excludes the caption
+  - src: data/paper_figures/panels/figure_phenotypic_consistency/cross_scaffold_retrieval.pdf
+    width: 3.2
+- - src: data/paper_figures/panels/figure_phenotypic_consistency/ranked_targets_moas.pdf
+    width: 7.0

@@ -1,0 +1,20 @@
+id: figure_paper_activity_associations
+title: Compound properties associated with phenotypic activity and consistency
+width: 7.2
+justify: true
+rows:
+- - src: data/paper_figures/panels/figure_compound_activity_associations/target_alignment.pdf
+    width: 2.3
+    title: Phenotypic activity vs consistency
+    clip: [0.0, 0.315, 1.0, 0.955]
+    note: compound-level and target-level panels; the renderer's extra membership-level panel is not used
+  - src: data/paper_figures/panels/figure_compound_activity_associations/property_drawers.pdf
+    width: 4.5
+    title: Chemical annotations
+    clip: [0.69, 0.14, 1.0, 1.0]
+    label: C
+- - src: data/paper_figures/panels/figure_compound_activity_associations/property_drawers.pdf
+    width: 7.0
+    title: Chemical properties associated with phenotypic activity and consistency
+    clip: [0.0, 0.14, 0.665, 1.0]
+    label: B

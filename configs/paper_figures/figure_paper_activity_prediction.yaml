@@ -1,0 +1,29 @@
+id: figure_paper_activity_prediction
+title: Predicting chemical activities from profiles
+width: 7.2
+justify: true
+rows:
+- - src: data/processed/pains-prediction/compound_no_source7/eda_feature_distributions.png
+    width: 2.6
+    clip: [0.0, 0.04, 0.3295, 0.515]
+    note: first of six feature histograms (largest effect size)
+  - src: data/processed/pains-prediction/compound_no_source7/comparison_plot.pdf
+    width: 3.6
+    clip: [0.0, 0.058, 0.5, 1.0]
+- - src: data/paper_figures/panels/tables/toxicity_classification_table.pdf
+    width: 5.6
+    title: Classification results (DICT/DILI/MitoTox)
+- - src: data/paper_figures/panels/tables/pk_regression_table.pdf
+    width: 5.4
+    title: Regression results (PK)
+    letter: false
+- - src: data/processed/toxicity-pk-prediction/compound_no_source7/summary_comparison.png
+    width: 7.0
+- - src: assets/paper_figures/posted/activity_prediction.png
+    width: 7.0
+    clip: [0.0, 0.79, 1.0, 1.0]
+    mask:
+    - [0.0, 0.785, 0.035, 0.806]
+    origin: static
+    note: assay-endpoint prediction (2.39) is disabled in the pipeline and has no output; null-independent;
+      cropped from the posted figure

@@ -1,0 +1,11 @@
+id: figure_paper_feature_set_comparison
+title: Activity and consistency with classical and deep-learning features
+width: 4.6
+rows:
+- - src: data/paper_figures/panels/tables/cp_dl_activity_table.pdf
+    width: 3.3
+    title: Phenotypic activity
+- - src: data/paper_figures/panels/tables/cp_dl_consistency_table.pdf
+    width: 4.4
+    title: Phenotypic consistency
+    letter: false

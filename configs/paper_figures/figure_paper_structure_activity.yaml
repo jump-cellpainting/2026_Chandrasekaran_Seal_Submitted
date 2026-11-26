@@ -1,0 +1,31 @@
+id: figure_paper_structure_activity
+title: Structure-activity relationships and activity cliffs
+width: 7.2
+justify: true
+rows:
+- - src: data/paper_figures/panels/figure_suppl_structure/scaffold_coherence.pdf
+    width: 3.45
+    title: Scaffolds' morphology coherence
+  - src: data/paper_figures/panels/figure_suppl_structure/neighbor_overlap.pdf
+    width: 3.0
+    title: k-NN overlap (k = 50)
+- - src: data/paper_figures/panels/figure_suppl_structure/moa_coherence.pdf
+    width: 3.45
+    title: Top MoAs by structure-morphology coherence
+  - src: data/paper_figures/panels/figure_suppl_structure/similarity_map.pdf
+    width: 3.0
+    title: Structure/morphology similarity
+- - src: data/paper_figures/panels/figure_suppl_structure/activity_cliff_pairs.pdf
+    width: 3.3
+    title: Prevalence of activity cliffs
+    clip: [0.0, 0.0, 1.0, 0.459]
+  - src: data/paper_figures/panels/figure_suppl_structure/activity_cliff_pairs.pdf
+    width: 3.3
+    clip: [0.0, 0.459, 1.0, 1.0]
+    letter: false
+- - src: data/paper_figures/panels/figure_suppl_structure/pair_classes.pdf
+    width: 3.45
+    title: Prevalence of phenotypic cliffs
+  - src: data/paper_figures/panels/figure_suppl_structure/thresholds.pdf
+    width: 3.0
+    letter: false

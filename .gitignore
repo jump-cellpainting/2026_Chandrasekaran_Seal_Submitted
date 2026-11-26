@@ -231,6 +231,8 @@ scratch/
 .Codex/worktrees/
 .claude.local.md
 *.pdf
+# Static panels of assembled paper figures that no rule can regenerate.
+!assets/paper_figures/**/*.pdf
 docs/paper/issues/*.md
 docs/paper/media/
 __marimo__/
