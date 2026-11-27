@@ -625,9 +625,10 @@ def _conditional_similarity(summary, statistics, caption, output_dir, dpi):
             borderpad=0.1,
             labelspacing=0.25,
         )
+        # Under the legend, in the empty region above the band: at the lower right it covered the band.
         axis.text(
-            0.98,
-            0.04,
+            0.035,
+            0.77,
             (
                 f"Morphology >= {MORPH_LOW:.2f}\n"
                 f"{statistics['close_pair_morphology_similar_fraction']:.1%} at structure >= "
@@ -636,11 +637,10 @@ def _conditional_similarity(summary, statistics, caption, output_dir, dpi):
                 f"({statistics['morphology_similarity_enrichment']:.2f}x)"
             ),
             transform=axis.transAxes,
-            ha="right",
-            va="bottom",
+            ha="left",
+            va="top",
             fontsize=5.5,
             linespacing=1.15,
-            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.86, "pad": 1.5},
         )
 
         bin_width = float(summary["structure_bin_right"].iloc[0] - summary["structure_bin_left"].iloc[0])

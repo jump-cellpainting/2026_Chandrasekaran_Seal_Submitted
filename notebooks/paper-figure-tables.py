@@ -264,13 +264,16 @@ def main(
     axis.legend(fontsize=7, loc="upper center", bbox_to_anchor=(0.5, -0.14), ncol=3, frameon=False)
     figure.tight_layout()
     # Each label goes to the first of eight positions around its point that stays inside the axes and
-    # overlaps no point and no label already placed, so the result depends only on the values and the row order of the table.
+    # overlaps no point, no label already placed and not the threshold line, so the result depends
+    # only on the values and the row order of the table.
     figure.canvas.draw()
     points = axis.transData.transform(tr[["sim_A_B", "sim_AB_blend"]].to_numpy())
     radius, fontsize = 5.0, 5.5
     scale = figure.dpi / 72
     boxes = [(x - radius, y - radius, x + radius, y + radius) for x, y in points]
     frame = axis.get_window_extent()
+    threshold_x = axis.transData.transform((0.3, 0))[0]
+    boxes.append((threshold_x - 2, frame.y0, threshold_x + 2, frame.y1))  # the dashed threshold line
     offsets = [(1, 1), (-1, 1), (1, -1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]
     for (x, y), name in zip(points, tr["target_pair"]):
         width, height = 0.62 * fontsize * len(name) * scale, 1.25 * fontsize * scale
