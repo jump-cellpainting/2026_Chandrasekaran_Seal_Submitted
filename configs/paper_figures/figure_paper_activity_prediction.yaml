@@ -9,7 +9,10 @@ rows:
     note: first of six feature histograms (largest effect size)
   - src: data/processed/pains-prediction/compound_no_source7/comparison_plot.pdf
     width: 3.6
-    clip: [0.0, 0.058, 0.5, 1.0]
+    clip: [0.0, 0.0, 0.5, 1.0]
+    mask:
+    - [0.1, 0.0, 0.5, 0.056]
+    note: left half; the renderer's title is masked, since a clip below it cut the top tick label
 - - src: data/paper_figures/panels/tables/toxicity_classification_table.pdf
     width: 5.6
     title: Classification results (DICT/DILI/MitoTox)

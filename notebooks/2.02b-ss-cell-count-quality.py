@@ -28,6 +28,7 @@ from jump_production.config import DEFAULT_DPI
 from jump_production.queries import query_activity_results
 from jump_production.summaries import index_files, write_summary
 from jump_production.visualization import (
+    format_p_value,
     plot_hexbin_with_marginals,
     plot_scatter_with_marginals,
 )
@@ -48,6 +49,7 @@ def _csv_row(path: Path) -> dict | None:
         else:
             out[k] = v
     return out
+
 
 # Database paths
 COPAIRS_DB = Path("data/processed/copairs_results.duckdb")
@@ -298,7 +300,7 @@ def analyze_cell_density_vs_activity(
     logger.info(f"Mann-Whitney U test: statistic={mw_stat:.0f}, p={mw_p:.2e}")
 
     # Format stats annotation for both plots
-    mw_str = f"p < {mw_p:.0e}" if mw_p < 0.001 else f"p = {mw_p:.3f}"
+    mw_str = format_p_value(mw_p)
     stats_annotation = f"Spearman ρ = {r:.2f}\nMann-Whitney {mw_str}\nn = {len(valid):,}"
 
     # Hexbin density plot (shows overall distribution)

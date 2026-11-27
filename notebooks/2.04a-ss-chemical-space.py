@@ -936,7 +936,7 @@ def compute_structure_umap(
         logger.info("Using GPU acceleration via rapids_singlecell")
         rsc.get.anndata_to_GPU(adata)
 
-    # Exact neighbors and seeded random initialization make repeated layouts agree.
+        # Exact neighbors and seeded random initialization make repeated layouts agree.
         logger.info("Computing neighbors (cosine on L2-normalized, GPU exact)...")
         rsc.pp.neighbors(adata, n_neighbors=15, use_rep="X", metric="cosine", algorithm="brute", random_state=seed)
 
@@ -1945,7 +1945,8 @@ def plot_publication_supplement(
         )
         median = numbers["property_medians"][key]["median"]
         axis.axvline(median, color="#D55E00", linestyle="--", linewidth=1.2)
-        axis.text(0.97, 0.9, f"median = {median:g}", transform=axis.transAxes, ha="right", fontsize=7)
+        # Above the axes: inside them the label sat on the tallest bars of the right-skewed QED histogram.
+        axis.text(1.0, 1.03, f"median = {median:g}", transform=axis.transAxes, ha="right", va="bottom", fontsize=7)
         axis.text(
             0.03,
             0.9,

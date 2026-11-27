@@ -41,7 +41,8 @@ A layout names each panel by a path relative to the checkout.
 | --- | --- |
 | `data/processed/...` | An ordinary pipeline output, used as it is and clipped where the layout says. |
 | `data/paper_figures/panels/<figure>/...` | A figure renderer run again with `JUMP_FIGURE_NO_CAPTION=1`, so the panel has no caption band. The caption text is still computed and written to that folder's `summary.json`. |
-| `data/paper_figures/panels/tables/...` | Tables and one bar chart drawn by `notebooks/paper-figure-tables.py` from analysis outputs. |
+| `data/paper_figures/panels/tables/...` | Tables and three plots drawn by `notebooks/paper-figure-tables.py` from analysis outputs. |
+| `data/paper_figures/panels/data-quality/...` | The cell-count analysis run again at print resolution; its numbers are those of the pipeline output. |
 | `assets/paper_figures/...` | A versioned input that no rule can regenerate, marked `origin: static` in the layout. |
 
 The panel rules in `rules/paper_figures.smk` take their inputs from the figure rules they repeat and read their outputs off the layouts.

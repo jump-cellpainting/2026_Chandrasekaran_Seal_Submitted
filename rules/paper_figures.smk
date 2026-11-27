@@ -6,8 +6,9 @@
 # below produce those sources in three ways:
 #   data/processed/...               ordinary pipeline outputs, used as they are (clipped if needed)
 #   data/paper_figures/panels/...    the figure renderers run again with JUMP_FIGURE_NO_CAPTION=1,
-#                                    so the panel carries no caption band, and the tables drawn by
-#                                    notebooks/paper-figure-tables.py
+#                                    so the panel carries no caption band, the tables and plots drawn
+#                                    by notebooks/paper-figure-tables.py, and print-resolution copies
+#                                    of analysis plots
 #   assets/paper_figures/...         versioned inputs that no rule can regenerate
 # Outputs of the panel rules are read off the layouts, so a layout cannot name a panel that no rule
 # writes without failing the dry run.
@@ -190,6 +191,25 @@ rule paper_panels_cross_source_reproducibility:
                 --pdf --dpi {PAPER_DPI}
         done 2>&1 | tee {log}
         """
+
+
+rule paper_panels_cell_density:
+    """Print-resolution copy of the cell-density plots; the analysis writes them at a screen resolution."""
+    input:
+        **rules.data_quality.input
+    output:
+        paper_panels("data-quality")
+    params:
+        dataset=DEFAULT_DATASET,
+        preprocessing=DEFAULT_PREPROCESSING,
+        filter_name=DEFAULT_FILTER,
+        activity_params=DEFAULT_ACTIVITY_PARAMS,
+    log:
+        "logs/paper_figures/panels_cell_density.log"
+    shell:
+        "pixi run python {input.script} --dataset {params.dataset} --preprocessing {params.preprocessing} "
+        "--filter {params.filter_name} --activity-params {params.activity_params} "
+        "--output {PAPER_FIGURES}/panels/data-quality --dpi {PAPER_DPI} 2>&1 | tee {log}"
 
 
 rule paper_panels_tables:

@@ -1382,7 +1382,8 @@ def plot_structural(
             else:
                 identity_axis.add_artist(
                     AnnotationBbox(
-                        OffsetImage(molecule_image(str(row.source_level), size=(270, 100)), zoom=0.25),
+                        # At zoom 0.25 a thumbnail was taller than its row and covered its neighbours.
+                        OffsetImage(molecule_image(str(row.source_level), size=(270, 100)), zoom=0.19),
                         (0.49, position),
                         frameon=False,
                     )
@@ -2365,7 +2366,7 @@ def plot_target_alignment(
         # drawing tool and is cropped off, so it never sets the width or the panel height.
         wrapped_caption = fill(
             "" if os.environ.get("JUMP_FIGURE_NO_CAPTION", "") == "1" else caption,
-            width=int((ALIGNMENT_FIGURE_WIDTH - 0.3) * 72 / (ALIGNMENT_CAPTION_POINTS * 0.645))
+            width=int((ALIGNMENT_FIGURE_WIDTH - 0.3) * 72 / (ALIGNMENT_CAPTION_POINTS * 0.645)),
         )
         caption_height = len(wrapped_caption.splitlines()) * ALIGNMENT_CAPTION_POINTS * 1.18 / 72 + 0.15
         figure = plt.figure(
@@ -3155,7 +3156,7 @@ def plot_consistency_heatmap(
             axis.set_xticks(np.arange(len(CONSISTENCY_HEATMAP_TRAIT_IDS)))
             axis.set_xticklabels(
                 [CONSISTENCY_HEATMAP_LABELS[trait_id] for trait_id in CONSISTENCY_HEATMAP_TRAIT_IDS],
-                fontsize=9,
+                fontsize=8,  # at 9 neighbouring labels ran together
             )
             axis.set_yticks(np.arange(len(source_ids)))
             axis.set_yticklabels(source_labels, fontsize=9.5)

@@ -114,7 +114,9 @@ def _plot_boxstrip(
         legend="auto" if hue else False,
     )
 
-    # Stripplot overlay
+    # Stripplot overlay. Seaborn draws the jitter from numpy's global generator, so seed it:
+    # unseeded, the points landed differently on every run.
+    np.random.seed(0)
     sns.stripplot(
         data=data,
         x=x,
@@ -318,6 +320,9 @@ def plot_map_comparison_box(
         }
     )
 
+    # A fixed floor of -0.2 cut boxes, whiskers and points that reach below it.
+    y_floor = min(-0.2, float(df_melted["nmAP"].min()) - 0.05)
+
     # Left: Overall comparison
     ax1 = axes[0]
     order = ["Within-source", "Cross-source"]
@@ -326,13 +331,16 @@ def plot_map_comparison_box(
     ax1.set_xticklabels(["Within", "Cross"])
     ax1.set_xlabel("")
     ax1.set_ylabel("Normalized mAP")
-    ax1.set_ylim(-0.2, 1.05)
-    ax1.set_title(f"Overall{title_suffix}")
+    ax1.set_ylim(y_floor, 1.05)
+    ax1.set_title(f"Overall{title_suffix}", pad=14)
 
     # Annotate with mean values
     for i, comp in enumerate(order):
         mean_val = df_melted[df_melted["comparison"] == comp]["nmAP"].mean()
-        ax1.annotate(f"μ={mean_val:.2f}", xy=(i, 1.02), ha="center", va="bottom", fontsize=9)
+        # Just above the axes and below the title, wherever the floor puts the data range.
+        ax1.annotate(
+            f"μ={mean_val:.2f}", xy=(i, 1.0), xycoords=("data", "axes fraction"), ha="center", va="bottom", fontsize=9
+        )
 
     # Right: Per-source comparison
     ax2 = axes[1]
@@ -356,10 +364,10 @@ def plot_map_comparison_box(
     ax2.set_xticklabels(labels, rotation=45, ha="right")
     ax2.set_xlabel("")
     ax2.set_ylabel("Normalized mAP")
-    ax2.set_ylim(-0.2, 1.05)
+    ax2.set_ylim(y_floor, 1.05)
     # Above the axes, right-aligned: the upper right corner inside the axes holds the last source's boxes.
     ax2.legend(loc="lower right", bbox_to_anchor=(1.0, 1.07), ncols=2, fontsize=9, title="", frameon=False)
-    ax2.set_title(f"Per-Source Comparison{title_suffix}")
+    ax2.set_title(f"Per-Source Comparison{title_suffix}", pad=14)
 
     plt.tight_layout()
     filename = "map_comparison_box"

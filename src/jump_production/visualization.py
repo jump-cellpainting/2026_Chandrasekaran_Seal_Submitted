@@ -158,6 +158,13 @@ def compute_partial_correlation(
     return {"partial_r": r, "n": len(valid)}
 
 
+def format_p_value(p: float) -> str:
+    """A p-value for a plot annotation. One too small for a float is reported as a bound, not as zero."""
+    if p == 0:
+        return "p < 1e-300"
+    return f"p < {p:.0e}" if p < 0.001 else f"p = {p:.3f}"
+
+
 def format_stat_annotation(
     spearman_r: float,
     mw_p: float,
@@ -175,7 +182,7 @@ def format_stat_annotation(
     Returns:
         Formatted annotation string
     """
-    mw_str = f"p < {mw_p:.0e}" if mw_p < 0.001 else f"p = {mw_p:.3f}"
+    mw_str = format_p_value(mw_p)
 
     if compact:
         text = f"\u03c1 = {spearman_r:.2f}\nMW {mw_str}"
@@ -440,7 +447,8 @@ def plot_scatter_with_marginals(
 
     if standalone:
         ax_histx.set_ylabel("Density")
-        ax_histx.legend(loc="upper right", fontsize=8, frameon=False)
+        # Above the marginal: inside it the legend covered the histogram's peak.
+        ax_histx.legend(loc="lower left", bbox_to_anchor=(0.0, 1.02), ncols=2, fontsize=8, frameon=False)
     else:
         ax_histx.spines["left"].set_visible(False)
         ax_histx.set_yticks([])
@@ -482,15 +490,26 @@ def plot_scatter_with_marginals(
         n=activity_stats["n"] if standalone else None,
         compact=not standalone,
     )
-    ax_main.annotate(
-        annotation,
-        xy=(0.97, 0.97),
-        xycoords="axes fraction",
-        ha="right",
-        va="top",
-        fontsize=font_size,
-        bbox=BBOX_STYLE,
-    )
+    if standalone:
+        # One line above the legend: a box inside the axes covered scatter points.
+        ax_histx.annotate(
+            annotation.replace("\n", "; "),
+            xy=(0.0, 1.3),
+            xycoords="axes fraction",
+            ha="left",
+            va="bottom",
+            fontsize=font_size - 1,
+        )
+    else:
+        ax_main.annotate(
+            annotation,
+            xy=(0.97, 0.97),
+            xycoords="axes fraction",
+            ha="right",
+            va="top",
+            fontsize=font_size,
+            bbox=BBOX_STYLE,
+        )
 
     # Standalone mode: add title and save
     if standalone:

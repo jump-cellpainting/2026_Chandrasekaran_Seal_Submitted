@@ -1,4 +1,4 @@
-"""Tables and one bar chart that paper figures show beside pipeline plots, drawn from pipeline outputs.
+"""Tables and three plots that paper figures show beside pipeline plots, drawn from pipeline outputs.
 
 Each panel restates values that an analysis already wrote under `data/processed/`; nothing is
 computed here beyond the percentages, means and standard deviations that the tables print. No
@@ -13,6 +13,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.ticker
 import pandas as pd
 import typer
 
@@ -23,6 +24,8 @@ CAPTIONS = {
     "cp_dl_consistency_table": "Share of annotation groups that are consistent with CP and with DL profiles, by annotation source.",
     "batch_mixing_ilisi": "Normalized iLISI batch mixing for the CellProfiler and CP-CNN profile sets without Source 7.",
     "cosine_vs_abs_cosine_table": "Consistency with cosine against absolute-cosine similarity, for disease-area and target groups.",
+    "polypharmacology_trio_categories": "Number of dual-target trios in each polypharmacology category.",
+    "polypharmacology_scenarios": "Similarity of the dual-target compound to the blend of its single-target counterparts against the similarity of the two single-target compounds, one point per target pair, coloured by category; the dashed line is the similarity threshold of 0.3.",
     "polypharmacology_top_delta_table": "The five dual-target trios with the largest gain of the blend over the better single-target compound.",
     "toxicity_classification_table": "Toxicity classification from morphology against a label-shuffled baseline; mean and sample standard deviation over splits.",
     "pk_regression_table": "Pharmacokinetic regression from morphology against a baseline; mean and sample standard deviation over splits.",
@@ -209,6 +212,81 @@ def main(
         [1.0, 0.95, 0.95, 1.05, 0.85, 0.75, 0.75, 0.7, 0.5, 0.8],
         fontsize=7,
     )
+    # ---- polypharmacology: category bar and scenario scatter ----------------------------------
+    # Redrawn from trio_categories.csv with the categories, colours and threshold of notebook 2.41,
+    # whose combined raster overlaps its point labels and cannot be re-run without re-rolling a tie-break.
+    COLORS = {
+        "Dominant target": "#D55E00",
+        "Additive polypharmacology": "#009E73",
+        "Emergent phenotype": "#CC79A7",
+        "Convergent targets": "#0072B2",
+        "Divergent from shared": "#E69F00",
+    }
+    counts = tr["category"].value_counts().reindex(list(COLORS), fill_value=0)
+    figure, axis = plt.subplots(figsize=(3.6, 2.1))
+    axis.barh(
+        range(len(COLORS)), counts.values, color=list(COLORS.values()), edgecolor="black", linewidth=0.5, alpha=0.8
+    )
+    for j, value in enumerate(counts.values):
+        axis.text(value + 0.25, j, str(value), va="center", fontsize=7)
+    axis.set_yticks(range(len(COLORS)), list(COLORS), fontsize=7)
+    axis.invert_yaxis()
+    axis.set_xlim(0, counts.max() * 1.12)
+    axis.xaxis.set_major_locator(matplotlib.ticker.MaxNLocator(integer=True))
+    axis.set_xlabel("Number of target pairs", fontsize=8)
+    axis.tick_params(labelsize=7)
+    axis.spines[["top", "right"]].set_visible(False)
+    figure.tight_layout()
+    figure.savefig(OUT / "polypharmacology_trio_categories.pdf")
+    figure.savefig(OUT / "polypharmacology_trio_categories.png", dpi=300)
+    plt.close(figure)
+
+    figure, axis = plt.subplots(figsize=(7.0, 4.0))
+    for category, color in COLORS.items():
+        subset = tr[tr["category"] == category]
+        axis.scatter(
+            subset["sim_A_B"],
+            subset["sim_AB_blend"],
+            c=color,
+            label=f"{category} ({len(subset)})",
+            s=34,
+            alpha=0.8,
+            edgecolors="black",
+            linewidths=0.5,
+            zorder=3,
+        )
+    axis.axvline(0.3, color="gray", linestyle="--", alpha=0.5, label="sim(A, B) = 0.3")
+    axis.set_xlabel("sim(A, B): similarity of the two single-target compounds", fontsize=8)
+    axis.set_ylabel("sim(AB, blend)", fontsize=8)
+    axis.tick_params(labelsize=7)
+    axis.spines[["top", "right"]].set_visible(False)
+    axis.margins(x=0.08, y=0.1)
+    axis.legend(fontsize=7, loc="upper center", bbox_to_anchor=(0.5, -0.14), ncol=3, frameon=False)
+    figure.tight_layout()
+    # Each label goes to the first of eight positions around its point that stays inside the axes and
+    # overlaps no point and no label already placed, so the result depends only on the values and the row order of the table.
+    figure.canvas.draw()
+    points = axis.transData.transform(tr[["sim_A_B", "sim_AB_blend"]].to_numpy())
+    radius, fontsize = 5.0, 5.5
+    scale = figure.dpi / 72
+    boxes = [(x - radius, y - radius, x + radius, y + radius) for x, y in points]
+    frame = axis.get_window_extent()
+    offsets = [(1, 1), (-1, 1), (1, -1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]
+    for (x, y), name in zip(points, tr["target_pair"]):
+        width, height = 0.62 * fontsize * len(name) * scale, 1.25 * fontsize * scale
+        for dx, dy in offsets + [(1, 1)]:
+            x0 = x + dx * (radius + 1) + (dx - 1) * width / 2
+            y0 = y + dy * (radius + 1) + (dy - 1) * height / 2
+            box = (x0, y0, x0 + width, y0 + height)
+            inside = frame.x0 <= box[0] and box[2] <= frame.x1 and frame.y0 <= box[1] and box[3] <= frame.y1
+            if inside and not any(box[0] < b[2] and b[0] < box[2] and box[1] < b[3] and b[1] < box[3] for b in boxes):
+                break
+        boxes.append(box)
+        axis.text(*axis.transData.inverted().transform((x0, y0)), name, fontsize=fontsize, color="#444444", va="bottom")
+    figure.savefig(OUT / "polypharmacology_scenarios.pdf")
+    figure.savefig(OUT / "polypharmacology_scenarios.png", dpi=300)
+    plt.close(figure)
+
     VALUES["polypharmacology"] = {
         "category_counts": tr["category"].value_counts().to_dict(),
         "n_pairs": int(len(tr)),

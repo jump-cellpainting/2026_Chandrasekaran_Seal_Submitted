@@ -663,7 +663,8 @@ def _conditional_similarity(summary, statistics, caption, output_dir, dpi):
             va="top",
             fontsize=5.5,
         )
-        figure.subplots_adjust(left=0.19, right=0.98, bottom=0.15, top=0.92)
+        # right=0.98 cut the last tick label ("1.0") at the page edge.
+        figure.subplots_adjust(left=0.19, right=0.95, bottom=0.15, top=0.92)
         attach_caption(figure, caption, caption_points=5.5)
         paths = save_figure(figure, output_dir, "similarity_map", dpi * 2)
     return paths
