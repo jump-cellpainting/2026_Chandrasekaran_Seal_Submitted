@@ -222,6 +222,18 @@ build-figures:
 build-figures-dry:
     @{{SNAKEMAKE}} all_figures --cores {{CORES}} {{GPU_RESOURCES}} -n -p --scheduler greedy
 
+# Opt-in, not part of run-all or reproduce. PyMuPDF is fetched by uv and stays out of the pinned
+# environments. See docs/paper/figure_assembly.md.
+# The MitoTox download counts as up to date when its script is newer, as in `reproduce`: in a fresh
+# clone the script is newer than the downloaded input, and rerunning it would rebuild pipeline outputs.
+# Assemble the paper figures from pipeline panels into data/paper_figures/.
+paper-figures:
+    @{{SNAKEMAKE}} paper_figures --cores {{CORES}} {{GPU_RESOURCES}} --printshellcmds --scheduler greedy --consider-ancient download_mitotox=script
+
+# Preview the paper-figure assembly jobs without writing outputs.
+paper-figures-dry:
+    @{{SNAKEMAKE}} paper_figures --cores {{CORES}} {{GPU_RESOURCES}} -n -p --scheduler greedy --consider-ancient download_mitotox=script
+
 # Build one path-safe figure target directly. Rebuilds stale dependencies; never uploads.
 build-figure figure_id:
     #!/usr/bin/env bash
@@ -375,6 +387,10 @@ test *ARGS:
 # Playwright stays out of the pinned environments; JUMP_BROWSER_LIVE=1 also reads the public bucket.
 test-browser *ARGS:
     @PYTHONPATH=src uv run --no-project --with playwright --with pytest --with pyyaml --with loguru --with python-dotenv pytest tests/test_data_browser.py {{ARGS}}
+
+# Test the paper-figure assembler, which needs PyMuPDF and so is skipped by `just test`.
+test-paper-figures *ARGS:
+    @uv run --no-project --with pymupdf==2.2 --with numpy==2.4.6 --with pillow==12.3.0 --with pyyaml==6.0.3 --with typer==0.21.2 --with pytest pytest tests/test_paper_figure_assembly.py {{ARGS}}
 
 # Run snakemake linting (filters out conda/container warnings since we use pixi)
 snakelint:

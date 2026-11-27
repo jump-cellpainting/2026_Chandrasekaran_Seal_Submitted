@@ -625,9 +625,10 @@ def _conditional_similarity(summary, statistics, caption, output_dir, dpi):
             borderpad=0.1,
             labelspacing=0.25,
         )
+        # Under the legend, in the empty region above the band: at the lower right it covered the band.
         axis.text(
-            0.98,
-            0.04,
+            0.035,
+            0.77,
             (
                 f"Morphology >= {MORPH_LOW:.2f}\n"
                 f"{statistics['close_pair_morphology_similar_fraction']:.1%} at structure >= "
@@ -636,11 +637,10 @@ def _conditional_similarity(summary, statistics, caption, output_dir, dpi):
                 f"({statistics['morphology_similarity_enrichment']:.2f}x)"
             ),
             transform=axis.transAxes,
-            ha="right",
-            va="bottom",
+            ha="left",
+            va="top",
             fontsize=5.5,
             linespacing=1.15,
-            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.86, "pad": 1.5},
         )
 
         bin_width = float(summary["structure_bin_right"].iloc[0] - summary["structure_bin_left"].iloc[0])
@@ -663,7 +663,8 @@ def _conditional_similarity(summary, statistics, caption, output_dir, dpi):
             va="top",
             fontsize=5.5,
         )
-        figure.subplots_adjust(left=0.19, right=0.98, bottom=0.15, top=0.92)
+        # right=0.98 cut the last tick label ("1.0") at the page edge.
+        figure.subplots_adjust(left=0.19, right=0.95, bottom=0.15, top=0.92)
         attach_caption(figure, caption, caption_points=5.5)
         paths = save_figure(figure, output_dir, "similarity_map", dpi * 2)
     return paths
@@ -867,7 +868,8 @@ def _threshold_sensitivity(pairs, caption, output_dir, dpi):
     axis.annotate(
         f"chosen\n{chosen_count:,} cliffs",
         (MORPH_LOW, chosen_count),
-        xytext=(MORPH_LOW + 0.12, chosen_count * 4),
+        # Upper left is above every curve; the old position sat on two of them.
+        xytext=(-0.82, 2.0e4),
         fontsize=FONT_SIZES_POINTS["secondary"],
         color=MEAN_LINE_COLOR,
         arrowprops=dict(arrowstyle="->", color=MEAN_LINE_COLOR, linewidth=1.5),
@@ -875,7 +877,10 @@ def _threshold_sensitivity(pairs, caption, output_dir, dpi):
     axis.set_yscale("log")
     axis.set_xlabel("Morphology cutoff (cliff = cosine < x)")
     axis.set_ylabel("Cliff pairs (cumulative, log)")
-    axis.legend(loc="upper left", fontsize=FONT_SIZES_POINTS["dense"], frameon=False)
+    axis.set_xticks([-0.5, 0.0, 0.5, 1.0])
+    # Dedicated space above the axes: every in-axes corner is crossed by a curve or the marker.
+    # Lower right is below every curve; the upper left corner, used before, is crossed by four.
+    axis.legend(loc="lower right", fontsize=FONT_SIZES_POINTS["dense"], frameon=False, labelspacing=0.25)
     figure.tight_layout()
     attach_caption(figure, caption, caption_points=5.5)
     return save_figure(figure, output_dir, "thresholds", dpi)
@@ -1135,7 +1140,7 @@ def _activity_cliff_pairs(pairs, pair_summary, sensitivity, numbers, configurati
         )
         sensitivity_axis.text(
             0.705,
-            null_expected_pct[0] - 2.3,
+            null_expected_pct[0] - 4.6,
             f"{null_expected_pct[0]:.1f}%",
             color=RANDOM_LINE_COLOR,
             fontsize=6.0,

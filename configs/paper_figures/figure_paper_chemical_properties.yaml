@@ -1,0 +1,24 @@
+id: figure_paper_chemical_properties
+title: Chemical properties of the analyzed compounds
+width: 7.2
+justify: true
+rows:
+- - src: data/paper_figures/panels/figure_suppl_chemical_properties/supp_chemical_properties.pdf
+    width: 2.2
+    clip: [0.0, 0.075, 0.33, 0.5]
+  - src: data/paper_figures/panels/figure_suppl_chemical_properties/supp_chemical_properties.pdf
+    width: 4.6
+    clip: [0.34, 0.05, 1.0, 0.5]
+- - src: data/paper_figures/panels/figure_suppl_chemical_properties/supp_chemical_properties.pdf
+    width: 2.3
+    clip: [0.0, 0.56, 0.31, 1.0]
+  - src: data/paper_figures/panels/figure_suppl_chemical_properties/supp_chemical_properties.pdf
+    width: 1.9
+    clip: [0.4, 0.57, 0.63, 1.0]
+  - src: data/paper_figures/panels/figure_suppl_chemical_properties/supp_chemical_properties.pdf
+    width: 2.3
+    clip: [0.7, 0.59, 1.0, 0.93]
+- - src: data/processed/functional-use-classification/fuc_distribution.png
+    width: 3.45
+  - src: data/processed/functional-use-classification/dominant_class_distribution.png
+    width: 3.4

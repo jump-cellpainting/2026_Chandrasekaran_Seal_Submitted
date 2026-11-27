@@ -1,0 +1,25 @@
+id: figure_paper_batch_and_plate_effects
+title: Batch effects and plate-layout effects in relation to cell density
+width: 7.2
+justify: true
+rows:
+- - - src: data/paper_figures/panels/tables/batch_mixing_ilisi.pdf
+      width: 1.5
+      label: A
+      note: redrawn from batch_effect_summary.csv; the pipeline plot also shows the with-Source-7 pair and kBET
+    - src: data/paper_figures/panels/data-quality/cell_density_activity/cell_density_vs_map_scatter_normalized.png
+      width: 4.7
+      label: C
+      note: the analysis plot again at print resolution
+  - src: data/processed/data-quality/compound_no_source7/activity_no_target2/edge_effects/cell_count_heatmap_by_source_excl_source2.png
+    width: 0.98
+    label: B
+  - - src: data/processed/data-quality/compound_no_source7/activity_no_target2/edge_effects/cell_count_heatmap_by_source.png
+      width: 0.98
+      clip: [0.0, 0.093, 1.0, 0.186]
+      letter: false
+      note: Source 2 tile on its own colour scale
+    - src: data/processed/data-quality/compound_no_source7/activity_no_target2/edge_effects/cell_count_heatmap_by_source.png
+      width: 0.98
+      clip: [0.0, 0.95, 1.0, 1.0]
+      letter: false

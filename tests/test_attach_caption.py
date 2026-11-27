@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import pytest  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
 
-from jump_production.visualization import attach_caption  # noqa: E402
+from jump_production.visualization import attach_caption, format_p_value  # noqa: E402
 
 CAPTION = "word " * 60
 
@@ -77,3 +77,9 @@ def test_the_caption_and_the_title_land_on_opposite_edges() -> None:
         assert caption.get_text().splitlines()[0].startswith("word")
     finally:
         plt.close(figure)
+
+
+def test_a_p_value_too_small_for_a_float_is_a_bound_not_zero() -> None:
+    assert format_p_value(0.0) == "p < 1e-300"
+    assert format_p_value(3e-12) == "p < 3e-12"
+    assert format_p_value(0.04) == "p = 0.040"

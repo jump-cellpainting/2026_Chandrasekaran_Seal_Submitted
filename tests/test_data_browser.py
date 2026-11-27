@@ -794,3 +794,33 @@ def test_page_works_against_the_published_bucket(browser):
     assert not [name for name in texts(page, ".claim-analysis") if name.startswith("data/")]
     session.page.close()
     assert not session.problems
+
+
+def test_assembled_paper_figures_beside_the_datastore_are_browsable_by_folder(browser, outputs, tmp_path):
+    """`just paper-figures` output is published as a sibling of the datastore and needs no page change.
+
+    It is not a results tree: the page shows it through plain folder browsing, with the tree's
+    README, each package's legend and its images.
+    """
+    publish(outputs, tmp_path, catalog=True)
+    tree = tmp_path / "jump_production_paper_figures"
+    package = tree / "figures/figure_paper_fixture"
+    package.mkdir(parents=True)
+    (tree / "README.md").write_text("# Assembled paper figures\n\nAssembled in code from pipeline panels.\n")
+    (package / "assembled.png").write_bytes(PNG)
+    (package / "legend.md").write_text(
+        "# figure_paper_fixture: Fixture\n\n## Assembled figure (`assembled.png`)\n\nTop row, left: from a pipeline panel.\n"
+    )
+    (package / "summary.json").write_text(json.dumps({"description": "Fixture.", "numbers": {"panels": 1}, "files": []}))
+
+    session = Session(browser, Bucket(tmp_path))
+    prefix = f"{PUBLICATION}jump_production_paper_figures/"
+    page = session.open(f"?prefix={prefix}")
+    assert "Assembled in code from pipeline panels." in page.locator(".section", has_text="About this folder").inner_text()
+    page = session.open(f"?prefix={prefix}figures/figure_paper_fixture/")
+    assert "Top row, left: from a pipeline panel." in page.locator(".section", has_text="Figure legends").inner_text()
+    assert texts(page, ".image-name") == ["assembled.png"]
+    # The datastore is still the results tree the overview lists.
+    assert "Compound collection figure" in texts(session.open(), ".entry-title")
+    session.page.close()
+    assert not session.problems

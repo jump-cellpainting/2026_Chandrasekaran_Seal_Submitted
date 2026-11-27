@@ -1,0 +1,24 @@
+id: figure_paper_property_associations
+title: Chemical properties associated with activity and consistency
+width: 7.2
+justify: true
+rows:
+- - src: data/paper_figures/panels/figure_compound_activity_associations/phenotypic_consistency_heatmap.pdf
+    width: 5.6
+    title: Chemical properties impacting phenotypic consistency
+    clip: [0.0, 0.0485, 1.0, 1.0]
+- - - src: data/paper_figures/panels/figure_compound_activity_associations/structural_classes.pdf
+      width: 3.45
+      clip: [0.0, 0.0, 1.0, 0.345]
+    - src: data/paper_figures/panels/figure_compound_activity_associations/structural_classes.pdf
+      width: 3.45
+      clip: [0.0, 0.345, 1.0, 0.633]
+    - src: data/paper_figures/panels/figure_compound_activity_associations/structural_classes.pdf
+      width: 3.45
+      clip: [0.0, 0.633, 1.0, 1.0]
+  - - src: data/paper_figures/panels/figure_compound_activity_associations/functional_use.pdf
+      width: 3.4
+      clip: [0.0, 0.04, 1.0, 0.365]
+    - src: data/paper_figures/panels/figure_compound_activity_associations/functional_use.pdf
+      width: 3.4
+      clip: [0.0, 0.365, 1.0, 1.0]

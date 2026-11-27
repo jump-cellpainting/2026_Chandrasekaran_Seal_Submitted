@@ -93,6 +93,11 @@ It is built from the copairs and augmented metadata databases, and its directory
 `just catalog` adds it to `data/processed/catalog.json` as an optional entry.
 Its files are not in the baseline roster, so build it in a separate output tree when you compare a reproduction with the baseline.
 
+### Assembled paper figures
+
+`just paper-figures` assembles multi-panel paper figures from pipeline panels into `data/paper_figures/`.
+It is opt-in, writes nothing under `data/processed/`, and is described in [figure assembly](paper/figure_assembly.md).
+
 ## Code checks
 
 ```bash

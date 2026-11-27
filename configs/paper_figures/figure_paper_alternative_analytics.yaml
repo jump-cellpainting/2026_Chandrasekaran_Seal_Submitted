@@ -1,0 +1,21 @@
+id: figure_paper_alternative_analytics
+title: Alternative analysis choices for phenotypic consistency
+width: 7.2
+justify: true
+rows:
+- - src: data/processed/exploration/0.05/compound_no_source7/threshold_sweep_summary.png
+    width: 7.0
+- - src: assets/paper_figures/posted/alternative_analytics.png
+    width: 2.9
+    clip: [0.0, 0.35, 0.475, 0.602]
+    mask:
+    - [0.0, 0.34, 0.05, 0.38]
+    origin: static
+    note: 'mean versus median aggregation tables: no source in the pipeline; cropped from the posted
+      figure'
+  - src: data/paper_figures/panels/tables/cosine_vs_abs_cosine_table.pdf
+    width: 3.5
+    title: Cosine vs abs_cosine
+    letter: false
+- - src: data/processed/exploration/0.01/compound_no_source7/cosine_vs_abs_cosine_scatter.png
+    width: 7.0

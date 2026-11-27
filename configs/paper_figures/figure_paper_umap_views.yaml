@@ -1,0 +1,17 @@
+id: figure_paper_umap_views
+title: UMAP views by source, cell count and same-mechanism similarity
+width: 7.2
+justify: true
+rows:
+- - src: data/processed/figures/figure_phenotypic_consistency/activity_context.pdf
+    width: 3.4
+    clip: [0.0, 0.63, 1.0, 0.94]
+    note: clipped from the captioned figure; the clip excludes the caption
+  - src: data/processed/figures/figure_phenotypic_consistency/activity_context.pdf
+    width: 3.4
+    clip: [0.0, 0.335, 1.0, 0.6]
+    note: clipped from the captioned figure; the clip excludes the caption
+- - src: data/processed/figures/figure_phenotypic_consistency/global_moa_map.pdf
+    width: 3.6
+    clip: [0.0, 0.14, 1.0, 0.73]
+    note: clipped from the captioned figure; the clip excludes the caption

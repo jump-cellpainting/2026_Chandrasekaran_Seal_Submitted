@@ -25,6 +25,7 @@ include: "rules/batch_and_source7.smk"
 include: "rules/exploration.smk"
 include: "rules/srijit.smk"
 include: "rules/catalog.smk"  # after every analysis rule it indexes
+include: "rules/paper_figures.smk"  # opt-in; reuses the figure rules' inputs
 
 # ---------------------------------------------------------------------
 # Core target: augmented database + copairs metrics

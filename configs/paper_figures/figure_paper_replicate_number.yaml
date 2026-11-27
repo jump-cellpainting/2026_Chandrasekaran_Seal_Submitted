@@ -1,0 +1,41 @@
+id: figure_paper_replicate_number
+title: Phenotypic consistency as a function of replicate number
+width: 7.2
+justify: true
+rows:
+- - src: assets/paper_figures/replicate_number/replicate_knee_table.pdf
+    width: 5.2
+    origin: static
+    note: output of a replicate-number analysis whose code is not in this repository
+- - src: assets/paper_figures/replicate_number/within_all_repurposing.pdf
+    width: 3.4
+    origin: static
+    note: output of a replicate-number analysis whose code is not in this repository
+  - src: assets/paper_figures/replicate_number/within_focus_repurposing.pdf
+    width: 3.4
+    origin: static
+    note: output of a replicate-number analysis whose code is not in this repository
+- - src: assets/paper_figures/replicate_number/within_all_moa.pdf
+    width: 3.4
+    origin: static
+    note: output of a replicate-number analysis whose code is not in this repository
+  - src: assets/paper_figures/replicate_number/within_focus_moa.pdf
+    width: 3.4
+    origin: static
+    note: output of a replicate-number analysis whose code is not in this repository
+- - src: assets/paper_figures/replicate_number/pooled_all_repurposing.pdf
+    width: 3.4
+    origin: static
+    note: output of a replicate-number analysis whose code is not in this repository
+  - src: assets/paper_figures/replicate_number/pooled_focus_repurposing.pdf
+    width: 3.4
+    origin: static
+    note: output of a replicate-number analysis whose code is not in this repository
+- - src: assets/paper_figures/replicate_number/pooled_all_moa.pdf
+    width: 3.4
+    origin: static
+    note: output of a replicate-number analysis whose code is not in this repository
+  - src: assets/paper_figures/replicate_number/pooled_focus_moa.pdf
+    width: 3.4
+    origin: static
+    note: output of a replicate-number analysis whose code is not in this repository

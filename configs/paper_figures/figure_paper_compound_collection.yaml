@@ -1,0 +1,24 @@
+id: figure_paper_compound_collection
+title: Dataset structure, example images and chemical characterization
+width: 7.2
+justify: true
+rows:
+- - src: data/paper_figures/panels/figure_compound_collection/dataset_structure.png
+    width: 4.8
+    note: versioned schematic asset composited by 2.04a
+- - src: assets/paper_figures/posted/example_micrographs.png
+    width: 7.0
+    origin: static
+    note: micrographs are not pipeline output; cropped from the figure in the working manuscript
+- - src: data/paper_figures/panels/figure_compound_collection/chemical_space.pdf
+    width: 2.3
+    title: Lipinski rule-of-five
+    clip: [0.283, 0.09, 0.63, 0.82]
+  - src: data/paper_figures/panels/figure_compound_collection/chemical_space.pdf
+    width: 1.9
+    title: Clinical phase
+    clip: [0.0, 0.09, 0.28, 0.82]
+  - src: data/paper_figures/panels/figure_compound_collection/chemical_space.pdf
+    width: 2.5
+    title: Target/MOA annotation
+    clip: [0.63, 0.09, 1.0, 0.72]

@@ -1,0 +1,13 @@
+id: figure_paper_cross_source_reproducibility
+title: Replicate retrieval within and across sources
+width: 7.2
+rows:
+- - src: data/paper_figures/panels/cross-source-reproducibility/activity_only_target2_no_source9/within_vs_cross_scatter.pdf
+    width: 7.0
+- - src: data/paper_figures/panels/cross-source-reproducibility/activity_only_target2_no_source9/map_comparison_box.pdf
+    width: 7.0
+- - src: data/paper_figures/panels/cross-source-reproducibility/activity_poscon_only/map_comparison_box.pdf
+    width: 7.0
+- - src: data/paper_figures/panels/figure_positive_control_reproducibility/poscon_heatmap.pdf
+    width: 7.0
+    note: opt-in pipeline target, built for this figure
